@@ -10,6 +10,7 @@ import { grepCodeBase, grepCodeBaseIdentity, grepCodeBaseSchema } from "./tools/
 import { readFileById, readFileByIdIdentity, readFileByIdSchema } from "./tools/navigation/readFileById";
 import { getProjectStructure, getProjectStructureIdentity } from "./tools/navigation/getProjectStructure";
 import { codeGenTaskIdentity, codeGenTaskSchema } from "./tools/planning/codeGenTask";
+import { agentPlanner } from "./agents/planner/planner";
 
 (() => {
     if (!process.env.FRAGOLA_PATH) throw new Error("FRAGOLA_PATH undefined");
@@ -38,8 +39,22 @@ async function main() {
     toolManager.createTool(getProjectStructure, getProjectStructureIdentity);
     // Planning
     toolManager.createTool(() => {}, codeGenTaskIdentity, codeGenTaskSchema);
+    let defaultSys = systemPrompts.find(elem => elem.name == "planner")?.content;
+    if (!defaultSys)
+      throw new Error("System prompt for planner not found");
+    const prompt = "refactor this project, each functions must be in its own file with the format <function_name>.c, create also a makefile and library .h";
+    const response = await agentPlanner(openai, [{
+      role: "system",
+      content: defaultSys,
+    },
+  {
+    role: "user",
+    content: prompt
+  }]);
+  console.log(JSON.stringify(response, null, 2));
+
   
-    console.log(toolManager.getToolByFamilly("navigation"));
+    // console.log(toolManager.getToolByFamilly("navigation"));
     // console.log(allAgents);
     // console.log(systemPrompts);
 //   const completion = await openai.chat.completions.create({
@@ -52,6 +67,5 @@ async function main() {
 //     ]
 //   })
 
-//   console.log(completion.choices[0].message)
 }
 main()
