@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import {join} from "path";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -17,15 +18,18 @@ export function activate(context: vscode.ExtensionContext) {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 		// vscode.window.showInformationMessage('Hello World from fragolaAI!');
-		const panel = vscode.window.createWebviewPanel(
-			'catCoding',
-			'Cat Coding',
-			vscode.ViewColumn.One,
-			{}
-		  );
-	
-		  // And set its HTML content
-		  panel.webview.html = getWebviewContent();
+		 const panel = vscode.window.createWebviewPanel(
+        'catCoding',
+        'Cat Coding',
+        vscode.ViewColumn.One,
+        {}
+      );
+	  const htmlUriPath = join(context.extensionPath, "svelte", "dist", "index.html");
+	//   const htmlUri = webview.asWebviewUri(vscode.Uri.file(
+	// 	path.join(this.context.extensionPath, "svelte", "dist", "index.html");
+	// ));
+      // And set its HTML content
+      panel.webview.html = getWebviewContent();
 	});
 
 	context.subscriptions.push(disposable);
