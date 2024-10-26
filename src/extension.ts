@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import {join} from "path";
+import { readFileSync } from 'fs';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -22,9 +23,17 @@ export function activate(context: vscode.ExtensionContext) {
         'catCoding',
         'Cat Coding',
         vscode.ViewColumn.One,
-        {}
+        {
+			enableScripts: true,
+			localResourceRoots: [
+				vscode.Uri.joinPath(context.extensionUri, "svelte")
+			]
+		}
       );
 	  const htmlUriPath = join(context.extensionPath, "svelte", "dist", "index.html");
+	  let htmlContent = readFileSync(htmlUriPath).toString();
+	  htmlContent.replace("/__VSCODE_URL__", "/haha");
+	  console.log("!content", htmlContent.toString());
 	//   const htmlUri = webview.asWebviewUri(vscode.Uri.file(
 	// 	path.join(this.context.extensionPath, "svelte", "dist", "index.html");
 	// ));
