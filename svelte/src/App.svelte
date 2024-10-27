@@ -1,7 +1,18 @@
 <script lang="ts">
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import Counter from './lib/Counter.svelte';
+  // import { safeAcquireVsCodeApi } from './utils/vscode';
+  import { onMount } from 'svelte';
+  
+  const code = window.acquireVsCodeApi();
+  console.log(JSON.stringify(code));
+  setInterval(() => {
+    code.postMessage({
+      command: 'alert',
+      text: "test"
+    })
+  }, 2000);
 </script>
 
 <main>

@@ -67,8 +67,6 @@ export function activate(context: vscode.ExtensionContext) {
 				content = content.replace(replace.subString, `${replace.uri}`);
 			});
 
-			console.log("!toReplace: ", toReplace);
-			console.log("!content: ", content);
 			return content;
 		}
 
@@ -94,7 +92,6 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 					});
 			});
-			console.log("!files: ", files);
 		})();
 
 		panel.webview.html = htmlContent;
