@@ -1,8 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import {join} from "path";
-import { readFileSync } from 'fs';
+import { join } from "path";
+import { readFileSync, writeFile, writeFileSync } from 'fs';
+import { readdir } from 'fs/promises';
 
 const joinAsWebViewUri = (webView: vscode.Webview, extensionUri: vscode.Uri, ...paths: string[]) => {
 	return webView.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...paths));
@@ -28,52 +29,79 @@ export function activate(context: vscode.ExtensionContext) {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 		// vscode.window.showInformationMessage('Hello World from fragolaAI!');
-		 const panel = vscode.window.createWebviewPanel(
-        'catCoding',
-        'Cat Coding',
-        vscode.ViewColumn.One,
-        {
-			enableScripts: true,
-			localResourceRoots: [
-				vscode.Uri.joinPath(context.extensionUri, "svelte")
-			]
+		const panel = vscode.window.createWebviewPanel(
+			'catCoding',
+			'Cat Coding',
+			vscode.ViewColumn.One,
+			{
+				enableScripts: true,
+				localResourceRoots: [
+					vscode.Uri.joinPath(context.extensionUri, "svelte")
+				]
+			}
+		);
+		const utils = createUtils(panel, context);
+		/*
+			  Here we will load the original html and locate the urls that contain the __VSCODE_URL__ placeholder.
+		  We will replace these placeholders by the correct webViewUri path.
+		  This will alow urls to be loaded correctly by vscode
+		*/
+
+		const svelteBuildOutputLocation = ["svelte", "dist"];
+		function replacePlaceHolders(content: string): string | undefined {
+			// Locate every placeholders
+			const matchAll = [...content.matchAll(/\"\/__VSCODE_URL__/g)];
+			if (matchAll.length == 0)
+				return undefined;
+			const toReplace: { subString: string, uri: vscode.Uri }[] = [];
+
+			for (const match of matchAll) {
+				const stringStart = match.index + 1;
+				const stringEnd = content.indexOf("\"", stringStart);
+				let subString = content.substring(stringStart, stringEnd);
+				const webViewUri = utils.joinAsWebViewUri(...svelteBuildOutputLocation, ...subString.substring("/__VSCODE_URL__".length).split('\n'));
+				toReplace.push({ subString, uri: webViewUri });
+			}
+
+			toReplace.forEach(replace => {
+				content = content.replace(replace.subString, `${replace.uri}`);
+			});
+
+			console.log("!toReplace: ", toReplace);
+			console.log("!content: ", content);
+			return content;
 		}
-      );
-	  const utils = createUtils(panel, context);
-	  /*
-	  	Here we will load the original html and locate the urls that contain the __VSCODE_URL__ placeholder.
-		We will replace these placeholders by the correct webViewUri path.
-		This will alow urls to be loaded correctly by vscode
-	  */
 
-	  const svelteBuildOutputLocation = ["svelte", "dist"];
-	  // Load original html
-	  const htmlUriPath = join(context.extensionPath, "svelte", "dist", "index.html");
-	  let htmlContent = readFileSync(htmlUriPath).toString();
-	  // Locate every placeholders
-	  const matchAll = [...htmlContent.matchAll(/\"\/__VSCODE_URL__/g)];
-	  const toReplace: {subString: string, uri: vscode.Uri}[] = [];
+		// Load original html and replace string content
+		const htmlUriPath = join(context.extensionPath, "svelte", "dist", "index.html");
+		let htmlContent = readFileSync(htmlUriPath).toString();
+		htmlContent = replacePlaceHolders(htmlContent) || htmlContent;
+		// Load original JS and replace file content
+		(async () => {
+			const assetsPath = join(context.extensionPath, "svelte", "dist", "assets");
+			const files = await readdir(assetsPath, { encoding: "utf-8" }).then(files => files.filter(file => file.startsWith("index") && file.endsWith(".js")));
 
-	  for (const match of matchAll) {
-		const stringStart = match.index + 1;
-		const stringEnd = htmlContent.indexOf("\"", stringStart);
-		let subString = htmlContent.substring(stringStart, stringEnd);
-		const webViewUri = utils.joinAsWebViewUri(...svelteBuildOutputLocation, ...subString.substring("/__VSCODE_URL__".length).split('\n'));
-		toReplace.push({subString, uri: webViewUri});
-	  }
+			files.forEach(async fileName => {
+				const filePath = join(assetsPath, fileName);
+				let content = readFileSync(filePath).toString();
+				const replacedJs = replacePlaceHolders(content);
 
-	  toReplace.forEach(replace => {
-		htmlContent = htmlContent.replace(replace.subString, `${replace.uri}`);
-	  });
+				if (replacedJs)
+					writeFile(filePath, replacedJs, (err) => {
+						if (err) {
+							console.error(err.message);
+							process.exit(1);
+						}
+					});
+			});
+			console.log("!files: ", files);
+		})();
 
-	  console.log("!toReplace: ", toReplace);
-	  console.log("!content: ", htmlContent);
-
-      panel.webview.html = htmlContent;
+		panel.webview.html = htmlContent;
 	});
 
 	context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

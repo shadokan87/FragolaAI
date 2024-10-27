@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 
-// https://vite.dev/config/
+// https://vite.dev/config/join(assetsPath, fileName
 export default defineConfig({
   base: `__VSCODE_URL__`,
   plugins: [svelte()],
