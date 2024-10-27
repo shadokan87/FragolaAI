@@ -21,8 +21,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
-    "svelte-build": "npm run build --prefix ./svelte",
-    "compile": "npm run svelte-build && npm run check-types && npm run lint && node esbuild.js",
+    "svelte-compile": "npm run build --prefix ./svelte",
+    "compile": "npm run svelte-compile && npm run check-types && npm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",

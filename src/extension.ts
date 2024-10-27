@@ -4,6 +4,15 @@ import * as vscode from 'vscode';
 import {join} from "path";
 import { readFileSync } from 'fs';
 
+const joinAsWebViewUri = (webView: vscode.Webview, extensionUri: vscode.Uri, ...paths: string[]) => {
+	return webView.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...paths));
+};
+
+const createUtils = (panel: vscode.WebviewPanel, context: vscode.ExtensionContext) => {
+	return {
+		joinAsWebViewUri: (...paths: string[]) => joinAsWebViewUri(panel.webview, context.extensionUri, ...paths)
+	};
+};
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -30,33 +39,41 @@ export function activate(context: vscode.ExtensionContext) {
 			]
 		}
       );
+	  const utils = createUtils(panel, context);
+	  /*
+	  	Here we will load the original html and locate the urls that contain the __VSCODE_URL__ placeholder.
+		We will replace these placeholders by the correct webViewUri path.
+		This will alow urls to be loaded correctly by vscode
+	  */
+
+	  const svelteBuildOutputLocation = ["svelte", "dist"];
+	  // Load original html
 	  const htmlUriPath = join(context.extensionPath, "svelte", "dist", "index.html");
 	  let htmlContent = readFileSync(htmlUriPath).toString();
-	  htmlContent.replace("/__VSCODE_URL__", "/haha");
-	  console.log("!content", htmlContent.toString());
-	//   const htmlUri = webview.asWebviewUri(vscode.Uri.file(
-	// 	path.join(this.context.extensionPath, "svelte", "dist", "index.html");
-	// ));
-      // And set its HTML content
-      panel.webview.html = getWebviewContent();
+	  // Locate every placeholders
+	  const matchAll = [...htmlContent.matchAll(/\"\/__VSCODE_URL__/g)];
+	  const toReplace: {subString: string, uri: vscode.Uri}[] = [];
+
+	  for (const match of matchAll) {
+		const stringStart = match.index + 1;
+		const stringEnd = htmlContent.indexOf("\"", stringStart);
+		let subString = htmlContent.substring(stringStart, stringEnd);
+		const webViewUri = utils.joinAsWebViewUri(...svelteBuildOutputLocation, ...subString.substring("/__VSCODE_URL__".length).split('\n'));
+		toReplace.push({subString, uri: webViewUri});
+	  }
+
+	  toReplace.forEach(replace => {
+		htmlContent = htmlContent.replace(replace.subString, `${replace.uri}`);
+	  });
+
+	  console.log("!toReplace: ", toReplace);
+	  console.log("!content: ", htmlContent);
+
+      panel.webview.html = htmlContent;
 	});
 
 	context.subscriptions.push(disposable);
 }
-
-function getWebviewContent() {
-	return `<!DOCTYPE html>
-  <html lang="en">
-  <head>
-	  <meta charset="UTF-8">
-	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	  <title>Cat Coding</title>
-  </head>
-  <body>
-	  <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
-  </body>
-  </html>`;
-  }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
