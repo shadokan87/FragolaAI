@@ -5,14 +5,20 @@
   // import { safeAcquireVsCodeApi } from './utils/vscode';
   import { onMount } from 'svelte';
   
-  const code = window.acquireVsCodeApi();
-  console.log(JSON.stringify(code));
+  // console.log(window.CODE_API);
+  // const code = window.CODE_API;
+  // console.log(JSON.stringify(code));
+onMount(() => {
+  // const vscode = (window as any).acquireVsCodeApi();
   setInterval(() => {
-    code.postMessage({
-      command: 'alert',
-      text: "test"
-    })
+  console.log(JSON.stringify(window.CODE_API, null, 2));
+    // window.CODE_API.postMessage({
+    //   command: 'alert',
+    //   text: "test"
+    // })
   }, 2000);
+})
+  
 </script>
 
 <main>

@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 		const utils = createUtils(panel, context);
 		/*
-			  Here we will load the original html and locate the urls that contain the __VSCODE_URL__ placeholder.
+			Here we will load the original html and locate the urls that contain the __VSCODE_URL__ placeholder.
 		  We will replace these placeholders by the correct webViewUri path.
 		  This will alow urls to be loaded correctly by vscode
 		*/
