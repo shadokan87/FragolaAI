@@ -1,24 +1,31 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte';
+  import svelteLogo from "./assets/svelte.svg";
+  import viteLogo from "/vite.svg";
+  import Counter from "./lib/Counter.svelte";
   // import { safeAcquireVsCodeApi } from './utils/vscode';
-  import { onMount } from 'svelte';
-  
+  import { onMount } from "svelte";
+
   // console.log(window.CODE_API);
-  // const code = window.CODE_API;
-  // console.log(JSON.stringify(code));
-onMount(() => {
-  // const vscode = (window as any).acquireVsCodeApi();
-  setInterval(() => {
-  console.log(JSON.stringify(window.CODE_API, null, 2));
-    // window.CODE_API.postMessage({
-    //   command: 'alert',
-    //   text: "test"
-    // })
-  }, 2000);
-})
-  
+  onMount(() => {
+    const code = (window as any)["acquireVsCodeApi"];
+    const api = code();
+    setInterval(() => {
+      console.log(api);
+      api.postMessage({
+        command: "alert",
+        text: "🐛  on line ",
+      });
+    }, 2000);
+  });
+  // onMount(() => {
+  // setInterval(() => {
+  // console.log(JSON.stringify(window.CODE_API, null, 2));
+  // window.CODE_API.postMessage({
+  //   command: 'alert',
+  //   text: "test"
+  // })
+  //   }, 2000);
+  // })
 </script>
 
 <main>
@@ -37,12 +44,14 @@ onMount(() => {
   </div>
 
   <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
+    Check out <a
+      href="https://github.com/sveltejs/kit#readme"
+      target="_blank"
+      rel="noreferrer">SvelteKit</a
+    >, the official Svelte app framework powered by Vite!
   </p>
 
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+  <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
 </main>
 
 <style>

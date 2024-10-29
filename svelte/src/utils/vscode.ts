@@ -1,14 +1,14 @@
-declare global {
-    interface Window {
-      CODE_API: {
-        postMessage(message: postMessagePayload): void;
-        getState(): any;
-        setState(state: any): void;
-      };
-    }
-  }
+export interface extensionState {
+  value: string,
+}
+
+interface codeApi<extensionStateType> {
+  postMessage(message: postMessagePayload): void;
+  getState(): extensionStateType;
+  setState(state: extensionStateType): void;
+}
 
 export interface postMessagePayload {
-    command?: string,
-    text?: string,
+  command?: string,
+  text?: string,
 }

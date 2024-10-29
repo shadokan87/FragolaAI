@@ -39,6 +39,16 @@ export function activate(context: vscode.ExtensionContext) {
 					vscode.Uri.joinPath(context.extensionUri, "svelte")
 				]
 			}
+		);  panel.webview.onDidReceiveMessage(
+			message => {
+				switch (message.command) {
+					case 'alert':
+						vscode.window.showInformationMessage(message.text);
+						return;
+				}
+			},
+			undefined,
+			context.subscriptions
 		);
 		const utils = createUtils(panel, context);
 		/*
