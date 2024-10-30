@@ -4,19 +4,27 @@
   import Counter from "./lib/Counter.svelte";
   // import { safeAcquireVsCodeApi } from './utils/vscode';
   import { onMount } from "svelte";
+  const code = (window as any)["acquireVsCodeApi"]();
 
   // console.log(window.CODE_API);
-  onMount(() => {
-    const code = (window as any)["acquireVsCodeApi"];
-    const api = code();
-    setInterval(() => {
-      console.log(api);
-      api.postMessage({
-        command: "alert",
-        text: "🐛  on line ",
-      });
-    }, 2000);
-  });
+  // onMount(() => {
+  //   const api = code();
+  //   setInterval(() => {
+  //     console.log(api);
+  //     api.postMessage({
+  //       command: "alert",
+  //       text: "🐛  on line ",
+  //     });
+  //   }, 2000);
+  // });
+  let prompt = "";
+
+  async function handlePromptSubmit() {
+    code.postMessage({
+    command: 'alert',
+    text: prompt
+  })
+  }
   // onMount(() => {
   // setInterval(() => {
   // console.log(JSON.stringify(window.CODE_API, null, 2));
@@ -40,8 +48,9 @@
   <h1>Vite + Svelte</h1>
 
   <div class="card">
-    <Counter />
+    <input bind:value={prompt}/>
   </div>
+  <button aria-label="submit-prompt" on:click={handlePromptSubmit}>Submit</button>
 
   <p>
     Check out <a

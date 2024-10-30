@@ -1,114 +1,139 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { join } from "path";
-import { readFileSync, writeFile, writeFileSync } from 'fs';
+import { readFileSync, writeFile } from 'fs';
 import { readdir } from 'fs/promises';
 
 const joinAsWebViewUri = (webView: vscode.Webview, extensionUri: vscode.Uri, ...paths: string[]) => {
-	return webView.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...paths));
+    return webView.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...paths));
 };
 
-const createUtils = (panel: vscode.WebviewPanel, context: vscode.ExtensionContext) => {
-	return {
-		joinAsWebViewUri: (...paths: string[]) => joinAsWebViewUri(panel.webview, context.extensionUri, ...paths)
-	};
+const createUtils = (webview: vscode.Webview, extensionUri: vscode.Uri) => {
+    return {
+        joinAsWebViewUri: (...paths: string[]) => joinAsWebViewUri(webview, extensionUri, ...paths)
+    };
 };
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+
+const replacePlaceHolders = (content: string, utils: ReturnType<typeof createUtils>, svelteBuildOutputLocation: string[]): string | undefined => {
+    const matchAll = [...content.matchAll(/\"\/__VSCODE_URL__/g)];
+    if (matchAll.length === 0) return undefined;
+    
+    const toReplace: { subString: string, uri: vscode.Uri }[] = [];
+
+    for (const match of matchAll) {
+        const stringStart = match.index! + 1;
+        const stringEnd = content.indexOf("\"", stringStart);
+        let subString = content.substring(stringStart, stringEnd);
+        const webViewUri = utils.joinAsWebViewUri(
+            ...svelteBuildOutputLocation,
+            ...subString.substring("/__VSCODE_URL__".length).split('\n')
+        );
+        toReplace.push({ subString, uri: webViewUri });
+    }
+
+    return toReplace.reduce((content, replace) => 
+        content.replace(replace.subString, `${replace.uri}`), 
+        content
+    );
+};
+
+const processJsFiles = async (extensionUri: vscode.Uri, utils: ReturnType<typeof createUtils>) => {
+    const svelteBuildOutputLocation = ["svelte", "dist"];
+    const assetsPath = join(extensionUri.fsPath, "svelte", "dist", "assets");
+    
+    const files = await readdir(assetsPath, { encoding: "utf-8" })
+        .then(files => files.filter(file => file.startsWith("index") && file.endsWith(".js")));
+
+    files.forEach(async fileName => {
+        const filePath = join(assetsPath, fileName);
+        let content = readFileSync(filePath).toString();
+        const replacedJs = replacePlaceHolders(content, utils, svelteBuildOutputLocation);
+
+        if (replacedJs) {
+            writeFile(filePath, replacedJs, (err) => {
+                if (err) {
+                    console.error(err.message);
+                    process.exit(1);
+                }
+            });
+        }
+    });
+};
+
+const createWebviewContent = (extensionUri: vscode.Uri, utils: ReturnType<typeof createUtils>): string => {
+    const svelteBuildOutputLocation = ["svelte", "dist"];
+    const htmlUriPath = join(extensionUri.fsPath, "svelte", "dist", "index.html");
+    let htmlContent = readFileSync(htmlUriPath).toString();
+    return replacePlaceHolders(htmlContent, utils, svelteBuildOutputLocation) || htmlContent;
+};
+
+const resolveWebview = (
+    webviewView: vscode.WebviewView,
+    extensionUri: vscode.Uri
+) => {
+    webviewView.webview.options = {
+        enableScripts: true,
+        localResourceRoots: [
+            vscode.Uri.joinPath(extensionUri, "svelte")
+        ]
+    };
+
+    const utils = createUtils(webviewView.webview, extensionUri);
+    processJsFiles(extensionUri, utils);
+    webviewView.webview.html = createWebviewContent(extensionUri, utils);
+};
+
+// Track the visibility state of the chat view
+let isChatViewVisible = false;
+
+const toggleChatView = async () => {
+    if (isChatViewVisible) {
+        // Hide the view
+        await vscode.commands.executeCommand('workbench.action.closeSidebar');
+        isChatViewVisible = false;
+    } else {
+        // Show the view
+        await vscode.commands.executeCommand('workbench.view.extension.fragola-ai-view');
+        isChatViewVisible = true;
+    }
+};
+
 export function activate(context: vscode.ExtensionContext) {
+    console.log('Congratulations, your extension "fragola-ai" is now active!');
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "fragola-ai" is now active!');
+    // Register the webview provider
+    const provider: vscode.WebviewViewProvider = {
+        resolveWebviewView(
+            webviewView: vscode.WebviewView,
+            _context: vscode.WebviewViewResolveContext,
+            _token: vscode.CancellationToken,
+        ) {
+            resolveWebview(webviewView, context.extensionUri);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('fragola-ai.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		// vscode.window.showInformationMessage('Hello World from fragolaAI!');
-		const panel = vscode.window.createWebviewPanel(
-			'catCoding',
-			'Cat Coding',
-			vscode.ViewColumn.One,
-			{
-				enableScripts: true,
-				localResourceRoots: [
-					vscode.Uri.joinPath(context.extensionUri, "svelte")
-				]
-			}
-		);  panel.webview.onDidReceiveMessage(
-			message => {
-				switch (message.command) {
-					case 'alert':
-						vscode.window.showInformationMessage(message.text);
-						return;
-				}
-			},
-			undefined,
-			context.subscriptions
-		);
-		const utils = createUtils(panel, context);
-		/*
-			Here we will load the original html and locate the urls that contain the __VSCODE_URL__ placeholder.
-		  We will replace these placeholders by the correct webViewUri path.
-		  This will alow urls to be loaded correctly by vscode
-		*/
+            webviewView.webview.onDidReceiveMessage(message => {
+                switch (message.command) {
+                    case 'alert':
+                        vscode.window.showInformationMessage(message.text);
+                        return;
+                }
+            });
 
-		const svelteBuildOutputLocation = ["svelte", "dist"];
-		function replacePlaceHolders(content: string): string | undefined {
-			// Locate every placeholders
-			const matchAll = [...content.matchAll(/\"\/__VSCODE_URL__/g)];
-			if (matchAll.length == 0)
-				return undefined;
-			const toReplace: { subString: string, uri: vscode.Uri }[] = [];
+            // Update visibility state when the view becomes visible
+            webviewView.onDidChangeVisibility(() => {
+                isChatViewVisible = webviewView.visible;
+            });
+        }
+    };
 
-			for (const match of matchAll) {
-				const stringStart = match.index + 1;
-				const stringEnd = content.indexOf("\"", stringStart);
-				let subString = content.substring(stringStart, stringEnd);
-				const webViewUri = utils.joinAsWebViewUri(...svelteBuildOutputLocation, ...subString.substring("/__VSCODE_URL__".length).split('\n'));
-				toReplace.push({ subString, uri: webViewUri });
-			}
+    // Register sidebar view
+    const sidebarView = vscode.window.registerWebviewViewProvider(
+        'fragola-ai-sidebar',
+        provider
+    );
+    context.subscriptions.push(sidebarView);
 
-			toReplace.forEach(replace => {
-				content = content.replace(replace.subString, `${replace.uri}`);
-			});
-
-			return content;
-		}
-
-		// Load original html and replace string content
-		const htmlUriPath = join(context.extensionPath, "svelte", "dist", "index.html");
-		let htmlContent = readFileSync(htmlUriPath).toString();
-		htmlContent = replacePlaceHolders(htmlContent) || htmlContent;
-		// Load original JS and replace file content
-		(async () => {
-			const assetsPath = join(context.extensionPath, "svelte", "dist", "assets");
-			const files = await readdir(assetsPath, { encoding: "utf-8" }).then(files => files.filter(file => file.startsWith("index") && file.endsWith(".js")));
-
-			files.forEach(async fileName => {
-				const filePath = join(assetsPath, fileName);
-				let content = readFileSync(filePath).toString();
-				const replacedJs = replacePlaceHolders(content);
-
-				if (replacedJs)
-					writeFile(filePath, replacedJs, (err) => {
-						if (err) {
-							console.error(err.message);
-							process.exit(1);
-						}
-					});
-			});
-		})();
-
-		panel.webview.html = htmlContent;
-	});
-
-	context.subscriptions.push(disposable);
+    // Register command for keyboard shortcut with toggle functionality
+    const openChatCommand = vscode.commands.registerCommand('fragola-ai.openChat', toggleChatView);
+    context.subscriptions.push(openChatCommand);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {}

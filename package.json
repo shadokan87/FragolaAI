@@ -12,10 +12,38 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "fragola-ai-view",
+          "title": "Fragola AI",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "fragola-ai-view": [
+        {
+          "type": "webview",
+          "id": "fragola-ai-sidebar",
+          "name": "Fragola AI Chat",
+          "initialSize": 400,
+          "minSize": 250,
+          "maxSize": 800
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "fragola-ai.helloWorld",
-        "title": "Hello World"
+        "command": "fragola-ai.openChat",
+        "title": "Open Fragola AI Chat"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "fragola-ai.openChat",
+        "key": "ctrl+l",
+        "mac": "cmd+l"
       }
     ]
   },
