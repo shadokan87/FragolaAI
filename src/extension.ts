@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { join } from "path";
 import { readFileSync, writeFile } from 'fs';
 import { readdir } from 'fs/promises';
+import { handleChatRequest } from './handlers/chatRequest';
 
 const joinAsWebViewUri = (webView: vscode.Webview, extensionUri: vscode.Uri, ...paths: string[]) => {
     return webView.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...paths));
@@ -109,11 +110,14 @@ export function activate(context: vscode.ExtensionContext) {
         ) {
             resolveWebview(webviewView, context.extensionUri);
 
-            webviewView.webview.onDidReceiveMessage(message => {
+            webviewView.webview.onDidReceiveMessage(async message => {
                 switch (message.command) {
                     case 'alert':
                         vscode.window.showInformationMessage(message.text);
                         return;
+                    case 'chat':
+                        await handleChatRequest(webviewView.webview, message.prompt);
+                        return ;
                 }
             });
 
@@ -129,6 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
         'fragola-ai-sidebar',
         provider
     );
+
     context.subscriptions.push(sidebarView);
 
     // Register command for keyboard shortcut with toggle functionality

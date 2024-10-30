@@ -26,7 +26,8 @@ const esbuildProblemMatcherPlugin = {
 async function main() {
 	const ctx = await esbuild.context({
 		entryPoints: [
-			'src/extension.ts'
+			'src/extension.ts',
+			'src/workers/chat/chat.worker.ts',
 		],
 		bundle: true,
 		format: 'cjs',
@@ -34,7 +35,8 @@ async function main() {
 		sourcemap: !production,
 		sourcesContent: false,
 		platform: 'node',
-		outfile: 'dist/extension.js',
+		outdir: 'dist',
+		outbase: 'src', // to maintain the folder structure
 		external: ['vscode'],
 		logLevel: 'silent',
 		plugins: [
