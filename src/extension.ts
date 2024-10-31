@@ -111,12 +111,14 @@ export function activate(context: vscode.ExtensionContext) {
             resolveWebview(webviewView, context.extensionUri);
 
             webviewView.webview.onDidReceiveMessage(async message => {
-                switch (message.command) {
+                switch (message.type) {
                     case 'alert':
                         vscode.window.showInformationMessage(message.text);
                         return;
-                    case 'chat':
-                        await handleChatRequest(webviewView.webview, message.prompt);
+                    case 'chatRequest':
+                        console.log("#br1", message.data);
+                        // vscode.window.showInformationMessage(message.data.prompt);
+                        await handleChatRequest(context, webviewView.webview, message.data.prompt);
                         return ;
                 }
             });

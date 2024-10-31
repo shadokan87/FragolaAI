@@ -1,6 +1,7 @@
 <script lang="ts">
   import svelteLogo from "./assets/svelte.svg";
   import viteLogo from "/vite.svg";
+  import { type ChatWorkerPayload } from "../../src/workers/chat/chat.worker";
   import Counter from "./lib/Counter.svelte";
   // import { safeAcquireVsCodeApi } from './utils/vscode';
   import { onMount } from "svelte";
@@ -20,10 +21,13 @@
   let prompt = "";
 
   async function handlePromptSubmit() {
-    code.postMessage({
-    command: 'alert',
-    text: prompt
-  })
+    const payload: ChatWorkerPayload = {
+      type: "chatRequest",
+      data: {
+        prompt,
+      },
+    };
+    code.postMessage(payload);
   }
   // onMount(() => {
   // setInterval(() => {
@@ -48,9 +52,11 @@
   <h1>Vite + Svelte</h1>
 
   <div class="card">
-    <input bind:value={prompt}/>
+    <input bind:value={prompt} />
   </div>
-  <button aria-label="submit-prompt" on:click={handlePromptSubmit}>Submit</button>
+  <button aria-label="submit-prompt" on:click={handlePromptSubmit}
+    >Submit</button
+  >
 
   <p>
     Check out <a

@@ -1,28 +1,33 @@
 /// <reference lib="webworker" />
 
-export type ChatWorkerData = {
+export type ChatWorkerPayload = {
     type: "chatRequest",
     data: {
         prompt: string
     }
 }
 
-onmessage = async (event: MessageEvent) => {
+addEventListener('message', async (event) => {
+    console.log("#br3");
     const message = event.data;
 
     // Process the message
     console.log("Worker received:", message);
-
-    const {type, data}: ChatWorkerData = event.data;
+    const { type, data }: ChatWorkerPayload = event.data;
     switch (type) {
         case 'chatRequest': {
-
+            postMessage({
+                type: "Chunck", data: {
+                    role: "assistant",
+                    content: data.prompt
+                }
+            })
+            break;
         }
         default: {
-            postMessage({type: "Error", code: 500, message: `type: ${type} not handled`});
+            postMessage({ type: "Error", code: 500, message: `type: ${type} not handled` });
+            break;
         }
-    }
+    };
+});
 
-    // Example: Send a message back to the main thread
-    postMessage("Worker processed the message.");
-};
