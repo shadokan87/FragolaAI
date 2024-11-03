@@ -1,4 +1,4 @@
-/// <reference lib="webworker" />
+import { parentPort, workerData } from 'worker_threads';
 
 export type ChatWorkerPayload = {
     type: "chatRequest",
@@ -7,25 +7,28 @@ export type ChatWorkerPayload = {
     }
 }
 
-addEventListener('message', async (event) => {
+if (!parentPort) {
+    throw new Error('This file must be run as a worker');
+}
+
+parentPort.on('message', (message: ChatWorkerPayload) => {
     console.log("#br3");
-    const message = event.data;
 
     // Process the message
     console.log("Worker received:", message);
-    const { type, data }: ChatWorkerPayload = event.data;
+    const { type, data }: ChatWorkerPayload = message;
     switch (type) {
         case 'chatRequest': {
-            postMessage({
+            parentPort?.postMessage({
                 type: "Chunck", data: {
                     role: "assistant",
                     content: data.prompt
                 }
-            })
+            });
             break;
         }
         default: {
-            postMessage({ type: "Error", code: 500, message: `type: ${type} not handled` });
+            parentPort?.postMessage({ type: "Error", code: 500, message: `type: ${type} not handled` });
             break;
         }
     };

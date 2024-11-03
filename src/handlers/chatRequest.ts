@@ -1,40 +1,46 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { Worker } from 'worker_threads';
 import { ChatWorkerPayload } from '../workers/chat/chat.worker';
-import axios from 'axios';
-import { readFileSync } from 'fs';
-// import { Worker } from 'worker_threads';
-
+import { createUtils } from '../extension';
 
 export async function handleChatRequest(
     context: vscode.ExtensionContext,
     webview: vscode.Webview,
     prompt: string
 ) {
-    const workerPath = path.join(context.extensionPath, 'dist', 'workers', 'chat', 'chat.worker.js');
+    const utils = createUtils(webview, context.extensionUri);
+    const workerPath = utils.join('dist', 'workers', 'chat', 'chat.worker.js');
+    
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(workerPath.fsPath, {
+            workerData: { prompt }
+        });
 
-    // Read the worker file content
-    const workerContent = readFileSync(workerPath, 'utf-8');
+        worker.on('message', (result) => {
+            console.log("!Parent here ok: ", result);
+            webview.postMessage(result);
+            worker.terminate();
+            resolve(result);
+        });
 
-    // Create a blob URL
-    const blob = new Blob([workerContent], { type: 'application/javascript' });
-    const blobUrl = URL.createObjectURL(blob);
-    const worker = new Worker(blobUrl);
-    // Create the worker using worker_threads
-    if (worker) {
-        const payload: ChatWorkerPayload = {
-            type: "chatRequest",
-            data: {
-                prompt
+        worker.on('error', (error) => {
+            webview.postMessage({ type: 'error', error: error.message });
+            worker.terminate();
+            reject(error);
+        });
+
+        worker.on('exit', (code) => {
+            if (code !== 0) {
+                reject(new Error(`Worker stopped with exit code ${code}`));
             }
+        });
+
+        const payload: ChatWorkerPayload = {
+            type: 'chatRequest',
+            data: { prompt }
         };
-        console.log("#br2");
+
         worker.postMessage(payload);
-        // worker.onmessage(event => {
-        //     vscode.window.showInformationMessage(`received ${JSON.stringify(event)}`);
-        //     // webview.postMessage(payload);
-        // });
-    }
-    else
-        console.error("Worker undefined");
+    });
 }

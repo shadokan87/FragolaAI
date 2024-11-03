@@ -8,9 +8,14 @@ const joinAsWebViewUri = (webView: vscode.Webview, extensionUri: vscode.Uri, ...
     return webView.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...paths));
 };
 
-const createUtils = (webview: vscode.Webview, extensionUri: vscode.Uri) => {
+const _join = (webView: vscode.Webview, extensionUri: vscode.Uri, ...paths: string[]) => {
+    return vscode.Uri.joinPath(extensionUri, ...paths);
+};
+
+export const createUtils = (webview: vscode.Webview, extensionUri: vscode.Uri) => {
     return {
-        joinAsWebViewUri: (...paths: string[]) => joinAsWebViewUri(webview, extensionUri, ...paths)
+        joinAsWebViewUri: (...paths: string[]) => joinAsWebViewUri(webview, extensionUri, ...paths),
+        join: (...paths: string[]) => _join(webview, extensionUri, ...paths)
     };
 };
 
