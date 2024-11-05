@@ -3,6 +3,8 @@ import { join } from "path";
 import { readFileSync, writeFile } from 'fs';
 import { readdir } from 'fs/promises';
 import { handleChatRequest } from './handlers/chatRequest';
+require('dotenv').config();
+console.log(process.env);
 
 const joinAsWebViewUri = (webView: vscode.Webview, extensionUri: vscode.Uri, ...paths: string[]) => {
     return webView.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...paths));

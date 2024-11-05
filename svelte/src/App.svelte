@@ -2,11 +2,26 @@
   import svelteLogo from "./assets/svelte.svg";
   import viteLogo from "/vite.svg";
   import { type ChatWorkerPayload } from "../../src/workers/chat/chat.worker";
+  import OpenAI from "openai";
   import Counter from "./lib/Counter.svelte";
   // import { safeAcquireVsCodeApi } from './utils/vscode';
   import { onMount } from "svelte";
   const code = (window as any)["acquireVsCodeApi"]();
-
+  let result = $state("");
+  onMount(() => {
+    window.addEventListener('message', event => {
+      const chunck: OpenAI.Chat.Completions.ChatCompletionChunk = event.data;
+      console.log("RECEIVED: ", event);
+    //   const message = event.data;
+      
+    //   // Handle the message from the extension
+    //   if (message.type === 'chatRequest') {
+    //     response = message.data;
+    //   } else if (message.type === 'error') {
+    //     console.error('Error from extension:', message.error);
+    //   }
+    });
+  });
   // console.log(window.CODE_API);
   // onMount(() => {
   //   const api = code();

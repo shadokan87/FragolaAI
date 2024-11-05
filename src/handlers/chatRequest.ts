@@ -11,7 +11,7 @@ export async function handleChatRequest(
 ) {
     const utils = createUtils(webview, context.extensionUri);
     const workerPath = utils.join('dist', 'workers', 'chat', 'chat.worker.js');
-    
+
     return new Promise((resolve, reject) => {
         const worker = new Worker(workerPath.fsPath, {
             workerData: { prompt }
@@ -19,9 +19,12 @@ export async function handleChatRequest(
 
         worker.on('message', (result) => {
             console.log("!Parent here ok: ", result);
+            if (result['data'] == '__END__') {
+                worker.terminate();
+                resolve(result);
+                return ;
+            }
             webview.postMessage(result);
-            worker.terminate();
-            resolve(result);
         });
 
         worker.on('error', (error) => {

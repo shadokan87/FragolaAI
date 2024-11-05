@@ -17,5 +17,8 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "openai": "^4.71.0"
+  }
 }
