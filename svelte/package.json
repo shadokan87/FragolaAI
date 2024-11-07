@@ -19,6 +19,7 @@
   },
   "type": "module",
   "dependencies": {
-    "openai": "^4.71.0"
+    "openai": "^4.71.0",
+    "uuid": "^11.0.2"
   }
 }

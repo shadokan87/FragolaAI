@@ -3,6 +3,7 @@ import { join } from "path";
 import { readFileSync, writeFile } from 'fs';
 import { readdir } from 'fs/promises';
 import { handleChatRequest } from './handlers/chatRequest';
+import { ChatWorkerPayload } from './workers/chat/chat.worker';
 require('dotenv').config();
 console.log(process.env);
 
@@ -125,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
                     case 'chatRequest':
                         console.log("#br1", message.data);
                         // vscode.window.showInformationMessage(message.data.prompt);
-                        await handleChatRequest(context, webviewView.webview, message.data.prompt);
+                        await handleChatRequest(context, webviewView.webview, message as ChatWorkerPayload);
                         return ;
                 }
             });

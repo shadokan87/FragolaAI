@@ -1,12 +1,13 @@
 import { parentPort, workerData } from 'worker_threads';
 import OpenAI from 'openai';
+import { basePayload } from '../types';
 
 export type ChatWorkerPayload = {
     type: "chatRequest",
     data: {
         prompt: string
     }
-}
+} & basePayload;
 
 if (!parentPort) {
     throw new Error('This file must be run as a worker');
@@ -22,7 +23,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
 
     // Process the message
     console.log("Worker received:", message);
-    const { type, data }: ChatWorkerPayload = message;
+    const { type, data, id }: ChatWorkerPayload = message;
     switch (type) {
         case 'chatRequest': {
             const stream = await openai.chat.completions.create({
@@ -32,12 +33,13 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
             });
             for await (const chunk of stream) {
                 parentPort?.postMessage({
-                    type: "Chunck", data: chunk
+                    type: "Chunck", data: chunk, id
                 });
             }
             parentPort?.postMessage({
-                type: "Chunck", data: "__END__"
+                type: "Chunck", data: "__END__", id
             });
+            parentPort?.close();
             break;
 
         }

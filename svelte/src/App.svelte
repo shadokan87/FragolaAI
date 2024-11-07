@@ -6,6 +6,7 @@
   import Counter from "./lib/Counter.svelte";
   // import { safeAcquireVsCodeApi } from './utils/vscode';
   import { onMount } from "svelte";
+    import { v4 } from "uuid";
   const code = (window as any)["acquireVsCodeApi"]();
   let result = $state("");
   onMount(() => {
@@ -33,11 +34,12 @@
   //     });
   //   }, 2000);
   // });
-  let prompt = "";
+  let prompt = $state("");
 
   async function handlePromptSubmit() {
     const payload: ChatWorkerPayload = {
       type: "chatRequest",
+      id: v4(),
       data: {
         prompt,
       },
@@ -69,7 +71,7 @@
   <div class="card">
     <input bind:value={prompt} />
   </div>
-  <button aria-label="submit-prompt" on:click={handlePromptSubmit}
+  <button aria-label="submit-prompt" onclick={handlePromptSubmit}
     >Submit</button
   >
 
