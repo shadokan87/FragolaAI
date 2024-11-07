@@ -8,7 +8,7 @@
   import { onMount } from "svelte";
     import { v4 } from "uuid";
   const code = (window as any)["acquireVsCodeApi"]();
-  let result = $state("");
+  let result = $state("tedfjdslklljlj");
   onMount(() => {
     window.addEventListener('message', event => {
       const chunck: OpenAI.Chat.Completions.ChatCompletionChunk = event.data;

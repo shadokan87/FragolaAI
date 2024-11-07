@@ -1,49 +1,38 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import type { Plugin } from 'vite'
+import { spawn } from 'child_process';
 
-const VIRTUAL_MODULE_ID = 'virtual:vscode-api'
-const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
-
-const vscodePlugin = (): Plugin => {
+function buildExtensionPlugin() {
   return {
-    name: 'vscode-api-injector',
-    enforce: 'pre',
-    
-    resolveId(id) {
-      if (id === VIRTUAL_MODULE_ID) {
-        return RESOLVED_VIRTUAL_MODULE_ID
-      }
-    },
+    name: 'build-extension',
+    closeBundle: async () => {
+      console.log('Building VS Code extension...');
+      try {
+        // Adjust this command based on your extension's build script
+        const process = spawn('npm', ['run', 'compile_no_svelte'], { 
+          stdio: 'inherit',
+          shell: true,
+          cwd: '../'
+        });
 
-    load(id) {
-      if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-        return `
-          try {
-            if (typeof acquireVsCodeApi === 'function') {
-              window['CODE_API'] = {...acquireVsCodeApi()};
-              window.CODE_API.postMessage({
-                command: 'alert',
-                text: "test"
-              });
-              console.log('VS Code API initialized globally as CODE_API');
+        await new Promise((resolve, reject) => {
+          process.on('exit', (code) => {
+            if (code === 0) {
+              console.log('VS Code extension build success ✔️');
+              resolve(code);
+            } else {
+              reject(new Error(`Extension build failed with code ${code}`));
             }
-          } catch (e) {
-            console.warn('Failed to initialize VS Code API:', e);
-            // Provide a mock API for development environment
-            window.CODE_API = {
-              postMessage: (msg) => console.log('Mock postMessage:', msg),
-              getState: () => ({}),
-              setState: (state) => console.log('Mock setState:', state)
-            };
-          }
-        `
+          });
+        });
+      } catch (error) {
+        console.error('Failed to build extension:', error);
       }
     }
-  }
+  };
 }
 
 export default defineConfig({
   base: `__VSCODE_URL__`,
-  plugins: [svelte()],
+  plugins: [svelte(), buildExtensionPlugin()],
 })
