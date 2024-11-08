@@ -3,37 +3,17 @@
   import viteLogo from "/vite.svg";
   import { type ChatWorkerPayload } from "../../src/workers/chat/chat.worker";
   import OpenAI from "openai";
-  import Counter from "./lib/Counter.svelte";
-  // import { safeAcquireVsCodeApi } from './utils/vscode';
   import { onMount } from "svelte";
-    import { v4 } from "uuid";
+  import { v4 } from "uuid";
+
   const code = (window as any)["acquireVsCodeApi"]();
-  let result = $state("tedfjdslklljlj");
+  let result = $state("tedfjdslkvvlljlj");
   onMount(() => {
     window.addEventListener('message', event => {
       const chunck: OpenAI.Chat.Completions.ChatCompletionChunk = event.data;
       console.log("RECEIVED: ", event);
-    //   const message = event.data;
-      
-    //   // Handle the message from the extension
-    //   if (message.type === 'chatRequest') {
-    //     response = message.data;
-    //   } else if (message.type === 'error') {
-    //     console.error('Error from extension:', message.error);
-    //   }
     });
   });
-  // console.log(window.CODE_API);
-  // onMount(() => {
-  //   const api = code();
-  //   setInterval(() => {
-  //     console.log(api);
-  //     api.postMessage({
-  //       command: "alert",
-  //       text: "🐛  on line ",
-  //     });
-  //   }, 2000);
-  // });
   let prompt = $state("");
 
   async function handlePromptSubmit() {
@@ -46,15 +26,6 @@
     };
     code.postMessage(payload);
   }
-  // onMount(() => {
-  // setInterval(() => {
-  // console.log(JSON.stringify(window.CODE_API, null, 2));
-  // window.CODE_API.postMessage({
-  //   command: 'alert',
-  //   text: "test"
-  // })
-  //   }, 2000);
-  // })
 </script>
 
 <main>
