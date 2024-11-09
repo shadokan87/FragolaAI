@@ -1,76 +1,32 @@
 <script lang="ts">
-  import svelteLogo from "./assets/svelte.svg";
-  import viteLogo from "/vite.svg";
-  import { type ChatWorkerPayload } from "../../src/workers/chat/chat.worker";
-  import OpenAI from "openai";
+  import { Router, Link, Route } from "svelte-routing";
+  import Chat from "./routes/Chat.svelte";
   import { onMount } from "svelte";
-  import { v4 } from "uuid";
+  import { navigate } from "svelte-routing";
+  import EventListener from "./lib/EventListener.svelte";
 
-  const code = (window as any)["acquireVsCodeApi"]();
-  let result = $state("tedfjdslkvvlljlj");
   onMount(() => {
-    window.addEventListener('message', event => {
-      const chunck: OpenAI.Chat.Completions.ChatCompletionChunk = event.data;
-      console.log("RECEIVED: ", event);
-    });
+      navigate("/chat", { replace: true });
   });
-  let prompt = $state("");
-
-  async function handlePromptSubmit() {
-    const payload: ChatWorkerPayload = {
-      type: "chatRequest",
-      id: v4(),
-      data: {
-        prompt,
-      },
-    };
-    code.postMessage(payload);
-  }
 </script>
 
-<main>
-  <div>
-    <a href="https://vite.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
+<EventListener />
+<Router>
+  <div class="grid grid-rows-[auto_1fr] min-h-screen">
+    <nav class="bg-gray-50 border-b border-gray-200">
+        <div class="w-full mx-auto px-4 py-3">
+            <div class="grid grid-cols-[auto_1fr] gap-8 items-center">
+                <div class="logo">
+                    <Link class="text-gray-800 hover:text-gray-600" to="/">Your App Name</Link>
+                </div>
+                <div class="grid auto-cols-max grid-flow-col gap-4 justify-end">
+                    <Link class="text-gray-800 hover:text-gray-600" to="/chat">Chat</Link>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="w-full mx-auto p-4">
+        <Route path="/chat" component={Chat} />
+    </main>
   </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <input bind:value={prompt} />
-  </div>
-  <button aria-label="submit-prompt" onclick={handlePromptSubmit}
-    >Submit</button
-  >
-
-  <p>
-    Check out <a
-      href="https://github.com/sveltejs/kit#readme"
-      target="_blank"
-      rel="noreferrer">SvelteKit</a
-    >, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
-</main>
-
-<style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
-  }
-</style>
+</Router>

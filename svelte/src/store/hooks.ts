@@ -58,6 +58,7 @@ export function writableHook<T>({
     set(undefined as any);
   };
 
+  // I create an object just to return it because I might add something later.
   const methods = {
     subscribe,
     set: customSet,
