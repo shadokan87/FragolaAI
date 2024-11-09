@@ -1,4 +1,5 @@
 const esbuild = require("esbuild");
+const chokidar = require("chokidar"); // Import chokidar
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -16,7 +17,7 @@ const esbuildProblemMatcherPlugin = {
 		build.onEnd((result) => {
 			result.errors.forEach(({ text, location }) => {
 				console.error(`✘ [ERROR] ${text}`);
-				console.error(`    ${location.file}:${location.line}:${location.column}:`);
+				console.error(`${location.file}:${location.line}:${location.column}:`);
 			});
 			console.log('[watch] build finished');
 		});
@@ -42,10 +43,30 @@ async function main() {
 		plugins: [
 			/* add to the end of plugins array */
 			esbuildProblemMatcherPlugin,
-		],
+		]
 	});
 	if (watch) {
 		await ctx.watch();
+
+		// Initialize chokidar watcher for svelte/dist
+		const watcher = chokidar.watch('svelte/dist', {
+			ignored: /(^|[\/\\])\../, // ignore dotfiles
+			persistent: true
+		});
+
+		watcher.on('change', (path) => {
+			console.log(`[watch] Detected change in svelte/dist: ${path}`);
+			// Trigger a rebuild or any other necessary action
+			ctx.rebuild().then(() => {
+				console.log('[watch] Rebuild triggered due to svelte/dist change');
+			}).catch((e) => {
+				console.error('[watch] Rebuild failed:', e);
+			});
+		});
+
+		watcher.on('error', (error) => {
+			console.error('[watch] Watcher error:', error);
+		});
 	} else {
 		await ctx.rebuild();
 		await ctx.dispose();

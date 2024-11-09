@@ -1,12 +1,26 @@
 <script lang="ts">
-    import "../app.css";
+    import "../app.scss";
+    //aaaaaaaaaaaaaaaaaaaadasdasdasdsadfsadsadsfasdasdfsdfsfdssadsad
 </script>
 
-<div class="grid grid-rows-[2fr_auto] min-h-screen">
-    <div>
-    <h1 class="text-red-500">{"Chat content"}</h1>
+<main class="chat-grid">
+    <h1>{"Haha"}</h1>
+    <div class="chat-messages-area">
+
     </div>
     <div>
-        <input/>
+
     </div>
-</div>
+    <!-- <div>
+    </div>
+    <div>
+        <input />
+    </div> -->
+</main>
+
+<style lang="scss">
+    .chat-grid {
+        display: grid;
+        grid-template-rows: auto 2fr;
+    }
+</style>

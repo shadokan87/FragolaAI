@@ -1,0 +1,20 @@
+
+/* :root {
+  background-color: #242424;
+}
+
+* {
+
+  padding: 0;
+  margin: 0;
+} */
+
+  $color: yellow;////
+  
+  h1 {
+    color: $color;
+    
+    &:hover {
+      color: darken($color, 10%);
+    }
+  }

@@ -12,7 +12,8 @@
 
 <EventListener />
 <Router>
-  <div class="grid grid-rows-[auto_1fr] min-h-screen">
+    <Route path="/chat" component={Chat} />
+  <!-- <div class="grid grid-rows-[auto_1fr] min-h-screen">
     <nav class="bg-gray-50 border-b border-gray-200">
         <div class="w-full mx-auto px-4 py-3">
             <div class="grid grid-cols-[auto_1fr] gap-8 items-center">
@@ -28,5 +29,5 @@
     <main class="w-full mx-auto p-4">
         <Route path="/chat" component={Chat} />
     </main>
-  </div>
+  </div> -->
 </Router>
