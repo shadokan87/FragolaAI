@@ -18,11 +18,11 @@
 <style lang="scss">
     .chat-grid {
         display: grid;
-        grid-template-rows: 1fr auto; // Changed from auto 2fr
-        height: 100vh; // Changed from 100%
+        grid-template-rows: 1fr auto;
+        height: 100vh;
     }
     .chat-messages {
-        overflow-y: auto; // Added for scrolling
+        overflow-y: auto;
         background-color: --vscode-editor-background;
     }
 </style>

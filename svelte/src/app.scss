@@ -47,10 +47,10 @@ $spacing: (
 .m-12 { margin: map.get($spacing, 12); }
 .m-16 { margin: map.get($spacing, 16); }
 
-* {
-  padding: 0;
-  margin: 0;
-}
+// * {
+//   padding: 0;
+//   margin: 0;
+// }
 
   $color: yellow;////
   

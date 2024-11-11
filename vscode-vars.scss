@@ -1,4 +1,4 @@
-    --vscode-font-family: system-ui, "Ubuntu", "Droid Sans", sans-serif;
+    :ignore {--vscode-font-family: system-ui, "Ubuntu", "Droid Sans", sans-serif;
     --vscode-font-weight: normal;
     --vscode-font-size: 13px;
     --vscode-editor-font-family: 'Droid Sans Mono', 'monospace', monospace;
@@ -728,3 +728,4 @@
     --vscode-gitDecoration-stageDeletedResourceForeground: #c74e39;
     --vscode-gitDecoration-conflictingResourceForeground: #e4676b;
     --vscode-gitDecoration-submoduleResourceForeground: #8db9e2;
+    }
