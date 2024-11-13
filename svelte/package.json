@@ -23,6 +23,7 @@
   },
   "type": "module",
   "dependencies": {
+    "lucide-svelte": "^0.456.0",
     "openai": "^4.71.0",
     "svelte-routing": "^2.13.0",
     "uuid": "^11.0.2"

@@ -1,37 +1,45 @@
-<script lang="ts">
+<script lang="ts" generics="T">
     import { RiFileImageFill } from "svelte-remixicon";
     import Flex from "./Flex.svelte";
     import Typography from "./Typography.svelte";
     import type { SvelteComponent } from "svelte";
+    import { classNames as cn } from "../utils/style";
 
     import { createDropdownMenu, melt } from "@melt-ui/svelte";
     const {
         elements: { menu, item, trigger, arrow },
         states: { open },
-        options
     } = createDropdownMenu({
         positioning: {
             placement: "top"
         },
         closeOnOutsideClick: true
     });
+
     type dropdownOption = {
         text: string
     }
 
-    interface props {
+    interface props<T = {}> {
         kind: "flex"
         icon: typeof SvelteComponent<any>,
+        iconProps?: T,
         text: string,
-        dropdown?: dropdownOption[]
+        dropdown?: dropdownOption[],
+        variant?: "fill" | "outline"
     }
-    let {kind, ...rest}: props =  $props();
-    $inspect("open:", open);
+    let {kind, variant = "fill", iconProps = {}, ...rest}: props =  $props();
+
+    const iconClass = $derived(cn({
+        "base-icon": true,
+        "fill": variant === "fill",
+        "outline": variant === "outline"
+    }));
 </script>
 
 {#snippet buttonFlexContent()}
 <Flex row gap={"var(--spacing-1)"}>
-    <rest.icon class="base-icon" />
+    <rest.icon class={iconClass} {...iconProps}/>
     <Typography class="adjusted-line-height">
         {rest.text}
     </Typography>
@@ -80,12 +88,19 @@
         border: none;
         cursor: pointer;
         width: fit-content;
-        height: 1.2rem;
+        height: 1.4rem;
         border-radius: var(--spacing-1);
         color: var(--vscode-foreground);
     }
     :global(.base-icon) {
-        fill: white;
+        &.fill {
+            fill: var(--vscode-foreground);
+            stroke: none;
+        }
+        &.outline {
+            fill: none;
+            stroke: var(--vscode-foreground);
+        }
     }
     .dropdown-container {
         position: relative;

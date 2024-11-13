@@ -14,6 +14,10 @@
   .typography {
     margin: 0;
     padding: 0;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .typography.body {

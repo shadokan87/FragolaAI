@@ -49,4 +49,3 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
         }
     };
 });
-
