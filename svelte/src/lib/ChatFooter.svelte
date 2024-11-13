@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { interpretStyle } from "../utils/style";
     import { classNames as cn, type ClassNamesObject } from "../utils/style";
     import Divider from "./Divider.svelte";
     import Flex from "./Flex.svelte";
@@ -17,7 +16,15 @@
 <Flex _class={"chat-footer-wrapper"}>
     <Divider />
     <Flex gap={"sp-2"}>
-        <Button kind="flex" icon={RiFileImageFill} text={"Attach image"}/>
+        <Flex row gap={"sp-2"}>
+            <Button kind="flex" icon={RiFileImageFill} text={"Attach image"} />
+            <Button
+                kind="flex"
+                icon={RiFileImageFill}
+                text={"Using gpt4-o"}
+                dropdown={[{ text: "gpt4-o" }, { text: "claude 3.5" }]}
+            />
+        </Flex>
         <div class={cn(chatInputWrapper)}>
             <input
                 class="base-input"

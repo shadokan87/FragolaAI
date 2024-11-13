@@ -3,24 +3,71 @@
     import Flex from "./Flex.svelte";
     import Typography from "./Typography.svelte";
     import type { SvelteComponent } from "svelte";
+
+    import { createDropdownMenu, melt } from "@melt-ui/svelte";
+    const {
+        elements: { menu, item, trigger, arrow },
+        states: { open },
+        options
+    } = createDropdownMenu({
+        positioning: {
+            placement: "top"
+        },
+        closeOnOutsideClick: true
+    });
+    type dropdownOption = {
+        text: string
+    }
+
     interface props {
         kind: "flex"
         icon: typeof SvelteComponent<any>,
-        text: string
+        text: string,
+        dropdown?: dropdownOption[]
     }
     let {kind, ...rest}: props =  $props();
+    $inspect("open:", open);
 </script>
 
+{#snippet buttonFlexContent()}
+<Flex row gap={"var(--spacing-1)"}>
+    <rest.icon class="base-icon" />
+    <Typography class="adjusted-line-height">
+        {rest.text}
+    </Typography>
+</Flex>
+{/snippet}
+
+{#if rest.dropdown == undefined}
 <button class={"btn"}>
     {#if kind == "flex"}
-        <Flex row gap={"var(--spacing-1)"}>
-            <rest.icon class="base-icon" />
-            <Typography class="adjusted-line-height">
-                {rest.text}
-            </Typography>
-        </Flex>
+        {@render buttonFlexContent()}
     {/if}
 </button>
+{:else}
+<div class="dropdown-container">
+    <button use:melt={$trigger} class={"btn"}>
+        {#if kind == "flex"}
+            {@render buttonFlexContent()}
+        {/if}
+    </button>
+    
+    {#if $open}
+        <div use:melt={$menu} class="dropdown-menu">
+            {#each rest.dropdown as option}
+                <button 
+                    use:melt={$item} 
+                    class="dropdown-item"
+                >
+                    <Typography>
+                        {option.text}
+                    </Typography>
+                </button>
+            {/each}
+        </div>
+    {/if}
+</div>
+{/if}
 
 <style lang="scss">
     :global(.adjusted-line-height) {
@@ -30,16 +77,36 @@
         padding: var(--spacing-1);
         background-color: var(--vscode-input-background);
         outline: var(--outline-size) solid var(--vscode-input-border);
-        border: none; /* Disable button bevel */
+        border: none;
         cursor: pointer;
-        width: fit-content; /* Make width fit content */
+        width: fit-content;
         height: 1.2rem;
         border-radius: var(--spacing-1);
         color: var(--vscode-foreground);
-        // text-align: center;
-        // line-height: 1.2rem; /* Center text vertically */
     }
     :global(.base-icon) {
-        fill: white; /* Change the SVG icon color to white */
+        fill: white;
+    }
+    .dropdown-container {
+        position: relative;
+    }
+    .dropdown-menu {
+        margin-bottom: var(--spacing-2);
+        background-color: var(--vscode-input-background);
+        border-radius: var(--spacing-1);
+        padding: var(--spacing-1);
+        outline: var(--outline-size) solid var(--vscode-input-border);
+    }
+    .dropdown-item {
+        all: unset;
+        padding: var(--spacing-1);
+        cursor: pointer;
+        width: 100%;
+        border-radius: calc(var(--spacing-1) - 1px);
+        display: block;
+        box-sizing: border-box;
+        &:hover {
+            background-color: var(--vscode-list-hoverBackground);
+        }
     }
 </style>
