@@ -13,15 +13,42 @@
         "synthetic-focus": inputFocus,
     });
     const lucidBotProps: IconProps = {
-        size: 16
-    }
+        size: 16,
+    };
 </script>
 
 <Flex _class={"chat-footer-wrapper"}>
     <!-- Vertical flex with input and util bars -->
     <Flex gap={"sp-2"}>
-        <Divider margin={"0"}/>
-        <Flex justifyBetween row _class={"aux-bar"}>
+        <Divider margin={"0"} />
+        <div class={"focused-files-grid"}>
+            <Typography>{"Focused files"}</Typography>
+            <!-- TODO: scrollbar ugly asf -->
+            <div 
+            class={"focused-files-container"}
+            onwheel={(e) => {
+                e.preventDefault();
+                const container = e.currentTarget;
+                const scrollAmount = e.deltaY;
+                container.scrollLeft += scrollAmount;
+            }} 
+        >
+            <Flex row gap={"sp-2"}>
+                {#each Array.from({ length: 5 }, (_, i) => `Attach image ${i + 1}`) as text}
+                    <Button kind="flex" icon={RiFileImageFill} {text} />
+                {/each}
+            </Flex>
+        </div> 
+
+            <Flex row gap={"sp-2"}>
+                <Typography
+                    ><span class="keyboard-key">
+                        {"@"}
+                    </span>{": Focus a file"}</Typography
+                >
+            </Flex>
+        </div>
+        <!-- <Flex justifyBetween row _class={"aux-bar"}>
             <Flex row gap={"sp-2"}>
                 <Typography>{"Focused files"}</Typography>
                 <Button
@@ -30,14 +57,14 @@
                     text={"Attach image"}
                 />
             </Flex>
-            <!-- Shortcut tips on the right -->
+            <!-- Shortcut tips on the right
             <Typography
                 ><span class="keyboard-key">
                     {"@"}
                 </span>{": Focus a file"}</Typography
             >
-        </Flex>
-        <Divider margin={"0"}/>
+        </Flex> -->
+        <Divider margin={"0"} />
         <!-- Horizontal flex util bar with buttons like
          'attach image', model picker etc on the left and shortcut tips on the right -->
         <Flex justifyBetween row _class={"aux-bar"}>
@@ -99,5 +126,35 @@
         all: unset;
         background-color: inherit;
         color: var(--vscode-input-foreground);
+    }
+    .focused-files-grid {
+        display: grid;
+        grid-template-columns: 1fr 8fr 1fr;
+    }
+    .focused-files-container {
+        // overflow-y: hidden;
+        overflow-x: auto;
+        padding: var(--spacing-1);
+
+        &::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--vscode-scrollbarSlider-background);
+            border-radius: 4px;
+
+            &:hover {
+                background: var(--vscode-scrollbarSlider-hoverBackground);
+            }
+
+            &:active {
+                background: var(--vscode-scrollbarSlider-activeBackground);
+            }
+        }
     }
 </style>

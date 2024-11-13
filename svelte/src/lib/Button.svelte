@@ -91,6 +91,7 @@
         height: 1.4rem;
         border-radius: var(--spacing-1);
         color: var(--vscode-foreground);
+        white-space: nowrap;
     }
     :global(.base-icon) {
         &.fill {
