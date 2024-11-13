@@ -35,7 +35,11 @@
                 />
             </Flex>
             <!-- Shortcut tips on the right -->
-             <Typography>{"alt + enter: ignore focused files"}</Typography>
+            <Typography
+                >{"alt + "}<span class="keyboard-key">
+                    {"↵"}
+                </span>{": ignore focused files"}</Typography
+            >
         </Flex>
         <div class={cn(chatInputWrapper)}>
             <input
@@ -49,6 +53,7 @@
 </Flex>
 
 <style lang="scss">
+ 
     :global(.aux-bar) {
         width: 100%;
     }

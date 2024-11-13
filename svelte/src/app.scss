@@ -56,12 +56,11 @@ $spacing: (
 //   margin: 0;
 // }
 
-  $color: yellow;////
-  
-  h1 {
-    color: $color;
-    
-    &:hover {
-      color: darken($color, 10%);
+   .keyboard-key {
+        padding: 0.1rem 0.4rem;
+        background-color: var(--vscode-button-secondaryBackground);
+        color: var(--vscode-button-secondaryForeground);
+        border-radius: var(--spacing-1);
+        font-family: var(--vscode-editor-font-family);
+        font-size: 0.9em;
     }
-  }
