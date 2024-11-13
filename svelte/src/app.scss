@@ -21,6 +21,10 @@ $spacing: (
   }
 }
 
+:root {
+  --outline-size: 2px;
+}
+
 // Padding utilities
 .p-0 { padding: map.get($spacing, 0); }
 .p-1 { padding: map.get($spacing, 1); }

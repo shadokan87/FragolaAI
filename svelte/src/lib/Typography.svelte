@@ -2,9 +2,11 @@
   export let variant: "body" | "code" | "heading" = "body"; // body, code, heading
   export let size: "small" | "normal" | "large" = "normal"; // small, normal, large
   export let children: any | undefined;
+  export let _class = "";
+  export {_class as class};
 </script>
 
-<span class={`typography ${variant} ${size}`}>
+<span class={`typography ${variant} ${size} ${_class}`}>
   {@render children()}
 </span>
 
