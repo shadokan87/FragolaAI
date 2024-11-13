@@ -15,15 +15,27 @@
 
 <Flex _class={"chat-footer-wrapper"}>
     <Divider />
+    <!-- Vertical flex with input and util bars -->
     <Flex gap={"sp-2"}>
-        <Flex row gap={"sp-2"}>
-            <Button kind="flex" icon={RiFileImageFill} text={"Attach image"} />
-            <Button
-                kind="flex"
-                icon={RiFileImageFill}
-                text={"Using gpt4-o"}
-                dropdown={[{ text: "gpt4-o" }, { text: "claude 3.5" }]}
-            />
+        <!-- Horizontal flex util bar with buttons like
+         'attach image', model picker etc on the left and shortcut tips on the right -->
+        <Flex justifyBetween row _class={"aux-bar"}>
+            <!-- Buttons on the left -->
+            <Flex row gap={"sp-2"}>
+                <Button
+                    kind="flex"
+                    icon={RiFileImageFill}
+                    text={"Attach image"}
+                />
+                <Button
+                    kind="flex"
+                    icon={RiFileImageFill}
+                    text={"Using gpt4-o"}
+                    dropdown={[{ text: "gpt4-o" }, { text: "claude 3.5" }]}
+                />
+            </Flex>
+            <!-- Shortcut tips on the right -->
+             <Typography>{"alt + enter: ignore focused files"}</Typography>
         </Flex>
         <div class={cn(chatInputWrapper)}>
             <input
@@ -37,6 +49,9 @@
 </Flex>
 
 <style lang="scss">
+    :global(.aux-bar) {
+        width: 100%;
+    }
     :global(.chat-footer-wrapper) {
         margin-bottom: 1em;
     }
