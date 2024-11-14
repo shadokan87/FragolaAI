@@ -34,7 +34,7 @@
             }} 
         >
             <Flex row gap={"sp-2"}>
-                {#each Array.from({ length: 5 }, (_, i) => `Attach image ${i + 1}`) as text}
+                {#each Array.from({ length: 50 }, (_, i) => `Attach image ${i + 1}`) as text}
                     <Button kind="flex" icon={RiFileImageFill} {text} />
                 {/each}
             </Flex>
@@ -135,26 +135,7 @@
         // overflow-y: hidden;
         overflow-x: auto;
         padding: var(--spacing-1);
-
-        &::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        &::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background: var(--vscode-scrollbarSlider-background);
-            border-radius: 4px;
-
-            &:hover {
-                background: var(--vscode-scrollbarSlider-hoverBackground);
-            }
-
-            &:active {
-                background: var(--vscode-scrollbarSlider-activeBackground);
-            }
-        }
+        scrollbar-width: thin; // For Firefox
+        scrollbar-color: var(--vscode-scrollbarSlider-background) transparent; 
     }
 </style>
