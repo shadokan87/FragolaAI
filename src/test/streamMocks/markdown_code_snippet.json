@@ -1,0 +1,2324 @@
+[
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "### strlen Implementation "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "in "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "C\n\n```src/test:c\n#include <stddef.h>\n\n/**\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": " "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "* Calculates the length of "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "a null-terminated "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "string.\n * \n * @param "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "str The input string.\n "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "* @return The length of the string.\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": " */\nsize_t "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "strlen(const char* str) {\n   "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": " "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "size_t len = 0;\n   "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": " "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "while (*str++) {\n        len++;\n    }\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "    "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "return "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "len;\n}\n```\n\n### Explanation\n\n**What is strlen?**\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "======================\n\n`strlen` "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "is a function that calculates the "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "length of a null-terminated "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "string in "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "C. "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "It returns the number of characters "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "in the "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "string, not including the "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "null terminator.\n\n**How does it work?**\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "----------------------\n\n### "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "Step-by-Step Breakdown\n\n1. "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "**Initialization**: `size_t len "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "= 0;`\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "  "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "  * We initialize a "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "variable `len` "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "to keep track of "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "the string length.\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "    "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "* We use "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "`size_t` "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "to "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "avoid "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "integer overflow, "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "as it's an unsigned integer "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "type that's guaranteed to be large "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "enough to hold the size of "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "any object.\n\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "2. "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "**Looping over "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "the string**:\n    * "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "`while "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "(*str++) "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "{ ... }`\n      "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "  "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "+ This "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "loop will continue as long as "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "the current character is "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "not null (`*str "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "!= '\\0'`).\n        "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "+ "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "The `*str++` "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "expression "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "is shorthand "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "for "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "\"dereference "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "the "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "current character and increment the pointer\".\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "        "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "+ "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "By "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "doing so, "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "we "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "effectively "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "\"move\" the pointer to the next "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "character in each "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "iteration.\n\n3. **Incrementing the length**:\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "    * `len++;`\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "        + In "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "each iteration, we "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "increment `len` to keep "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "track of "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "the "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "current character "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "count.\n\n4. **Returning "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "the result**:\n    "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "* `return len;`\n        "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "+ Once the "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "loop ends "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "(i.e., when we reach the "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "null terminator), we return "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "the calculated "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "length.\n\n### Example Use Case\n\n```c\n"
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "#include "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "<stdio.h>\n\nint main() {\n   "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": " const char* str "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "= \"Hello, World!\";\n   "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": " size_t len = strlen(str);\n  "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": " "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": " printf(\"String "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "length: %zu\\n\", len);\n    "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "return "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "0;\n}\n```\n\nThis "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "example calculates the length of the "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "string `\"Hello, "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "World!\"` "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "using our `strlen` implementation "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "and prints "
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": "the result."
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": "stop",
+                "logprobs": null
+            }
+        ],
+        "system_fingerprint": "fastcoe"
+    },
+    {
+        "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+        "provider": "SambaNova",
+        "model": "meta-llama/llama-3.1-70b-instruct",
+        "object": "chat.completion.chunk",
+        "created": 1731625367,
+        "choices": [
+            {
+                "index": 0,
+                "delta": {
+                    "role": "assistant",
+                    "content": ""
+                },
+                "finish_reason": null,
+                "logprobs": null
+            }
+        ],
+        "usage": {
+            "prompt_tokens": 59,
+            "completion_tokens": 454,
+            "total_tokens": 513
+        }
+    }
+]

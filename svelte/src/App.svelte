@@ -12,5 +12,7 @@
 
 <EventListener />
 <Router>
-    <Route path="/chat" component={Chat} />
+    <Route path="/chat">
+      <Chat />
+      </Route>
 </Router>

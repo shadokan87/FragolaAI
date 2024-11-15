@@ -79,16 +79,18 @@ const resolveWebview = (
     webviewView: vscode.WebviewView,
     extensionUri: vscode.Uri
 ) => {
-    webviewView.webview.options = {
-        enableScripts: true,
-        localResourceRoots: [
-            vscode.Uri.joinPath(extensionUri, "svelte")
-        ]
-    };
+    if (!webviewView.webview.html) {
+        webviewView.webview.options = {
+            enableScripts: true,
+            localResourceRoots: [
+                vscode.Uri.joinPath(extensionUri, "svelte")
+            ]
+        };
 
-    const utils = createUtils(webviewView.webview, extensionUri);
-    processJsFiles(extensionUri, utils);
-    webviewView.webview.html = createWebviewContent(extensionUri, utils);
+        const utils = createUtils(webviewView.webview, extensionUri);
+        processJsFiles(extensionUri, utils);
+        webviewView.webview.html = createWebviewContent(extensionUri, utils);
+    }
 };
 
 // Track the visibility state of the chat view

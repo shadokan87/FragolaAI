@@ -54,7 +54,7 @@
                 }}
             >
                 <Flex row gap={"sp-2"}>
-                    {#each Array.from({ length: 50 }, (_, i) => `Attach image ${i + 1}`) as text}
+                    {#each Array.from({ length: 5 }, (_, i) => `Attach image ${i + 1}`) as text}
                         <Button kind="flex" icon={RiFileImageFill} {text} />
                     {/each}
                 </Flex>
