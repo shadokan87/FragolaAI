@@ -20,6 +20,7 @@ export async function handleChatRequest(
         worker.on('message', (result) => {
             console.log("!Parent here ok: ", result);
             if (result['data'] == '__END__') {
+                webview.postMessage(result);
                 worker.terminate();
                 resolve(result);
                 return ;

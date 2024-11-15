@@ -1,10 +1,7 @@
+import {type basePayload, type outTypeUnion} from "../../../src/workers/types";
+
 export interface codeApi<extensionStateType> {
-  postMessage(message: postMessagePayload): void;
+  postMessage<T extends basePayload<outTypeUnion>>(message: T): void;
   getState(): extensionStateType;
   setState(state: extensionStateType): void;
-}
-
-export interface postMessagePayload {
-  command?: string,
-  text?: string,
 }

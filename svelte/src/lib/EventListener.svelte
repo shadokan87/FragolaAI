@@ -2,6 +2,12 @@
     import { onMount } from "svelte";
     import { codeStore } from "../store/vscode";
     import OpenAI from "openai";
+    import type { basePayload, inTypeUnion } from "../../../src/workers/types";
+    import type { ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
+    type chunckType = OpenAI.Chat.Completions.ChatCompletionChunk;
+    let chuncks: chunckType[] = $state.raw([]);
+    type inCommingPayload = basePayload<inTypeUnion>;
+
     onMount(() => {
         if (!$codeStore) {
             const code = (window as any)["acquireVsCodeApi"]();
@@ -12,10 +18,22 @@
             }
             codeStore.set(code);
         }
-        window.addEventListener("message", (event) => {
-            const chunck: OpenAI.Chat.Completions.ChatCompletionChunk =
-                event.data;
-            console.log("RECEIVED: ", event);
+        window.addEventListener("message", (event: {data: inCommingPayload}) => {
+            switch(event.data.type) {
+                case 'chunck': {
+                    const payload = event.data as inCommingPayload & {data: chunckType | "__END__"};
+                    if (payload.data == "__END__") {
+                        console.log(chuncks);
+                        return ;
+                    }
+                    chuncks = [...chuncks, payload.data];
+                    console.log("!payload", payload);
+                    break ;
+                }
+                default: {
+                    break ;
+                }
+            }
         });
     });
 </script>

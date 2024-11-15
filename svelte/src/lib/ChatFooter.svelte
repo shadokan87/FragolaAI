@@ -6,8 +6,13 @@
     import Typography from "./Typography.svelte";
     import Button from "./Button.svelte";
     import { LucideBot, type IconProps } from "lucide-svelte";
+    import { type ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
+    import { codeStore as codeApi } from "../store/vscode";
+    import { v4 } from "uuid";
 
     let inputFocus = $state(false);
+    let prompt = $state("");
+
     const chatInputWrapper: ClassNamesObject = $derived({
         "chat-input-wrapper": true,
         "synthetic-focus": inputFocus,
@@ -15,6 +20,21 @@
     const lucidBotProps: IconProps = {
         size: 16,
     };
+    function handleSubmitPrompt(e: KeyboardEvent) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            const input = e.target as HTMLInputElement;
+            const payload: ChatWorkerPayload = {
+                type: "chatRequest",
+                id: v4(),
+                data: {
+                    prompt: input.value,
+                },
+            };
+            $codeApi?.postMessage(payload);
+            console.log("!submit", input.value);
+        }
+    }
 </script>
 
 <Flex _class={"chat-footer-wrapper"}>
@@ -24,21 +44,21 @@
         <div class={"focused-files-grid"}>
             <Typography>{"Focused files"}</Typography>
             <!-- TODO: scrollbar ugly asf -->
-            <div 
-            class={"focused-files-container"}
-            onwheel={(e) => {
-                e.preventDefault();
-                const container = e.currentTarget;
-                const scrollAmount = e.deltaY;
-                container.scrollLeft += scrollAmount;
-            }} 
-        >
-            <Flex row gap={"sp-2"}>
-                {#each Array.from({ length: 50 }, (_, i) => `Attach image ${i + 1}`) as text}
-                    <Button kind="flex" icon={RiFileImageFill} {text} />
-                {/each}
-            </Flex>
-        </div> 
+            <div
+                class={"focused-files-container"}
+                onwheel={(e) => {
+                    e.preventDefault();
+                    const container = e.currentTarget;
+                    const scrollAmount = e.deltaY;
+                    container.scrollLeft += scrollAmount;
+                }}
+            >
+                <Flex row gap={"sp-2"}>
+                    {#each Array.from({ length: 50 }, (_, i) => `Attach image ${i + 1}`) as text}
+                        <Button kind="flex" icon={RiFileImageFill} {text} />
+                    {/each}
+                </Flex>
+            </div>
 
             <Flex row gap={"sp-2"}>
                 <Typography
@@ -48,22 +68,6 @@
                 >
             </Flex>
         </div>
-        <!-- <Flex justifyBetween row _class={"aux-bar"}>
-            <Flex row gap={"sp-2"}>
-                <Typography>{"Focused files"}</Typography>
-                <Button
-                    kind="flex"
-                    icon={RiFileImageFill}
-                    text={"Attach image"}
-                />
-            </Flex>
-            <!-- Shortcut tips on the right
-            <Typography
-                ><span class="keyboard-key">
-                    {"@"}
-                </span>{": Focus a file"}</Typography
-            >
-        </Flex> -->
         <Divider margin={"0"} />
         <!-- Horizontal flex util bar with buttons like
          'attach image', model picker etc on the left and shortcut tips on the right -->
@@ -98,6 +102,8 @@
                 style:width="100%"
                 onfocus={() => (inputFocus = true)}
                 onblur={() => (inputFocus = false)}
+                onkeydown={handleSubmitPrompt}
+                bind:value={prompt}
             />
         </div>
     </Flex>
@@ -136,6 +142,6 @@
         overflow-x: auto;
         padding: var(--spacing-1);
         scrollbar-width: thin; // For Firefox
-        scrollbar-color: var(--vscode-scrollbarSlider-background) transparent; 
+        scrollbar-color: var(--vscode-scrollbarSlider-background) transparent;
     }
 </style>
