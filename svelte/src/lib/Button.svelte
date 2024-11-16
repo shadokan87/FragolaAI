@@ -22,9 +22,9 @@
 
     interface props<T = {}> {
         kind: "flex"
-        icon: typeof SvelteComponent<any>,
+        icon?: typeof SvelteComponent<any>,
         iconProps?: T,
-        text: string,
+        text?: string,
         dropdown?: dropdownOption[],
         variant?: "fill" | "outline"
     }
@@ -38,11 +38,13 @@
 </script>
 
 {#snippet buttonFlexContent()}
-<Flex row gap={"var(--spacing-1)"}>
+<Flex row gap={"var(--spacing-1)"} _class="button-content">
     <rest.icon class={iconClass} {...iconProps}/>
+    {#if rest.text}
     <Typography class="adjusted-line-height">
         {rest.text}
     </Typography>
+    {/if}
 </Flex>
 {/snippet}
 
@@ -92,6 +94,12 @@
         border-radius: var(--spacing-1);
         color: var(--vscode-foreground);
         white-space: nowrap;
+        display: flex;
+        align-items: center;
+    }
+    :global(.button-content) {
+        display: flex;
+        align-items: center;
     }
     :global(.base-icon) {
         &.fill {

@@ -1,0 +1,114 @@
+vscode-file://vscode-app/home/shadokan87/FragolaAI/resources/icon.svg:1 
+        
+        
+       GET vscode-file://vscode-app/home/shadokan87/FragolaAI/resources/icon.svg net::ERR_FILE_NOT_FOUND
+localProcessExtensionHost.ts:345 [Extension Host] STOPPED on first line for debugging on port 53707
+F @ localProcessExtensionHost.ts:345
+await in F
+E @ localProcessExtensionHost.ts:187
+start @ localProcessExtensionHost.ts:178
+LCe @ extensionHostManager.ts:117
+o @ instantiationService.ts:162
+createInstance @ instantiationService.ts:128
+vb @ abstractExtensionService.ts:794
+ub @ abstractExtensionService.ts:773
+tb @ abstractExtensionService.ts:759
+ib @ abstractExtensionService.ts:452
+(anonymous) @ nativeExtensionService.ts:139
+requestIdleCallback
+O7 @ async.ts:1369
+xm @ dom.ts:244
+(anonymous) @ nativeExtensionService.ts:138
+Promise.then
+Lot @ nativeExtensionService.ts:136
+o @ instantiationService.ts:162
+x @ instantiationService.ts:295
+w @ instantiationService.ts:284
+v @ instantiationService.ts:273
+u @ instantiationService.ts:206
+s @ instantiationService.ts:190
+get @ instantiationService.ts:102
+(anonymous) @ workbench.ts:134
+invokeFunction @ instantiationService.ts:109
+startup @ workbench.ts:129
+open @ desktop.main.ts:131
+await in open
+NPs @ desktop.main.ts:407
+(anonymous) @ workbench.ts:270
+await in (anonymous)
+(anonymous) @ workbench.ts:270
+log.ts:419  INFO Started local extension host with pid 19626.
+log.ts:419  INFO Loading development extension at /home/shadokan87/FragolaAI
+webviewElement.ts:486 An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+mountTo @ webviewElement.ts:486
+P @ overlayWebview.ts:249
+claim @ overlayWebview.ts:135
+mc @ webviewViewPane.ts:165
+(anonymous) @ webviewViewPane.ts:96
+B @ event.ts:1243
+C @ event.ts:1254
+fire @ event.ts:1278
+setVisible @ viewPane.ts:417
+(anonymous) @ viewPaneContainer.ts:691
+setVisible @ viewPaneContainer.ts:691
+setVisible @ panecomposite.ts:53
+Eb @ compositePart.ts:281
+Eb @ paneCompositePart.ts:235
+Cb @ compositePart.ts:158
+Bb @ compositePart.ts:122
+Bc @ paneCompositePart.ts:514
+openPaneComposite @ paneCompositePart.ts:494
+await in openPaneComposite
+openPaneComposite @ paneCompositePartService.ts:49
+(anonymous) @ layout.ts:1069
+await in (anonymous)
+Kb @ layout.ts:1075
+uc @ workbench.ts:407
+(anonymous) @ workbench.ts:166
+invokeFunction @ instantiationService.ts:109
+startup @ workbench.ts:129
+open @ desktop.main.ts:131
+await in open
+NPs @ desktop.main.ts:407
+(anonymous) @ workbench.ts:270
+await in (anonymous)
+(anonymous) @ workbench.ts:270
+localProcessExtensionHost.ts:275 Extension Host
+localProcessExtensionHost.ts:276 Debugger attached.
+console.ts:137 [Extension Host]% {CHROME_DESKTOP: 'code.desktop', COLORTERM: 'truecolor', DBUS_SESSION_BUS_ADDRESS: 'unix:path=/run/user/1000/bus', DESKTOP_SESSION: 'ubuntu', DISPLAY: ':0', …} (at console.<anonymous> (file:///snap/code/174/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:158:10031))
+console.ts:137 [Extension Host] Congratulations, your extension "fragola-ai" is now active! (at console.<anonymous> (file:///snap/code/174/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:158:10031))
+index-WdRqZ6a2.js:124 Uncaught NotSupportedError: Failed to execute 'define' on 'CustomElementRegistry': this constructor has already been used with this registry
+    at Xl.code (index-WdRqZ6a2.js:124:4924)
+    at r.<computed> [as code] (index-WdRqZ6a2.js:55:3603)
+    at se.parse (index-WdRqZ6a2.js:54:1902)
+    at se.parse (index-WdRqZ6a2.js:54:1260)
+    at X0.parser (index-WdRqZ6a2.js:55:4776)
+    at index-WdRqZ6a2.js:124:5108
+    at H0 (index-WdRqZ6a2.js:1:11816)
+    at a0 (index-WdRqZ6a2.js:1:7265)
+    at n0 (index-WdRqZ6a2.js:1:7315)
+    at T2 (index-WdRqZ6a2.js:1:11456)
+code @ index-WdRqZ6a2.js:124
+r.<computed> @ index-WdRqZ6a2.js:55
+parse @ index-WdRqZ6a2.js:54
+parse @ index-WdRqZ6a2.js:54
+parser @ index-WdRqZ6a2.js:55
+(anonymous) @ index-WdRqZ6a2.js:124
+H0 @ index-WdRqZ6a2.js:1
+a0 @ index-WdRqZ6a2.js:1
+n0 @ index-WdRqZ6a2.js:1
+T2 @ index-WdRqZ6a2.js:1
+x0 @ index-WdRqZ6a2.js:1
+$0 @ index-WdRqZ6a2.js:1
+yi @ index-WdRqZ6a2.js:1
+setInterval
+i @ index-WdRqZ6a2.js:124
+(anonymous) @ index-WdRqZ6a2.js:124
+Pe @ index-WdRqZ6a2.js:1
+(anonymous) @ index-WdRqZ6a2.js:1
+H0 @ index-WdRqZ6a2.js:1
+bl @ index-WdRqZ6a2.js:1
+Zi @ index-WdRqZ6a2.js:1
+$0 @ index-WdRqZ6a2.js:1
+yi @ index-WdRqZ6a2.js:1
+log.ts:419  INFO [perf] Render performance baseline is 34ms

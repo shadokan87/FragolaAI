@@ -1,5 +1,13 @@
+<svelte:options customElement={{
+    tag: "code-block",
+    props: {
+        lang: { reflect: true, type: "String" },
+        path: { reflect: true, type: "String" },
+        content: { reflect: true, type: "String" }
+    }
+}} />
 <script lang="ts">
-    import { RiFileImageFill } from "svelte-remixicon";
+    import { RiChatAiFill, RiFileAddFill, RiFileCopyFill, RiFileImageFill } from "svelte-remixicon";
     import Button from "./Button.svelte";
     import Flex from "./Flex.svelte";
     import Typography from "./Typography.svelte";
@@ -15,24 +23,25 @@
 <Flex _class={"code-block-container"}>
     <Flex row justifyBetween _class="code-block-header">
         <Typography>{lang || ""}</Typography>
-        <Flex row>
+        <Flex row gap={"sp-2"}>
             <Button
                 variant={"fill"}
                 kind="flex"
-                icon={RiFileImageFill}
-                text={"Attach image"}
+                icon={RiChatAiFill}
+                iconProps={{size: 18}}
             />
             <Button
                 variant={"fill"}
                 kind="flex"
-                icon={RiFileImageFill}
-                text={"Attach image"}
+                icon={RiFileCopyFill}
+                iconProps={{size: 18}}
             />
             <Button
                 variant={"fill"}
                 kind="flex"
-                icon={RiFileImageFill}
-                text={"Attach image"}
+                icon={RiFileAddFill}
+                iconProps={{size: 18}}
+
             />
         </Flex>
     </Flex>
