@@ -3,5 +3,5 @@ export type basePayload<T> = {
     type: T
 }
 
-export type inTypeUnion = "chunck";
-export type outTypeUnion = "chatRequest"
+export type inTypeUnion = "chunck" | "colorTheme";
+export type outTypeUnion = "chatRequest" | "online";

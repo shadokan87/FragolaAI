@@ -25,7 +25,7 @@ export const createUtils = (webview: vscode.Webview, extensionUri: vscode.Uri) =
 const replacePlaceHolders = (content: string, utils: ReturnType<typeof createUtils>, svelteBuildOutputLocation: string[]): string | undefined => {
     const matchAll = [...content.matchAll(/\"\/__VSCODE_URL__/g)];
     if (matchAll.length === 0) return undefined;
-    
+
     const toReplace: { subString: string, uri: vscode.Uri }[] = [];
 
     for (const match of matchAll) {
@@ -39,8 +39,8 @@ const replacePlaceHolders = (content: string, utils: ReturnType<typeof createUti
         toReplace.push({ subString, uri: webViewUri });
     }
 
-    return toReplace.reduce((content, replace) => 
-        content.replace(replace.subString, `${replace.uri}`), 
+    return toReplace.reduce((content, replace) =>
+        content.replace(replace.subString, `${replace.uri}`),
         content
     );
 };
@@ -48,7 +48,7 @@ const replacePlaceHolders = (content: string, utils: ReturnType<typeof createUti
 const processJsFiles = async (extensionUri: vscode.Uri, utils: ReturnType<typeof createUtils>) => {
     const svelteBuildOutputLocation = ["svelte", "dist"];
     const assetsPath = join(extensionUri.fsPath, "svelte", "dist", "assets");
-    
+
     const files = await readdir(assetsPath, { encoding: "utf-8" })
         .then(files => files.filter(file => file.startsWith("index") && file.endsWith(".js")));
 
@@ -83,13 +83,13 @@ const resolveWebview = (
         webviewView.webview.options = {
             enableScripts: true,
             localResourceRoots: [
-                vscode.Uri.joinPath(extensionUri, "svelte")
+                vscode.Uri.joinPath(extensionUri, "svelte"),
             ]
         };
 
         const utils = createUtils(webviewView.webview, extensionUri);
         processJsFiles(extensionUri, utils);
-        webviewView.webview.html = createWebviewContent(extensionUri, utils);
+        webviewView.webview.html = createWebviewContent(extensionUri, utils).replace(/__VSCODE_CSP_SOURCE__/g, webviewView.webview.cspSource);
     }
 };
 
@@ -111,6 +111,13 @@ const toggleChatView = async () => {
 export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "fragola-ai" is now active!');
 
+    //TODO:
+    // detect user colorscheme extensions, get the package json for the tokenColors field and send it to front-end, front-end will use shiki createHighlighter to highlight
+
+    // To get theme kind (light, dark etc)
+    const theme = vscode.window.activeColorTheme;
+
+    // console.log("__THEME__: ", currentThemeId);
     // Register the webview provider
     const provider: vscode.WebviewViewProvider = {
         resolveWebviewView(
@@ -120,22 +127,43 @@ export function activate(context: vscode.ExtensionContext) {
         ) {
             resolveWebview(webviewView, context.extensionUri);
 
+            // Color theme sync
+            let currentThemeId = vscode.workspace.getConfiguration('workbench').get('colorTheme') as string;
+            const sendThemeInfo = (data: string) => {
+                webviewView.webview.postMessage({
+                    type: "colorTheme",
+                    data
+                })
+            }
+            // Wait for webview to signal it's ready before sending theme info
             webviewView.webview.onDidReceiveMessage(async message => {
                 switch (message.type) {
+                    case 'webviewReady':
+                        sendThemeInfo(currentThemeId);
+                        break;
                     case 'alert':
                         vscode.window.showInformationMessage(message.text);
                         return;
                     case 'chatRequest':
                         console.log("#br1", message.data);
-                        // vscode.window.showInformationMessage(message.data.prompt);
                         await handleChatRequest(context, webviewView.webview, message as ChatWorkerPayload);
+                        return;
+                    case "online": {
+                        sendThemeInfo(currentThemeId);
                         return ;
+                    }
                 }
             });
 
             // Update visibility state when the view becomes visible
             webviewView.onDidChangeVisibility(() => {
                 isChatViewVisible = webviewView.visible;
+            });
+
+            // Listen for theme changes
+            vscode.window.onDidChangeActiveColorTheme(e => {
+                currentThemeId = vscode.workspace.getConfiguration('workbench').get('colorTheme') as string;
+                sendThemeInfo(currentThemeId);
             });
         }
     };
@@ -153,4 +181,4 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(openChatCommand);
 }
 
-export function deactivate() {}
+export function deactivate() { }

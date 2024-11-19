@@ -5,24 +5,31 @@
   import { navigate } from "svelte-routing";
   import EventListener from "./lib/EventListener.svelte";
   import CodeBlock from "./lib/CodeBlock.svelte";
+  import { createHighlighter } from "shiki";
+  import { highlighterStore } from "./store/chat";
 
   function registerCustomElements() {
     if (!customElements.get("code-block")) {
       if (!CodeBlock.element) {
         //TODO: handle error
         console.error("CodeBlock element undefinde");
-        return ;
+        return;
       }
       customElements.define("code-block", CodeBlock.element);
     }
   }
 
-  function main() {
+  async function main() {
     registerCustomElements();
+    const highlighter = await createHighlighter({
+      themes: [],
+      langs: [],
+    });
+    highlighterStore.set(highlighter)
   }
 
-  onMount(() => {
-    main();
+  onMount(async () => {
+    await main();
     navigate("/chat", { replace: true });
   });
 </script>

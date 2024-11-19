@@ -1,4 +1,35 @@
 <script lang="ts">
+
+    // // Ignore this function for now
+    // function assignIdToCodeBlock(token: Token, id: string = v4()) {
+    //     (token as any)["id"] = id;
+    // }
+    
+    // // Ignore this function for now
+    // function assignUuidToCodeBlocks(newTokens: TokensList) {
+    //     let lastNewToken = newTokens[newTokens.length - 1];
+    //     if (lastNewToken && lastNewToken.type == "code") {
+    //         const isSameCodeBlock = newTokens.length == tokens.length;
+
+    //         if (isSameCodeBlock) {
+    //             const id: string = (tokens.at(-1) as any)["id"];
+    //             assignIdToCodeBlock(lastNewToken, id);
+    //         } else {
+    //             assignIdToCodeBlock(lastNewToken);
+    //         }
+    //     }
+    //     tokens = newTokens.map((token, index) => {
+    //         const lastTokenFromState = tokens.at(-1);
+    //         if (
+    //             lastTokenFromState &&
+    //             lastTokenFromState.type == "code" &&
+    //             !(token as any)["id"] &&
+    //             (lastTokenFromState as any)["id"]
+    //         )
+    //             assignIdToCodeBlock(token, (lastTokenFromState as any)["id"]);
+    //         return token;
+    //     }) as TokensList;
+    // }
     import {
         Lexer,
         Marked,
@@ -14,6 +45,7 @@
     import type { chunckType } from "../types";
     import markdown_code_snippet from "../../../src/test/streamMocks/markdown_code_snippet.json";
     import CodeBlock from "../lib/CodeBlock.svelte";
+    import {codeStore as codeApi, colorTheme} from "../store/vscode";
 
     import { v4 } from "uuid";
 
@@ -32,36 +64,6 @@
     let markdown = $state("");
     let tokens: TokensList | [] = $state.raw([]);
     let html = $derived(markedInstance.parser(tokens));
-
-    function assignIdToCodeBlock(token: Token, id: string = v4()) {
-        (token as any)["id"] = id;
-    }
-    
-    // Ignore this function for now
-    function assignUuidToCodeBlocks(newTokens: TokensList) {
-        let lastNewToken = newTokens[newTokens.length - 1];
-        if (lastNewToken && lastNewToken.type == "code") {
-            const isSameCodeBlock = newTokens.length == tokens.length;
-
-            if (isSameCodeBlock) {
-                const id: string = (tokens.at(-1) as any)["id"];
-                assignIdToCodeBlock(lastNewToken, id);
-            } else {
-                assignIdToCodeBlock(lastNewToken);
-            }
-        }
-        tokens = newTokens.map((token, index) => {
-            const lastTokenFromState = tokens.at(-1);
-            if (
-                lastTokenFromState &&
-                lastTokenFromState.type == "code" &&
-                !(token as any)["id"] &&
-                (lastTokenFromState as any)["id"]
-            )
-                assignIdToCodeBlock(token, (lastTokenFromState as any)["id"]);
-            return token;
-        }) as TokensList;
-    }
 
     function setupMockStreaming() {
         let index = 0;
