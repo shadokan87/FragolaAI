@@ -6,7 +6,7 @@
   import EventListener from "./lib/EventListener.svelte";
   import CodeBlock from "./lib/CodeBlock.svelte";
   import { createHighlighter } from "shiki";
-  import { highlighterStore } from "./store/chat";
+  import { highlighterStore } from "./store/chat.svelte";
 
   function registerCustomElements() {
     if (!customElements.get("code-block")) {

@@ -26,7 +26,7 @@
             const input = e.target as HTMLInputElement;
             const payload: ChatWorkerPayload = {
                 type: "chatRequest",
-                id: v4(),
+                // id: v4(),
                 data: {
                     prompt: input.value,
                 },

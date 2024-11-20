@@ -1,3 +1,4 @@
+import type { basePayload, inTypeUnion, outTypeUnion } from "../../../src/workers/types";
 import type { codeApi } from "../utils/vscode";
 import { writableHook } from "./hooks";
 
@@ -10,7 +11,7 @@ export const codeStore = writableHook<codeApi<extensionState> | undefined>({
   onSet(codeApi) {
     if (codeApi) {
       // Notify backend we are online so we can start receiving initial values such as color theme;
-      codeApi.postMessage({id: "0", type: "online"});
+      codeApi.postMessage({type: "online"});
     } else {
       //TODO: handle error here
     }

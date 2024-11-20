@@ -4,6 +4,7 @@ import { readFileSync, writeFile } from 'fs';
 import { readdir } from 'fs/promises';
 import { handleChatRequest } from './handlers/chatRequest';
 import { ChatWorkerPayload } from './workers/chat/chat.worker';
+
 require('dotenv').config();
 console.log(process.env);
 
@@ -108,9 +109,9 @@ const toggleChatView = async () => {
     }
 };
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "fragola-ai" is now active!');
-
+    const { codeToHtml, bundledThemesInfo } = await import('shiki');
     //TODO:
     // detect user colorscheme extensions, get the package json for the tokenColors field and send it to front-end, front-end will use shiki createHighlighter to highlight
 
@@ -135,6 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
                     data
                 })
             }
+
             // Wait for webview to signal it's ready before sending theme info
             webviewView.webview.onDidReceiveMessage(async message => {
                 switch (message.type) {
@@ -143,14 +145,30 @@ export function activate(context: vscode.ExtensionContext) {
                         break;
                     case 'alert':
                         vscode.window.showInformationMessage(message.text);
-                        return;
+                        break;
                     case 'chatRequest':
                         console.log("#br1", message.data);
                         await handleChatRequest(context, webviewView.webview, message as ChatWorkerPayload);
-                        return;
+                        break;
+                    case "syntaxHighlight": {
+                        const shikiInfo = bundledThemesInfo.find(
+                            (theme) => theme.displayName == currentThemeId,
+                        );
+                        const html = shikiInfo ? await codeToHtml(message.data, {
+                            theme: shikiInfo.id,
+                            lang: "c"
+                        }) : message.data;
+
+                        webviewView.webview.postMessage({
+                            type: "shikiHtml",
+                            id: message.id,
+                            data: html
+                        })
+                        break;
+                    }
                     case "online": {
                         sendThemeInfo(currentThemeId);
-                        return ;
+                        return;
                     }
                 }
             });

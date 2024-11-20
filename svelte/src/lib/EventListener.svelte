@@ -5,10 +5,14 @@
     import type { basePayload, inTypeUnion } from "../../../src/workers/types";
     import type { ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi, colorTheme } from "../store/vscode";
+    import { RequestManager } from "../utils/makeRequest.svelte";
+    import { codeBlockHighlight, highlighterStore } from "../store/chat.svelte";
+    // import {specific} from "../store/chat.svelte";
+
     type chunckType = OpenAI.Chat.Completions.ChatCompletionChunk;
     let chuncks: chunckType[] = $state.raw([]);
     type inCommingPayload = basePayload<inTypeUnion>;
-
+    const request = new RequestManager();
     onMount(() => {
         if (!$codeStore) {
             const code = (window as any)["acquireVsCodeApi"]();
@@ -19,28 +23,43 @@
             }
             codeStore.set(code);
         }
-        window.addEventListener("message", (event: {data: inCommingPayload}) => {
-            switch(event.data.type) {
-                case "chunck": {
-                    const payload = event.data as inCommingPayload & {data: chunckType | "__END__"};
-                    if (payload.data == "__END__") {
-                        console.log(chuncks);
-                        return ;
+        window.addEventListener(
+            "message",
+            (event: { data: inCommingPayload }) => {
+                switch (event.data.type) {
+                    case "chunck": {
+                        const payload = event.data as inCommingPayload & {
+                            data: chunckType | "__END__";
+                        };
+                        if (payload.data == "__END__") {
+                            console.log(chuncks);
+                            return;
+                        }
+                        chuncks = [...chuncks, payload.data];
+                        console.log("!payload", payload);
+                        break;
                     }
-                    chuncks = [...chuncks, payload.data];
-                    console.log("!payload", payload);
-                    break ;
+                    case "shikiHtml": {
+                        const payload = event.data as inCommingPayload & {
+                            data: string;
+                        };
+                        if (payload.id) 
+                            codeBlockHighlight().set(payload.id, payload.data);
+                        break ;
+                    }
+                    case "colorTheme": {
+                        const payload = event.data as inCommingPayload & {
+                            data: string;
+                        };
+                        console.log("++RECEIVED THEME: ", event);
+                        colorTheme.set(payload.data);
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
                 }
-                case "colorTheme": {
-                    const payload = event.data as inCommingPayload & {data: string};
-                    console.log("++RECEIVED THEME: ", event);
-                    colorTheme.set(payload.data);
-                    break ;
-                }
-                default: {
-                    break ;
-                }
-            }
-        });
+            },
+        );
     });
 </script>
