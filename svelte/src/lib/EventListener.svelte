@@ -5,14 +5,12 @@
     import type { basePayload, inTypeUnion } from "../../../src/workers/types";
     import type { ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi, colorTheme } from "../store/vscode";
-    import { RequestManager } from "../utils/makeRequest.svelte";
     import { codeBlockHighlight, highlighterStore } from "../store/chat.svelte";
     // import {specific} from "../store/chat.svelte";
 
     type chunckType = OpenAI.Chat.Completions.ChatCompletionChunk;
     let chuncks: chunckType[] = $state.raw([]);
     type inCommingPayload = basePayload<inTypeUnion>;
-    const request = new RequestManager();
     onMount(() => {
         if (!$codeStore) {
             const code = (window as any)["acquireVsCodeApi"]();

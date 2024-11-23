@@ -38,7 +38,20 @@ async function main() {
 		platform: 'node',
 		outdir: 'dist',
 		outbase: 'src', // to maintain the folder structure
-		external: ['vscode'],
+		external: [
+			'vscode',
+			'sqlite3',
+			'mariasql',
+			'mssql',
+			'mysql',
+			'mysql2',
+			'tedious',
+			'oracle',
+			'strong-oracle',
+			'oracledb',
+			'pg',
+			'pg-query-stream'
+		],
 		logLevel: 'silent',
 		plugins: [
 			/* add to the end of plugins array */

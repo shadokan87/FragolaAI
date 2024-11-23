@@ -55,10 +55,8 @@
 
     import { v4 } from "uuid";
     import type { basePayload, outTypeUnion } from "../../../src/workers/types";
-    import { RequestManager } from "../utils/makeRequest.svelte";
     import { codeBlockHighlight } from "../store/chat.svelte";
 
-    const request = new RequestManager();
     const markedInstance = new Marked().use({
         renderer: {
             code(token: Tokens.Code) {

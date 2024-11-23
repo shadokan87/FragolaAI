@@ -4,6 +4,7 @@ import { readFileSync, writeFile } from 'fs';
 import { readdir } from 'fs/promises';
 import { handleChatRequest } from './handlers/chatRequest';
 import { ChatWorkerPayload } from './workers/chat/chat.worker';
+import { FragolaClient } from './Fragola/Fragola';
 
 require('dotenv').config();
 console.log(process.env);
@@ -121,13 +122,22 @@ export async function activate(context: vscode.ExtensionContext) {
     // console.log("__THEME__: ", currentThemeId);
     // Register the webview provider
     const provider: vscode.WebviewViewProvider = {
-        resolveWebviewView(
+        async resolveWebviewView(
             webviewView: vscode.WebviewView,
             _context: vscode.WebviewViewResolveContext,
             _token: vscode.CancellationToken,
         ) {
             resolveWebview(webviewView, context.extensionUri);
-
+            const fragola = new FragolaClient.createInstance();
+    
+            try {
+                console.log("calling createDiscussion");
+                const result = await fragola.createDiscussion({
+                    label: "test"
+                })
+            } catch(e) {
+                console.error("_err: ", e);
+            }
             // Color theme sync
             let currentThemeId = vscode.workspace.getConfiguration('workbench').get('colorTheme') as string;
             const sendThemeInfo = (data: string) => {

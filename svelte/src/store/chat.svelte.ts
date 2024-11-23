@@ -19,12 +19,3 @@ export const highlighterStore = writableHook<Map<string, string>>({
 
 const codeBlockHighlightState: Map<string, string> = $state(new Map<string, string>());
 export const codeBlockHighlight = () => codeBlockHighlightState;
-
-export const specificRequestsStore = writableHook<basePayload<inTypeUnion>[]>({
-  initialValue: []
-})
-
-let specificRequestsState: basePayload<inTypeUnion>[] = $state([]);
-
-// export const addRequest = (request: typeof specificRequestsState[0]) => specificRequestsState = [...specificRequestsState, request];
-// export const specificRequests = () => specificRequestsState;
