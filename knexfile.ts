@@ -1,18 +1,18 @@
 import type { Knex } from "knex";
-import { join } from 'path';
+import * as path from 'path';
 
 const config: { [key: string]: Knex.Config } = {
   development: {
-    client: "better-sqlite3",
+    client: "sqlite3",
     connection: {
-      filename: join(__dirname, "data", "dev.sql")
+      filename: path.join(__dirname, "src", "data", "dev.sql")
     },
     useNullAsDefault: true,
     migrations: {
-      directory: join(__dirname, "data", "migrations"),
+      directory: path.join(__dirname, "src", "data", "migrations"),
       extension: "ts"
     }
   }
 };
 
-export default config;
+module.exports = config;

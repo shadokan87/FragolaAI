@@ -5,6 +5,7 @@ import { readdir } from 'fs/promises';
 import { handleChatRequest } from './handlers/chatRequest';
 import { ChatWorkerPayload } from './workers/chat/chat.worker';
 import { FragolaClient } from './Fragola/Fragola';
+import knex from 'knex';
 
 require('dotenv').config();
 console.log(process.env);
@@ -86,6 +87,7 @@ const resolveWebview = (
             enableScripts: true,
             localResourceRoots: [
                 vscode.Uri.joinPath(extensionUri, "svelte"),
+                vscode.Uri.joinPath(extensionUri, "src", "data")
             ]
         };
 
@@ -128,14 +130,27 @@ export async function activate(context: vscode.ExtensionContext) {
             _token: vscode.CancellationToken,
         ) {
             resolveWebview(webviewView, context.extensionUri);
-            const fragola = new FragolaClient.createInstance();
-    
+            const fragola = new FragolaClient.createInstance(() => {
+                const dbPath = createUtils(webviewView.webview, context.extensionUri).join("src", "data", "dev.sql");
+                console.log("!PATH: ", dbPath.fsPath);
+                const db = knex({
+                    client: "sqlite3",
+                    connection: {
+                        filename: dbPath.fsPath
+                    },
+                    useNullAsDefault: true
+                });
+                return db;
+            });
+
             try {
                 console.log("calling createDiscussion");
                 const result = await fragola.createDiscussion({
-                    label: "test"
-                })
-            } catch(e) {
+                    label: "test",
+                    messages: JSON.stringify([{role: "assistant", content: "How can I help you today ?"}])
+                });
+                console.log("!result", result);
+            } catch (e) {
                 console.error("_err: ", e);
             }
             // Color theme sync
@@ -147,7 +162,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 })
             }
 
-            // Wait for webview to signal it's ready before sending theme info
             webviewView.webview.onDidReceiveMessage(async message => {
                 switch (message.type) {
                     case 'webviewReady':

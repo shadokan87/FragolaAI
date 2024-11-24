@@ -40,7 +40,7 @@ async function main() {
 		outbase: 'src', // to maintain the folder structure
 		external: [
 			'vscode',
-			'sqlite3',
+			'better-sqlite3',
 			'mariasql',
 			'mssql',
 			'mysql',
