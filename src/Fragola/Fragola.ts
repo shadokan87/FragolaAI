@@ -16,15 +16,20 @@ export namespace FragolaClient {
     }
 
     export class createInstance {
-        private db: knex.Knex;
+        private db: knex.Knex = 0 as any;
 
         constructor(
             getDatabaseInstance: () => knex.Knex,
+            onError: (e: unknown) => void,
             private state: InstanceState = {
                 discussionId: undefined
             }
         ) {
+            try {
             this.db = getDatabaseInstance();
+            } catch(e) {
+                onError(e);
+            }
             this.initDatabase();
         }
 

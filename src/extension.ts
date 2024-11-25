@@ -130,24 +130,30 @@ export async function activate(context: vscode.ExtensionContext) {
             _token: vscode.CancellationToken,
         ) {
             resolveWebview(webviewView, context.extensionUri);
+            const utils = createUtils(webviewView.webview, context.extensionUri);
             const fragola = new FragolaClient.createInstance(() => {
-                const dbPath = createUtils(webviewView.webview, context.extensionUri).join("src", "data", "dev.sql");
+                const dbPath = utils.join("src", "data", "dev.sql");
                 console.log("!PATH: ", dbPath.fsPath);
                 const db = knex({
                     client: "sqlite3",
                     connection: {
-                        filename: dbPath.fsPath
+                        filename: dbPath.fsPath,
+                        // options: {
+                        //     nativeBinding: utils.join("node_modules", "sqlite3", "build", "Release", "node_sqlite3.node").fsPath,
+                        // },
                     },
                     useNullAsDefault: true
                 });
                 return db;
+            }, (e) => {
+                console.error(e);
             });
 
             try {
                 console.log("calling createDiscussion");
                 const result = await fragola.createDiscussion({
                     label: "test",
-                    messages: JSON.stringify([{role: "assistant", content: "How can I help you today ?"}])
+                    messages: JSON.stringify([{ role: "assistant", content: "How can I help you today ?" }])
                 });
                 console.log("!result", result);
             } catch (e) {
