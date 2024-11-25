@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { Worker } from 'worker_threads';
-import { ChatWorkerPayload } from '../workers/chat/chat.worker';
-import { createUtils } from '../extension';
+import { ChatWorkerPayload } from '../workers/chat/chat.worker.ts';
+import { createUtils } from '../extension.ts';
 
 export async function handleChatRequest(
     context: vscode.ExtensionContext,

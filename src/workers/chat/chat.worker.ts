@@ -1,6 +1,6 @@
 import { parentPort, workerData } from 'worker_threads';
 import OpenAI from 'openai';
-import { basePayload, outTypeUnion } from '../types';
+import { basePayload, outTypeUnion } from '../types.ts';
 
 export type ChatWorkerPayload = {
     data: {

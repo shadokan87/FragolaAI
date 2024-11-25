@@ -2,9 +2,10 @@ import * as vscode from 'vscode';
 import { join } from "path";
 import { readFileSync, writeFile } from 'fs';
 import { readdir } from 'fs/promises';
-import { handleChatRequest } from './handlers/chatRequest';
-import { ChatWorkerPayload } from './workers/chat/chat.worker';
-import { FragolaClient } from './Fragola/Fragola';
+import { handleChatRequest } from './handlers/chatRequest.ts';
+import { ChatWorkerPayload } from './workers/chat/chat.worker.ts';
+import { FragolaClient } from './Fragola/Fragola.ts';
+import markdown_code_snippet from "./test/streamMocks/markdown_code_snippet.json";
 import knex from 'knex';
 
 require('dotenv').config();
@@ -131,33 +132,12 @@ export async function activate(context: vscode.ExtensionContext) {
         ) {
             resolveWebview(webviewView, context.extensionUri);
             const utils = createUtils(webviewView.webview, context.extensionUri);
-            const fragola = new FragolaClient.createInstance(() => {
-                const dbPath = utils.join("src", "data", "dev.sql");
-                console.log("!PATH: ", dbPath.fsPath);
-                const db = knex({
-                    client: "sqlite3",
-                    connection: {
-                        filename: dbPath.fsPath,
-                        // options: {
-                        //     nativeBinding: utils.join("node_modules", "sqlite3", "build", "Release", "node_sqlite3.node").fsPath,
-                        // },
-                    },
-                    useNullAsDefault: true
-                });
-                return db;
-            }, (e) => {
-                console.error(e);
-            });
-
+            const fragola = new FragolaClient.createInstance(utils);
             try {
-                console.log("calling createDiscussion");
-                const result = await fragola.createDiscussion({
-                    label: "test",
-                    messages: JSON.stringify([{ role: "assistant", content: "How can I help you today ?" }])
-                });
-                console.log("!result", result);
-            } catch (e) {
-                console.error("_err: ", e);
+                const id = await fragola.createChat(markdown_code_snippet as FragolaClient.chunckType[], "test");
+                console.log("ID: ", id);
+            } catch(e) {
+                console.error(e);
             }
             // Color theme sync
             let currentThemeId = vscode.workspace.getConfiguration('workbench').get('colorTheme') as string;
