@@ -134,7 +134,26 @@ export async function activate(context: vscode.ExtensionContext) {
             const utils = createUtils(webviewView.webview, context.extensionUri);
             const fragola = new FragolaClient.createInstance(utils);
             try {
-                const id = await fragola.createChat(markdown_code_snippet as FragolaClient.chunckType[], "test");
+                const id = await fragola.chat.create(markdown_code_snippet as FragolaClient.chunckType[], "test");
+                await fragola.chat.addMessage({
+                    "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+                    // "provider": "SambaNova",
+                    "model": "meta-llama/llama-3.1-70b-instruct",
+                    "object": "chat.completion.chunk",
+                    "created": 1731625367,
+                    "choices": [
+                        {
+                            "index": 0,
+                            "delta": {
+                                "role": "assistant",
+                                "content": "test add"
+                            },
+                            "finish_reason": null,
+                            "logprobs": null
+                        }
+                    ],
+                    "system_fingerprint": "fastcoe"
+                })
                 console.log("ID: ", id);
             } catch(e) {
                 console.error(e);

@@ -32,16 +32,76 @@ export namespace FragolaClient {
         }
     }
 
-    export class chat {
-        constructor(state: InstanceState['chat'] = {
+    type utilsType = ReturnType<typeof createUtils>;
+
+    async function getChatFiles(utils: utilsType, location: "chat" | "task" = "chat", pattern?: string): Promise<chatFile[]> {
+        const globPattern = pattern || '*';
+        const { glob } = await import('glob');
+        const files = await glob(`${utils.join("src", "data", location).fsPath}/${globPattern}`);
+
+        if (!files.length)
+            return [];
+
+        return files.map(filePath => {
+            const fileName = filePath.split('/').pop()!;
+            const split = fileName.split(":");
+            return {
+                id: split[0],
+                createdAt: split[1],
+                updatedAt: split[2],
+                label: split[3].split('.')[0]
+            }
+        });
+    }
+
+    const chatFileJoin = (utils: utilsType, file: chatFile, location: "chat" | "task" = "chat") => {
+        let join = `${file.id}:${file.createdAt}:${file.updatedAt}:${file.label}`;
+        return utils.join("src", "data", location).fsPath
+    }
+
+    export class Chat {
+        public static defaultState = {
             id: undefined,
             db: undefined
-        }) {
+        }
+        constructor(private state: InstanceState['chat'] = Chat.defaultState,
+            public utils: ReturnType<typeof createUtils> = undefined as any) { // Casting undefined as any is ugly but I set utils in createInstance class. To avoid '?' everywhere
 
         }
 
-        set(state: InstanceState['chat']) {
+        async set(state: InstanceState['chat']) {
+            if (state.db)
+                this.state = state;
+            else {
+                const dbFile = await getChatFiles(this.utils, "chat", `${state.id}*`);
+                if (!dbFile.length)
+                    throw new Error(`Chat file for id: ${state.id} does not exist.`);
+                const db = await JSONFilePreset<{ messages: chunckType[] }>(chatFileJoin(this.utils, dbFile[0]), { messages: [] });
+                state.db = db;
+                this.state = state;
+            }
+        }
 
+        async create(newMessages: chunckType[], label: string) {
+            const id = v4();
+            const dateStr = moment().format('YYYY-MM-DD');
+            const db = await JSONFilePreset<{ messages: chunckType[] }>(
+                this.utils.join("src", "data", "chat", `${id}:${dateStr}:${dateStr}:${label}.json`).fsPath,
+                { messages: [] }
+            );
+            await db.update(({ messages }) => messages.push(...newMessages));
+            const all = await getChatFiles(this.utils, "chat");
+            console.log("!all", all);
+            await this.set({ id, db });
+            return id;
+        }
+
+        async addMessage(newMessage: chunckType) {
+            if (!this.state.id)
+                throw new Error("No dicussion selected");
+            await this.state.db?.update((data) => {
+                data.messages.push(newMessage)
+            });
         }
     }
 
@@ -51,69 +111,9 @@ export namespace FragolaClient {
 
             private utils: ReturnType<typeof createUtils>,
             // getDatabaseInstance: () => knex.Knex,
-            private state: InstanceState = {
-                chat: {
-                    id: undefined,
-                    db: undefined
-                }
-            },
+            public chat: Chat = new Chat(Chat.defaultState)
         ) {
-        }
-        async setchat(state: InstanceState['chat']) {
-            if (state.db)
-                this.state.chat = state;
-            else {
-                const dbFile = await this.getChatFiles("chat", `${state.id}*`);
-                if (!dbFile.length)
-                    throw new Error(`Chat file for id: ${state.id} does not exist.`);
-                const db = await JSONFilePreset<{ messages: chunckType[] }>(this.chatFileJoin(dbFile[0]), { messages: [] });
-                state.db = db;
-                this.state.chat = state;
-            }
-        }
-
-        chatFileJoin = (file: chatFile, location: "chat" | "task" = "chat") => {
-            let join = `${file.id}:${file.createdAt}:${file.updatedAt}:${file.label}`;
-            return this.utils.join("src", "data", location).fsPath
-        }
-
-        async getChatFiles(location: "chat" | "task" = "chat", pattern?: string): Promise<chatFile[]> {
-            const globPattern = pattern || '*';
-            const { glob } = await import('glob');
-            const files = await glob(`${this.utils.join("src", "data", location).fsPath}/${globPattern}`);
-
-            if (!files.length)
-                return [];
-
-            return files.map(filePath => {
-                const fileName = filePath.split('/').pop()!;
-                const split = fileName.split(":");
-                return {
-                    id: split[0],
-                    createdAt: split[1],
-                    updatedAt: split[2],
-                    label: split[3].split('.')[0]
-                }
-            });
-        }
-
-        async createChat(newMessages: chunckType[], label: string) {
-            const id = v4();
-            const dateStr = moment().format('YYYY-MM-DD');
-            const db = await JSONFilePreset<{ messages: chunckType[] }>(
-                this.utils.join("src", "data", "chat", `${id}:${dateStr}:${dateStr}:${label}.json`).fsPath,
-                { messages: [] }
-            );
-            await db.update(({ messages }) => messages.push(...newMessages));
-            const all = await this.getChatFiles("chat");
-            console.log("!all", all);
-            await this.setchat({ id, db });
-            return id;
-        }
-
-        async addMessage() {
-            if (!this.state.chat.id)
-                throw new Error("No dicussion selected");
+            chat.utils = this.utils;
         }
     }
 }

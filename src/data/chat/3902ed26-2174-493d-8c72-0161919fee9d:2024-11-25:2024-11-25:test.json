@@ -2321,6 +2321,24 @@
         "completion_tokens": 454,
         "total_tokens": 513
       }
+    },
+    {
+      "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
+      "model": "meta-llama/llama-3.1-70b-instruct",
+      "object": "chat.completion.chunk",
+      "created": 1731625367,
+      "choices": [
+        {
+          "index": 0,
+          "delta": {
+            "role": "assistant",
+            "content": "test add"
+          },
+          "finish_reason": null,
+          "logprobs": null
+        }
+      ],
+      "system_fingerprint": "fastcoe"
     }
   ]
 }
