@@ -179,7 +179,8 @@ export async function activate(context: vscode.ExtensionContext) {
                         break;
                     case 'chatRequest':
                         console.log("#br1", message.data);
-                        await handleChatRequest(context, webviewView.webview, message as ChatWorkerPayload);
+                        const newMessage = await handleChatRequest(context, webviewView.webview, message as ChatWorkerPayload);
+                        console.log("!msg", newMessage);
                         break;
                     case "syntaxHighlight": {
                         const shikiInfo = bundledThemesInfo.find(

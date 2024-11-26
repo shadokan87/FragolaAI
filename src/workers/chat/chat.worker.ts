@@ -1,6 +1,6 @@
 import { parentPort, workerData } from 'worker_threads';
 import OpenAI from 'openai';
-import { basePayload, outTypeUnion } from '../types.ts';
+import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
 import { FragolaClient } from "../../Fragola/Fragola.ts";
 
 export type ChatWorkerPayload = {
@@ -9,7 +9,6 @@ export type ChatWorkerPayload = {
     }
 } & basePayload<outTypeUnion>;
 
-export const END_SENTINEL = "__END__";
 
 if (!parentPort) {
     throw new Error('This file must be run as a worker');
@@ -28,20 +27,28 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
     const { type, data, id }: ChatWorkerPayload = message;
     switch (type) {
         case 'chatRequest': {
-            let message: Partial<FragolaClient.chunckType> = {}
+            let message: Partial<FragolaClient.chunckType> = {};
             const stream = await openai.chat.completions.create({
                 model: "meta-llama/llama-3.1-70b-instruct:free",
                 messages: [{ role: "user", content: data.prompt }],
                 stream: true,
             });
             for await (const chunk of stream) {
-                message = chunk;
+                message = {
+                    ...chunk, choices: chunk.choices.map((choice, index) => ({
+                        ...choice,
+                        delta: {
+                            role: choice.delta.role || message.choices?.[index]?.delta?.role,
+                            content: (message.choices?.[index]?.delta?.content || '') + (choice.delta.content || '')
+                        },
+                    }))
+                }
                 parentPort?.postMessage({
                     type: "chunck", data: chunk, id
                 });
             }
             parentPort?.postMessage({
-                type: "chunck", data: END_SENTINEL, id
+                type: END_SENTINEL, data: message, id
             });
             parentPort?.close();
             break;

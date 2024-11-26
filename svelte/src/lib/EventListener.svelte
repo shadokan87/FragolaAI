@@ -25,14 +25,13 @@
             "message",
             (event: { data: inCommingPayload }) => {
                 switch (event.data.type) {
+                    case "__END__": {
+                        break ;
+                    }
                     case "chunck": {
                         const payload = event.data as inCommingPayload & {
-                            data: chunckType | "__END__";
+                            data: chunckType;
                         };
-                        if (payload.data == "__END__") {
-                            console.log(chuncks);
-                            return;
-                        }
                         chuncks = [...chuncks, payload.data];
                         console.log("!payload", payload);
                         break;
