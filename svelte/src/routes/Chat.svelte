@@ -121,9 +121,9 @@
     }
 
     onMount(() => {
-        if (markdown.length === 0) {
-            setupMockStreaming();
-        }
+        // if (markdown.length === 0) {
+        //     setupMockStreaming();
+        // }
     });
 </script>
 

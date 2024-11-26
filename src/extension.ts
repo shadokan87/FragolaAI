@@ -7,8 +7,8 @@ import { ChatWorkerPayload } from './workers/chat/chat.worker.ts';
 import { FragolaClient } from './Fragola/Fragola.ts';
 import markdown_code_snippet from "./test/streamMocks/markdown_code_snippet.json";
 import knex from 'knex';
+import { config } from 'dotenv';
 
-require('dotenv').config();
 console.log(process.env);
 
 const joinAsWebViewUri = (webView: vscode.Webview, extensionUri: vscode.Uri, ...paths: string[]) => {
@@ -132,6 +132,8 @@ export async function activate(context: vscode.ExtensionContext) {
         ) {
             resolveWebview(webviewView, context.extensionUri);
             const utils = createUtils(webviewView.webview, context.extensionUri);
+            config({path: utils.join(".env").fsPath})
+            console.log("key: ", process.env.OPENROUTER_API_KEY);
             const fragola = new FragolaClient.createInstance(utils);
             try {
                 const id = await fragola.chat.create(markdown_code_snippet as FragolaClient.chunckType[], "test");

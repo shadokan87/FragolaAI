@@ -3,6 +3,9 @@ import * as path from 'path';
 import { Worker } from 'worker_threads';
 import { ChatWorkerPayload } from '../workers/chat/chat.worker.ts';
 import { createUtils } from '../extension.ts';
+import { basePayload, inTypeUnion } from '../workers/types.ts';
+import { FragolaClient } from '../Fragola/Fragola.ts';
+import { END_SENTINEL } from '../workers/chat/chat.worker.ts';
 
 export async function handleChatRequest(
     context: vscode.ExtensionContext,
@@ -17,15 +20,19 @@ export async function handleChatRequest(
             workerData: { payload }
         });
 
-        worker.on('message', (result) => {
+        worker.on('message', (result: basePayload<"chunck" | "completed"> & { data: FragolaClient.chunckType | typeof END_SENTINEL }) => {
             console.log("!Parent here ok: ", result);
-            if (result['data'] == '__END__') {
+            if (result.type == "chunck") {
+                if (result['data'] == END_SENTINEL) {
+                    webview.postMessage(result);
+                    worker.terminate();
+                    resolve(result);
+                    return;
+                }
                 webview.postMessage(result);
-                worker.terminate();
-                resolve(result);
-                return ;
+            } else {
+                console.log("complete", result);
             }
-            webview.postMessage(result);
         });
 
         worker.on('error', (error) => {
