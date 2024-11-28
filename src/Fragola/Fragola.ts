@@ -7,9 +7,9 @@ import moment from 'moment';
 import { readdir } from "fs/promises";
 import { Low } from "lowdb";
 import { JSONFilePreset } from "lowdb/node";
+import { chunckType, extensionState } from "@types";
 
 export namespace FragolaClient {
-    export type chunckType = OpenAI.Chat.Completions.ChatCompletionChunk;
     export interface chat {
         id: string,
         messages: chunckType[]
@@ -59,26 +59,54 @@ export namespace FragolaClient {
         return utils.join("src", "data", location).fsPath
     }
 
+    interface chatCallback {
+        onStateChange?: (prevState: InstanceState['chat'], newState: InstanceState['chat']) => void
+    }
     export class Chat {
         public static defaultState = {
             id: undefined,
-            db: undefined
+            db: undefined,
+            isTmp: true
         }
-        constructor(private state: InstanceState['chat'] = Chat.defaultState,
+        constructor(private state: InstanceState['chat'] = Chat.defaultState, private callbacks?: chatCallback,
             public utils: ReturnType<typeof createUtils> = undefined as any) { // Casting undefined as any is ugly but I set utils in createInstance class. To avoid '?' everywhere
 
         }
 
+        getState(noDb: boolean = true): extensionState["chat"] | InstanceState["chat"] {
+            if (noDb) {
+                const {db, ...rest} = this.state;
+                return rest as extensionState['chat'];
+            }
+            return this.state;
+        }
+
+        async startNewChat() {
+            const newState = {
+                id: undefined,
+                isTmp: true
+            };
+            await this.set(newState);
+            // this.updateState(newState);
+        }
+        private updateState(newState: InstanceState['chat']) {
+            if (this.callbacks && this.callbacks.onStateChange) {
+                const prevState = this.state;
+                this.state = newState;
+                this.callbacks.onStateChange(prevState, newState);
+            }
+        }
         async set(state: InstanceState['chat']) {
-            if (state.db)
-                this.state = state;
+            if (state.db) {
+                this.updateState(state);
+            }
             else {
                 const dbFile = await getChatFiles(this.utils, "chat", `${state.id}*`);
                 if (!dbFile.length)
                     throw new Error(`Chat file for id: ${state.id} does not exist.`);
                 const db = await JSONFilePreset<{ messages: chunckType[] }>(chatFileJoin(this.utils, dbFile[0]), { messages: [] });
                 state.db = db;
-                this.state = state;
+                this.updateState(state);
             }
         }
 
@@ -92,7 +120,9 @@ export namespace FragolaClient {
             await db.update(({ messages }) => messages.push(...newMessages));
             const all = await getChatFiles(this.utils, "chat");
             console.log("!all", all);
-            await this.set({ id, db });
+            const newState = { id, db };
+            await this.set(newState);
+            this.updateState(newState);
             return id;
         }
 

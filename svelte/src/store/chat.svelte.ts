@@ -1,21 +1,36 @@
 import OpenAI from "openai";
 import { writableHook } from "./hooks";
-import type { chunckType } from "../types";
 import { createHighlighter } from "shiki";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
-// OpenAI.Chat.Completions.ChatCompletionMessageParam
-interface Discussion {
-    id: string,
-    messages: chunckType[]
-}
-
-export const chatStore = writableHook<Discussion[]>({
-    initialValue: [],
-});
+import { type chunckType, type extensionState } from "../../../common";
 
 export const highlighterStore = writableHook<Map<string, string>>({
   initialValue: new Map<string, string>()
 });
+
+export const extensionStateStore = writableHook<extensionState | undefined>({
+  initialValue: undefined,
+  onUpdate(previousValue, newValue) {
+    console.log("_UPDATE_STATE_", newValue);
+    return newValue;
+  },
+})
+
+// export function createExtensionState() {
+//   let state: extensionState | undefined = $state(undefined);
+//   return {
+//     get value() {
+//       return state;
+//     },
+//     update(newState: extensionState) {
+//       console.log("called update", newState);
+//       state = newState;
+//     },
+//     clear() {
+//       state = undefined;
+//     }
+//   }
+// }
 
 const codeBlockHighlightState: Map<string, string> = $state(new Map<string, string>());
 export const codeBlockHighlight = () => codeBlockHighlightState;

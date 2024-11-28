@@ -6,12 +6,13 @@ import { createUtils } from '../extension.ts';
 import { basePayload, inTypeUnion } from '../workers/types.ts';
 import { FragolaClient } from '../Fragola/Fragola.ts';
 import { END_SENTINEL } from '../workers/types.ts';
+import { chunckType } from '@types';
 
 export async function handleChatRequest(
     context: vscode.ExtensionContext,
     webview: vscode.Webview,
     payload: ChatWorkerPayload
-): Promise<FragolaClient.chunckType> {
+): Promise<chunckType> {
     const utils = createUtils(webview, context.extensionUri);
     const workerPath = utils.join('dist', 'workers', 'chat', 'chat.worker.js');
 
@@ -20,7 +21,7 @@ export async function handleChatRequest(
             workerData: { payload }
         });
 
-        worker.on('message', (result: basePayload<"chunck" | typeof END_SENTINEL> & { data: FragolaClient.chunckType }) => {
+        worker.on('message', (result: basePayload<"chunck" | typeof END_SENTINEL> & { data: chunckType }) => {
             console.log("!Parent here ok: ", result);
             if (result.type == END_SENTINEL) {
                 webview.postMessage(result);
@@ -30,18 +31,6 @@ export async function handleChatRequest(
             } else {
                 webview.postMessage(result);
             }
-            // if (result.type == "chunck") {
-            //     if (result['data'] == END_SENTINEL) {
-            //         webview.postMessage(result);
-            //         worker.terminate();
-            //         resolve(result);
-            //         return;
-            //     }
-            //     webview.postMessage(result);
-            // } else if (result.type == "completed") {
-            //     return result.data;
-            //     console.log("complete", result);
-            // }
         });
 
         worker.on('error', (error) => {

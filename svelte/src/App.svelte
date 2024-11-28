@@ -5,8 +5,8 @@
   import { navigate } from "svelte-routing";
   import EventListener from "./lib/EventListener.svelte";
   import CodeBlock from "./lib/CodeBlock.svelte";
-  import { createHighlighter } from "shiki";
-  import { highlighterStore } from "./store/chat.svelte";
+  import { type extensionState as extensionStateType } from "../../common";
+  import { extensionStateStore as extensionState} from "./store/chat.svelte";
 
   function registerCustomElements() {
     if (!customElements.get("code-block")) {
@@ -21,11 +21,6 @@
 
   async function main() {
     registerCustomElements();
-    const highlighter = await createHighlighter({
-      themes: [],
-      langs: [],
-    });
-    highlighterStore.set(highlighter)
   }
 
   onMount(async () => {
@@ -35,8 +30,12 @@
 </script>
 
 <EventListener />
+{#if $extensionState == undefined}
+  <h1>{"Loading ..."}</h1>
+{:else}
 <Router>
   <Route path="/chat">
     <Chat />
   </Route>
 </Router>
+{/if}

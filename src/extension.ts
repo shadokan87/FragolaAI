@@ -8,6 +8,8 @@ import { FragolaClient } from './Fragola/Fragola.ts';
 import markdown_code_snippet from "./test/streamMocks/markdown_code_snippet.json";
 import knex from 'knex';
 import { config } from 'dotenv';
+import { chunckType, defaultExtensionState, extensionState } from '@types';
+import { inTypeUnion } from './workers/types.ts';
 
 console.log(process.env);
 
@@ -19,10 +21,13 @@ const _join = (webView: vscode.Webview, extensionUri: vscode.Uri, ...paths: stri
     return vscode.Uri.joinPath(extensionUri, ...paths);
 };
 
-export const createUtils = (webview: vscode.Webview, extensionUri: vscode.Uri) => {
+export const createUtils = <T>(webview: vscode.Webview, extensionUri: vscode.Uri) => {
     return {
         joinAsWebViewUri: (...paths: string[]) => joinAsWebViewUri(webview, extensionUri, ...paths),
-        join: (...paths: string[]) => _join(webview, extensionUri, ...paths)
+        join: (...paths: string[]) => _join(webview, extensionUri, ...paths),
+        postMessage: (message: {type: inTypeUnion, data: T, id?: string}) => {
+            return webview.postMessage(message);
+        }
     };
 };
 
@@ -134,38 +139,26 @@ export async function activate(context: vscode.ExtensionContext) {
             const utils = createUtils(webviewView.webview, context.extensionUri);
             config({path: utils.join(".env").fsPath})
             console.log("key: ", process.env.OPENROUTER_API_KEY);
-            const fragola = new FragolaClient.createInstance(utils);
-            try {
-                const id = await fragola.chat.create(markdown_code_snippet as FragolaClient.chunckType[], "test");
-                await fragola.chat.addMessage({
-                    "id": "gen-1731625367-kRFETN2rE0bYDdmrp45N",
-                    // "provider": "SambaNova",
-                    "model": "meta-llama/llama-3.1-70b-instruct",
-                    "object": "chat.completion.chunk",
-                    "created": 1731625367,
-                    "choices": [
-                        {
-                            "index": 0,
-                            "delta": {
-                                "role": "assistant",
-                                "content": "test add"
-                            },
-                            "finish_reason": null,
-                            "logprobs": null
-                        }
-                    ],
-                    "system_fingerprint": "fastcoe"
-                })
-                console.log("ID: ", id);
-            } catch(e) {
-                console.error(e);
+            function restoreExtensionState(): extensionState {
+                return defaultExtensionState;
             }
+            let extensionState = restoreExtensionState();
+            const fragola = new FragolaClient.createInstance(utils, new FragolaClient.Chat({...extensionState.chat}));
             // Color theme sync
             let currentThemeId = vscode.workspace.getConfiguration('workbench').get('colorTheme') as string;
+            const { postMessage } = utils;
             const sendThemeInfo = (data: string) => {
-                webviewView.webview.postMessage({
+                postMessage({
                     type: "colorTheme",
                     data
+                })
+            }
+
+            const updateState = (newState: extensionState) => {
+                extensionState = newState;
+                webviewView.webview.postMessage({
+                    type: "stateUpdate",
+                    data: extensionState
                 })
             }
 
@@ -179,6 +172,10 @@ export async function activate(context: vscode.ExtensionContext) {
                         break;
                     case 'chatRequest':
                         console.log("#br1", message.data);
+                        if (extensionState.chat.isTmp) {
+                            const id = fragola.chat.create([], "test");
+                            updateState({...extensionState, chat: fragola.chat.getState()})
+                        }
                         const newMessage = await handleChatRequest(context, webviewView.webview, message as ChatWorkerPayload);
                         console.log("!msg", newMessage);
                         break;
@@ -191,7 +188,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             lang: "c"
                         }) : message.data;
 
-                        webviewView.webview.postMessage({
+                        postMessage({
                             type: "shikiHtml",
                             id: message.id,
                             data: html
@@ -199,6 +196,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         break;
                     }
                     case "online": {
+                        postMessage({type: "stateUpdate", data: extensionState})
                         sendThemeInfo(currentThemeId);
                         return;
                     }

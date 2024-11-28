@@ -2,6 +2,7 @@ import { parentPort, workerData } from 'worker_threads';
 import OpenAI from 'openai';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
 import { FragolaClient } from "../../Fragola/Fragola.ts";
+import { chunckType } from '@types';
 
 export type ChatWorkerPayload = {
     data: {
@@ -27,7 +28,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
     const { type, data, id }: ChatWorkerPayload = message;
     switch (type) {
         case 'chatRequest': {
-            let message: Partial<FragolaClient.chunckType> = {};
+            let message: Partial<chunckType> = {};
             const stream = await openai.chat.completions.create({
                 model: "meta-llama/llama-3.1-70b-instruct:free",
                 messages: [{ role: "user", content: data.prompt }],

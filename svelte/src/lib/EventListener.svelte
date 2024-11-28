@@ -5,7 +5,8 @@
     import type { basePayload, inTypeUnion } from "../../../src/workers/types";
     import type { ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi, colorTheme } from "../store/vscode";
-    import { codeBlockHighlight, highlighterStore } from "../store/chat.svelte";
+    import { codeBlockHighlight, extensionStateStore as extensionState } from "../store/chat.svelte";
+    import type { extensionState as extensionStateType} from "../../../common";
     // import {specific} from "../store/chat.svelte";
 
     type chunckType = OpenAI.Chat.Completions.ChatCompletionChunk;
@@ -25,6 +26,12 @@
             "message",
             (event: { data: inCommingPayload }) => {
                 switch (event.data.type) {
+                    case "stateUpdate": {
+                        const payload = event.data as inCommingPayload & { data: extensionStateType };
+                        console.log("__STATE__", payload);
+                        extensionState.update(() => payload.data);
+                        break ;
+                    }
                     case "__END__": {
                         break ;
                     }
