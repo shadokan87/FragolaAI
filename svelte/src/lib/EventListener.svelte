@@ -4,14 +4,20 @@
     import OpenAI from "openai";
     import type { basePayload, inTypeUnion } from "../../../src/workers/types";
     import type { ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
+    import { receiveStreamChunk } from "../../../common/utils";
     import { codeStore as codeApi, colorTheme } from "../store/vscode";
-    import { codeBlockHighlight, extensionStateStore as extensionState } from "../store/chat.svelte";
-    import type { extensionState as extensionStateType} from "../../../common";
+    import {
+        codeBlockHighlight,
+        extensionStateStore as extensionState,
+    } from "../store/chat.svelte";
+    import type { extensionState as extensionStateType } from "../../../common";
+    import { chatStreaming } from "../store/chat.svelte";
     // import {specific} from "../store/chat.svelte";
 
     type chunckType = OpenAI.Chat.Completions.ChatCompletionChunk;
     let chuncks: chunckType[] = $state.raw([]);
     type inCommingPayload = basePayload<inTypeUnion>;
+    // const streaming = createStreaming();
     onMount(() => {
         if (!$codeStore) {
             const code = (window as any)["acquireVsCodeApi"]();
@@ -27,29 +33,39 @@
             (event: { data: inCommingPayload }) => {
                 switch (event.data.type) {
                     case "stateUpdate": {
-                        const payload = event.data as inCommingPayload & { data: extensionStateType };
+                        const payload = event.data as inCommingPayload & {
+                            data: extensionStateType;
+                        };
+                        if (payload.data.chat.id) {
+                            if (!chatStreaming.readers.get(payload.data.chat.id)) // Prepare reader to receive data
+                                chatStreaming.readers.set(payload.data.chat.id, {length: 1, loaded: [], renderer: []});
+                        }
                         console.log("__STATE__", payload);
                         extensionState.update(() => payload.data);
-                        break ;
+                        break;
                     }
                     case "__END__": {
-                        break ;
+                        chatStreaming.stopStream();
+                        break;
                     }
                     case "chunck": {
                         const payload = event.data as inCommingPayload & {
                             data: chunckType;
                         };
-                        chuncks = [...chuncks, payload.data];
-                        console.log("!payload", payload);
+                        if (!payload.id) {
+                            console.error("Id is undefined");
+                            return ;
+                        }
+                        chatStreaming.receiveChunk(payload.id, payload.data);
                         break;
                     }
                     case "shikiHtml": {
                         const payload = event.data as inCommingPayload & {
                             data: string;
                         };
-                        if (payload.id) 
+                        if (payload.id)
                             codeBlockHighlight().set(payload.id, payload.data);
-                        break ;
+                        break;
                     }
                     case "colorTheme": {
                         const payload = event.data as inCommingPayload & {

@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
 import { FragolaClient } from "../../Fragola/Fragola.ts";
 import { chunckType } from '@types';
+import { receiveStreamChunk } from "@utils";
 
 export type ChatWorkerPayload = {
     data: {
@@ -35,15 +36,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
                 stream: true,
             });
             for await (const chunk of stream) {
-                message = {
-                    ...chunk, choices: chunk.choices.map((choice, index) => ({
-                        ...choice,
-                        delta: {
-                            role: choice.delta.role || message.choices?.[index]?.delta?.role,
-                            content: (message.choices?.[index]?.delta?.content || '') + (choice.delta.content || '')
-                        },
-                    }))
-                }
+                message = receiveStreamChunk(message, chunk);
                 parentPort?.postMessage({
                     type: "chunck", data: chunk, id
                 });
@@ -53,7 +46,6 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
             });
             parentPort?.close();
             break;
-
         }
         default: {
             parentPort?.postMessage({ type: "Error", code: 500, message: `type: ${type} not handled` });

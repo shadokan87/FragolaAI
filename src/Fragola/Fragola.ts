@@ -8,6 +8,7 @@ import { readdir } from "fs/promises";
 import { Low } from "lowdb";
 import { JSONFilePreset } from "lowdb/node";
 import { chunckType, extensionState } from "@types";
+import { BehaviorSubject } from 'rxjs';
 
 export namespace FragolaClient {
     export interface chat {
@@ -59,26 +60,35 @@ export namespace FragolaClient {
         return utils.join("src", "data", location).fsPath
     }
 
-    interface chatCallback {
-        onStateChange?: (prevState: InstanceState['chat'], newState: InstanceState['chat']) => void
-    }
     export class Chat {
         public static defaultState = {
             id: undefined,
             db: undefined,
             isTmp: true
         }
-        constructor(private state: InstanceState['chat'] = Chat.defaultState, private callbacks?: chatCallback,
-            public utils: ReturnType<typeof createUtils> = undefined as any) { // Casting undefined as any is ugly but I set utils in createInstance class. To avoid '?' everywhere
+        private stateSubject: BehaviorSubject<InstanceState['chat']>;
 
+        constructor(
+            initialState: InstanceState['chat'] = Chat.defaultState,
+            public utils: ReturnType<typeof createUtils> = undefined as any
+        ) {
+            this.stateSubject = new BehaviorSubject<InstanceState['chat']>(initialState);
+        }
+
+        get state$() {
+            return this.stateSubject.asObservable();
+        }
+
+        private get currentState() {
+            return this.stateSubject.getValue();
         }
 
         getState(noDb: boolean = true): extensionState["chat"] | InstanceState["chat"] {
             if (noDb) {
-                const {db, ...rest} = this.state;
+                const {db, ...rest} = this.currentState;
                 return rest as extensionState['chat'];
             }
-            return this.state;
+            return this.currentState;
         }
 
         async startNewChat() {
@@ -87,18 +97,11 @@ export namespace FragolaClient {
                 isTmp: true
             };
             await this.set(newState);
-            // this.updateState(newState);
         }
-        private updateState(newState: InstanceState['chat']) {
-            if (this.callbacks && this.callbacks.onStateChange) {
-                const prevState = this.state;
-                this.state = newState;
-                this.callbacks.onStateChange(prevState, newState);
-            }
-        }
+
         async set(state: InstanceState['chat']) {
             if (state.db) {
-                this.updateState(state);
+                this.stateSubject.next(state);
             }
             else {
                 const dbFile = await getChatFiles(this.utils, "chat", `${state.id}*`);
@@ -106,7 +109,7 @@ export namespace FragolaClient {
                     throw new Error(`Chat file for id: ${state.id} does not exist.`);
                 const db = await JSONFilePreset<{ messages: chunckType[] }>(chatFileJoin(this.utils, dbFile[0]), { messages: [] });
                 state.db = db;
-                this.updateState(state);
+                this.stateSubject.next(state);
             }
         }
 
@@ -122,25 +125,21 @@ export namespace FragolaClient {
             console.log("!all", all);
             const newState = { id, db };
             await this.set(newState);
-            this.updateState(newState);
             return id;
         }
 
         async addMessage(newMessage: chunckType) {
-            if (!this.state.id)
-                throw new Error("No dicussion selected");
-            await this.state.db?.update((data) => {
+            if (!this.currentState.id)
+                throw new Error("No discussion selected");
+            await this.currentState.db?.update((data) => {
                 data.messages.push(newMessage)
             });
         }
     }
 
     export class createInstance {
-
         constructor(
-
             private utils: ReturnType<typeof createUtils>,
-            // getDatabaseInstance: () => knex.Knex,
             public chat: Chat = new Chat(Chat.defaultState)
         ) {
             chat.utils = this.utils;

@@ -10,6 +10,7 @@ import knex from 'knex';
 import { config } from 'dotenv';
 import { chunckType, defaultExtensionState, extensionState } from '@types';
 import { inTypeUnion } from './workers/types.ts';
+import OpenAI from 'openai';
 
 console.log(process.env);
 
@@ -144,6 +145,17 @@ export async function activate(context: vscode.ExtensionContext) {
             }
             let extensionState = restoreExtensionState();
             const fragola = new FragolaClient.createInstance(utils, new FragolaClient.Chat({...extensionState.chat}));
+
+            // Subscribe to chat state changes
+            fragola.chat.state$.subscribe(chatState => {
+                const newState = {...extensionState, chat: chatState};
+                extensionState = newState;
+                webviewView.webview.postMessage({
+                    type: "stateUpdate",
+                    data: newState
+                });
+            });
+
             // Color theme sync
             let currentThemeId = vscode.workspace.getConfiguration('workbench').get('colorTheme') as string;
             const { postMessage } = utils;
@@ -153,7 +165,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     data
                 })
             }
-
             const updateState = (newState: extensionState) => {
                 extensionState = newState;
                 webviewView.webview.postMessage({
@@ -173,9 +184,21 @@ export async function activate(context: vscode.ExtensionContext) {
                     case 'chatRequest':
                         console.log("#br1", message.data);
                         if (extensionState.chat.isTmp) {
-                            const id = fragola.chat.create([], "test");
-                            updateState({...extensionState, chat: fragola.chat.getState()})
+                            // Create a new empty chat, will generate a new id and set it as current
+                            await fragola.chat.create([], "test");
                         }
+                        const userMessage = message as ChatWorkerPayload;
+                        userMessage.id = fragola.chat.getState().id;
+                        // await fragola.chat.addMessage({
+                        //     choices: [{
+                        //         delta: {
+                        //             content: userMessage.data.prompt,
+                        //             role: "user",
+                        //         },
+                        //         finish_reason: null,
+                        //         index: 0
+                        //     }]
+                        // })
                         const newMessage = await handleChatRequest(context, webviewView.webview, message as ChatWorkerPayload);
                         console.log("!msg", newMessage);
                         break;

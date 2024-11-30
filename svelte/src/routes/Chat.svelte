@@ -1,35 +1,4 @@
 <script lang="ts">
-    // // Ignore this function for now
-    // function assignIdToCodeBlock(token: Token, id: string = v4()) {
-    //     (token as any)["id"] = id;
-    // }
-
-    // // Ignore this function for now
-    // function assignUuidToCodeBlocks(newTokens: TokensList) {
-    //     let lastNewToken = newTokens[newTokens.length - 1];
-    //     if (lastNewToken && lastNewToken.type == "code") {
-    //         const isSameCodeBlock = newTokens.length == tokens.length;
-
-    //         if (isSameCodeBlock) {
-    //             const id: string = (tokens.at(-1) as any)["id"];
-    //             assignIdToCodeBlock(lastNewToken, id);
-    //         } else {
-    //             assignIdToCodeBlock(lastNewToken, v4());
-    //         }
-    //     }
-    //     return newTokens.map((token, index) => {
-    //         const lastTokenFromState = tokens.at(-1);
-    //         if (
-    //             lastTokenFromState &&
-    //             lastTokenFromState.type == "code" &&
-    //             !(token as any)["id"] &&
-    //             (lastTokenFromState as any)["id"]
-    //         )
-    //             assignIdToCodeBlock(token, (lastTokenFromState as any)["id"]);
-    //         return token;
-    //     }) as TokensList;
-    // }
-
     import {
         Lexer,
         Marked,
@@ -55,7 +24,8 @@
 
     import { v4 } from "uuid";
     import type { basePayload, outTypeUnion } from "../../../src/workers/types";
-    import { codeBlockHighlight } from "../store/chat.svelte";
+    import { chatStreaming, codeBlockHighlight, extensionStateStore } from "../store/chat.svelte";
+    import RenderChatReader from "../lib/RenderChatReader.svelte";
 
     const markedInstance = new Marked().use({
         renderer: {
@@ -129,7 +99,9 @@
 
 <main class="chat-grid">
     <div class="chat-messages">
-        {@html html}
+        {#if $extensionStateStore?.chat.id}
+            <RenderChatReader markedInstance={markedInstance} id={$extensionStateStore.chat.id}/>
+        {/if}
     </div>
     <ChatFooter />
 </main>
