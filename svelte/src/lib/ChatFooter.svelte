@@ -9,6 +9,8 @@
     import { type ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi } from "../store/vscode";
     import { v4 } from "uuid";
+    import { chatStreaming } from "../store/chat.svelte";
+    import { extensionStateStore as extensionState } from "../store/chat.svelte";
 
     let inputFocus = $state(false);
     let prompt = $state("");
@@ -29,6 +31,12 @@
                 // id: v4(),
                 data: {
                     prompt: input.value,
+                    loadedLength: (() => {
+                        if (!$extensionState?.chat.id)
+                            return 0;
+                        const reader = chatStreaming.readers.get($extensionState.chat.id);
+                        return (reader && reader?.loaded.length) || 0;
+                    })()
                 },
             };
             $codeApi?.postMessage(payload);

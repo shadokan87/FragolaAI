@@ -7,7 +7,8 @@ import { receiveStreamChunk } from "@utils";
 
 export type ChatWorkerPayload = {
     data: {
-        prompt: string
+        prompt: string,
+        loadedLength: number
     }
 } & basePayload<outTypeUnion>;
 

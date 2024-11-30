@@ -9,8 +9,9 @@
     import {
         codeBlockHighlight,
         extensionStateStore as extensionState,
+        staticMessageHandler,
     } from "../store/chat.svelte";
-    import type { extensionState as extensionStateType } from "../../../common";
+    import type { appendMessage, extensionState as extensionStateType } from "../../../common";
     import { chatStreaming } from "../store/chat.svelte";
     // import {specific} from "../store/chat.svelte";
 
@@ -32,6 +33,22 @@
             "message",
             (event: { data: inCommingPayload }) => {
                 switch (event.data.type) {
+                    case "appendMessage": {
+                        const payload = event.data as inCommingPayload & {
+                            data: appendMessage
+                        }
+                        console.log("__APPEND__", payload);
+                        staticMessageHandler(chatStreaming).insertAtIndex(payload.data.message, payload.data.id, payload.data.index);
+                        // const reader = chatStreaming.readers.get(payload.data.id);
+                        // if (!reader) {
+                        //     console.error("Reader undefined");
+                        //     return ;
+                        // }
+                        // reader.loaded.splice(payload.data.index, 0, payload.data.message);
+                        // reader.renderer[payload.data.index] = 
+                        // chatStreaming.readers.set(payload.data.id, reader);
+                        break ;   
+                    }
                     case "stateUpdate": {
                         const payload = event.data as inCommingPayload & {
                             data: extensionStateType;
@@ -52,10 +69,13 @@
                         const payload = event.data as inCommingPayload & {
                             data: chunckType;
                         };
+                        console.log("__CHUNK__", payload);
                         if (!payload.id) {
                             console.error("Id is undefined");
                             return ;
                         }
+                        if (!chatStreaming.isStreaming())
+                            chatStreaming.stream(payload.id)
                         chatStreaming.receiveChunk(payload.id, payload.data);
                         break;
                     }

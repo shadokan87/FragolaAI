@@ -6,6 +6,12 @@ export type messageType = OpenAI.Chat.Completions.ChatCompletionMessageParam;
 export interface extensionState {
     chat: Pick<FragolaClient.InstanceState['chat'], "id" | "isTmp">
 }
+export interface appendMessage {
+    id: string,
+    index: number,
+    message: messageType
+}
+
 export const defaultExtensionState: extensionState = {
     chat: {
         id: undefined,

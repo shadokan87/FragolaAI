@@ -2,21 +2,22 @@ import OpenAI from "openai";
 import { writableHook } from "./hooks";
 import { createHighlighter } from "shiki";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
-import { type chunckType, type extensionState, receiveStreamChunk } from "../../../common";
+import { type chunckType, type extensionState, receiveStreamChunk, type messageType, streamChunkToMessage } from "../../../common";
 import { Marked, type Token, type Tokens, type TokensList } from "marked";
 import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
+import { readableStreamAsyncIterable } from "openai/streaming.mjs";
 
 export const extensionStateStore = writableHook<extensionState | undefined>({
   initialValue: undefined,
   onUpdate(previousValue, newValue) {
-    console.log("_UPDATE_STATE_", newValue);
+    // console.log("_UPDATE_STATE_", newValue);
     return newValue;
   },
 })
 
 
-type renderFunction = (message: Partial<chunckType>) => Promise<void>;
+type renderFunction = (message: Partial<messageType>) => Promise<void>;
 type renderer = {
   render: renderFunction,
   readonly html: string,
@@ -26,7 +27,7 @@ type createRendererFn = () => renderer;
 
 export interface chatReader {
   length: number,
-  loaded: Partial<chunckType>[],
+  loaded: Partial<messageType>[],
   renderer: renderer[]
 }
 
@@ -40,6 +41,9 @@ export function createStreaming(createRenderer: createRendererFn) {
   let update = $state(false);
 
   return {
+    getCreateRenderer() {
+      return createRenderer;
+    },
     get update() {
       return update;
     },
@@ -69,6 +73,11 @@ export function createStreaming(createRenderer: createRendererFn) {
      * @param id - The ID of the chat that is streaming
      */
     stream(id: string) {
+      const reader = readers.get(id)
+      if (!reader)
+        throw new Error("Reader undefined");
+      // if (!(reader.loaded.length))
+      reader.loaded.push({});
       streamingState = id
     },
     /**
@@ -86,9 +95,8 @@ export function createStreaming(createRenderer: createRendererFn) {
       const reader = readers.get(id)
       if (!reader)
         throw new Error("Reader undefined");
-      if (!reader.loaded.length)
-        reader.loaded.push({});
-      reader.loaded[reader.loaded.length - 1] = receiveStreamChunk(reader.loaded.at(-1), chunk);
+      const asMessage = streamChunkToMessage(chunk, reader.loaded.at(-1));
+      reader.loaded[reader.loaded.length - 1] = asMessage;
       console.log("__READER__", reader);
       readers.set(id, reader);
 
@@ -98,6 +106,29 @@ export function createStreaming(createRenderer: createRendererFn) {
         await reader.renderer[reader.loaded.length - 1].render(reader.loaded[reader.loaded.length - 1])
       })();
       update = !update;
+    }
+  }
+}
+
+export function staticMessageHandler(streaming: ReturnType<typeof createStreaming>, createRenderer?: createRendererFn) {
+  const _createRenderer: createRendererFn = createRenderer || streaming.getCreateRenderer();
+
+  return {
+    insertAtIndex(message: messageType, id: string, index: number) {
+      let reader = streaming.readers.get(id);
+      if (!reader) {
+        streaming.readers.set(id, {length: 0, loaded: [], renderer: []});
+        reader = streaming.readers.get(id);
+      }
+      if (!reader) {
+        throw new Error("Failed to create reader");
+      }
+      reader.loaded.splice(index, 0, message);
+      const renderer = _createRenderer();
+      reader.renderer.splice(index, 0, renderer);
+      (async () => {
+        await renderer.render(reader.loaded[index]);
+      })();
     }
   }
 }
@@ -119,58 +150,56 @@ const chatMarkedInstance = new Marked().use({
 });
 
 const createChatMarkedRender = (markedInstance: Marked): renderer => {
-  let markdown = $state("");
+  let markdown: string = $state("");
   let tokens: TokensList | [] = $state.raw([]);
-  let html = $derived(markedInstance.parser(tokens));
+  let html: string = $derived(markedInstance.parser(tokens));
 
   const walkTokens = async (
     token: Token,
     index: number,
-) => {
+  ) => {
     if (token.type === "code") {
-        if (
-            tokens[index] &&
-            tokens[index].type == "code" &&
-            (tokens[index] as any)["id"]
-        ) {
-            (token as any)["id"] = (tokens[index] as any)["id"];
-        } else (token as any)["id"] = v4();
-        const unsubscribe = codeApi?.subscribe(v => v?.postMessage({
-            type: "syntaxHighlight",
-            data: token.text,
-            id: (token as any)["id"],
-        }));
-        unsubscribe();
+      if (
+        tokens[index] &&
+        tokens[index].type == "code" &&
+        (tokens[index] as any)["id"]
+      ) {
+        (token as any)["id"] = (tokens[index] as any)["id"];
+      } else (token as any)["id"] = v4();
+      const unsubscribe = codeApi?.subscribe(v => v?.postMessage({
+        type: "syntaxHighlight",
+        data: token.text,
+        id: (token as any)["id"],
+      }));
+      unsubscribe();
     }
-};
+  };
 
   return {
-    // get markdown() {
-    //   return markdown;
-    // },
-    // setMarkdown(newMarkdown: typeof markdown) {
-    //   markdown = newMarkdown;
-    // },
-    // get tokens() {
-    //   return tokens;
-    // },
-    // setTokens(newTokens: typeof tokens) {
-    //   tokens = newTokens;
-    // },
     get html() {
       return html;
     },
-    async render(message: Partial<chunckType>) {
-      if (!message.choices)
-        return ;
-      markdown = message.choices[0].delta.content || "";
-      const newTokens = markedInstance.Lexer.lex(markdown);
-      await Promise.all(
-          newTokens.map((token, index) =>
+    async render(message: Partial<messageType>) {
+      let newTokens: TokensList | undefined = undefined;
+      switch (message.role) {
+        case "user": // Intentional no-break
+        case "assistant": {
+          if (!message.content)
+            return;
+          markdown = Array.isArray(message.content) ? message.content.join(' ') : message.content;
+          // console.log("__MARKDOWN__", markdown);
+          newTokens = markedInstance.Lexer.lex(markdown);
+          break;
+        }
+      }
+      if (newTokens) {
+          await Promise.all(
+            newTokens.map((token, index) =>
               walkTokens(token, index),
-          ),
-      );
-      tokens = newTokens;
+            ),
+          );
+          tokens = newTokens;
+      }
     }
   };
 };

@@ -14,20 +14,6 @@
     import { codeBlockHighlight, extensionStateStore } from "../store/chat.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
 
-    const markedInstance = new Marked().use({
-        renderer: {
-            code(token: Tokens.Code) {
-                const el = document.createElement("code-block");
-                const id: string | undefined = (token as any)['id'];
-                if (id) {
-                    const content = codeBlockHighlight().get(id);
-                    el.setAttribute("content", content ? content : "");
-                }
-                el.setAttribute("lang", token.lang || "");
-                return el.outerHTML;
-            },
-        },
-    });
 </script>
 
 <main class="chat-grid">

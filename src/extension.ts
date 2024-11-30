@@ -190,7 +190,16 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                         const userMessage = message as ChatWorkerPayload;
                         userMessage.id = fragola.chat.getState().id;
-                        await fragola.chat.addMessage({role: "user", content: userMessage.data.prompt})
+                        await fragola.chat.addMessage({role: "user", content: userMessage.data.prompt}, async (message) => {
+                            webviewView.webview.postMessage({
+                                type: "appendMessage",
+                                data: {
+                                    id: userMessage.id,
+                                    index: userMessage.data.loadedLength - Number((userMessage.data.loadedLength > 0)),
+                                    message: message
+                                }
+                            })
+                        });
                         const assistantStreamResult = await handleChatRequest(context, webviewView.webview, userMessage);
                         let asMessage = streamChunkToMessage(assistantStreamResult);
                         if (!asMessage.content)

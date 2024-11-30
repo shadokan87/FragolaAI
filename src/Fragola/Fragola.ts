@@ -123,12 +123,13 @@ export namespace FragolaClient {
             return id;
         }
 
-        async addMessage(newMessage: messageType) {
+        async addMessage(newMessage: messageType, notify?: (newMessage: messageType) => Promise<void>) {
             if (!this.currentState.id)
                 throw new Error("No discussion selected");
             await this.currentState.db?.update((data) => {
                 data.messages.push(newMessage)
             });
+            notify && await notify(newMessage);
         }
     }
 
