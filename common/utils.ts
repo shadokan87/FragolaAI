@@ -1,4 +1,4 @@
-import { chunckType } from "@types";
+import { chunckType, messageType } from "@types";
 import OpenAI from "openai";
 
 export const receiveStreamChunk = (message: Partial<chunckType>, chunk: chunckType) => {
@@ -14,3 +14,15 @@ export const receiveStreamChunk = (message: Partial<chunckType>, chunk: chunckTy
     }
     return updatedMessage;
 }
+
+export const streamChunkToMessage = (chunk: chunckType, message: Partial<messageType> = {} as Partial<messageType>) => {
+    let updatedMessage = structuredClone(message);
+    if (chunk.choices[0].delta.role) {
+        updatedMessage.role = chunk.choices[0].delta.role;
+    }
+    updatedMessage.content = (message.content || '') + (chunk.choices[0].delta.content || '');
+    return updatedMessage;
+}
+
+
+// const test: OpenAI.Chat.Completions.ChatCompletion[] = []

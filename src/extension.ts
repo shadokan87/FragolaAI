@@ -8,9 +8,10 @@ import { FragolaClient } from './Fragola/Fragola.ts';
 import markdown_code_snippet from "./test/streamMocks/markdown_code_snippet.json";
 import knex from 'knex';
 import { config } from 'dotenv';
-import { chunckType, defaultExtensionState, extensionState } from '@types';
+import { chunckType, defaultExtensionState, extensionState, messageType } from '@types';
 import { inTypeUnion } from './workers/types.ts';
 import OpenAI from 'openai';
+import { streamChunkToMessage } from '@utils';
 
 console.log(process.env);
 
@@ -189,18 +190,15 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                         const userMessage = message as ChatWorkerPayload;
                         userMessage.id = fragola.chat.getState().id;
-                        // await fragola.chat.addMessage({
-                        //     choices: [{
-                        //         delta: {
-                        //             content: userMessage.data.prompt,
-                        //             role: "user",
-                        //         },
-                        //         finish_reason: null,
-                        //         index: 0
-                        //     }]
-                        // })
-                        const newMessage = await handleChatRequest(context, webviewView.webview, message as ChatWorkerPayload);
-                        console.log("!msg", newMessage);
+                        await fragola.chat.addMessage({role: "user", content: userMessage.data.prompt})
+                        const assistantStreamResult = await handleChatRequest(context, webviewView.webview, userMessage);
+                        let asMessage = streamChunkToMessage(assistantStreamResult);
+                        if (!asMessage.content)
+                            asMessage.content = "";
+                        if (!asMessage.role)
+                            asMessage.role = "assistant";
+                        await fragola.chat.addMessage(asMessage as messageType);
+                        console.log("!msg", assistantStreamResult);
                         break;
                     case "syntaxHighlight": {
                         const shikiInfo = bundledThemesInfo.find(

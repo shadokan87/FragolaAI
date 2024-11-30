@@ -7,15 +7,10 @@ import moment from 'moment';
 import { readdir } from "fs/promises";
 import { Low } from "lowdb";
 import { JSONFilePreset } from "lowdb/node";
-import { chunckType, extensionState } from "@types";
+import { chunckType,messageType, extensionState } from "@types";
 import { BehaviorSubject } from 'rxjs';
 
 export namespace FragolaClient {
-    export interface chat {
-        id: string,
-        messages: chunckType[]
-    }
-
     interface chatFile {
         id: string
         createdAt: string,
@@ -27,7 +22,7 @@ export namespace FragolaClient {
         chat: {
             id: string | undefined,
             db?: Low<{
-                messages: chunckType[];
+                messages: messageType[];
             }>;
             isTmp?: boolean
         }
@@ -107,16 +102,16 @@ export namespace FragolaClient {
                 const dbFile = await getChatFiles(this.utils, "chat", `${state.id}*`);
                 if (!dbFile.length)
                     throw new Error(`Chat file for id: ${state.id} does not exist.`);
-                const db = await JSONFilePreset<{ messages: chunckType[] }>(chatFileJoin(this.utils, dbFile[0]), { messages: [] });
+                const db = await JSONFilePreset<{ messages: messageType[] }>(chatFileJoin(this.utils, dbFile[0]), { messages: [] });
                 state.db = db;
                 this.stateSubject.next(state);
             }
         }
 
-        async create(newMessages: chunckType[], label: string) {
+        async create(newMessages: messageType[], label: string) {
             const id = v4();
             const dateStr = moment().format('YYYY-MM-DD');
-            const db = await JSONFilePreset<{ messages: chunckType[] }>(
+            const db = await JSONFilePreset<{ messages: messageType[] }>(
                 this.utils.join("src", "data", "chat", `${id}:${dateStr}:${dateStr}:${label}.json`).fsPath,
                 { messages: [] }
             );
@@ -128,7 +123,7 @@ export namespace FragolaClient {
             return id;
         }
 
-        async addMessage(newMessage: chunckType) {
+        async addMessage(newMessage: messageType) {
             if (!this.currentState.id)
                 throw new Error("No discussion selected");
             await this.currentState.db?.update((data) => {
