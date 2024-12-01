@@ -27,7 +27,7 @@ export const createUtils = <T>(webview: vscode.Webview, extensionUri: vscode.Uri
     return {
         joinAsWebViewUri: (...paths: string[]) => joinAsWebViewUri(webview, extensionUri, ...paths),
         join: (...paths: string[]) => _join(webview, extensionUri, ...paths),
-        postMessage: (message: {type: inTypeUnion, data: T, id?: string}) => {
+        postMessage: (message: { type: inTypeUnion, data: T, id?: string }) => {
             return webview.postMessage(message);
         }
     };
@@ -139,17 +139,17 @@ export async function activate(context: vscode.ExtensionContext) {
         ) {
             resolveWebview(webviewView, context.extensionUri);
             const utils = createUtils(webviewView.webview, context.extensionUri);
-            config({path: utils.join(".env").fsPath})
+            config({ path: utils.join(".env").fsPath })
             console.log("key: ", process.env.OPENROUTER_API_KEY);
             function restoreExtensionState(): extensionState {
                 return defaultExtensionState;
             }
             let extensionState = restoreExtensionState();
-            const fragola = new FragolaClient.createInstance(utils, new FragolaClient.Chat({...extensionState.chat}));
+            const fragola = new FragolaClient.createInstance(utils, new FragolaClient.Chat({ ...extensionState.chat }));
 
             // Subscribe to chat state changes
             fragola.chat.state$.subscribe(chatState => {
-                const newState = {...extensionState, chat: chatState};
+                const newState = { ...extensionState, chat: chatState };
                 extensionState = newState;
                 webviewView.webview.postMessage({
                     type: "stateUpdate",
@@ -188,19 +188,20 @@ export async function activate(context: vscode.ExtensionContext) {
                             // Create a new empty chat, will generate a new id and set it as current
                             await fragola.chat.create([], "test");
                         }
-                        const userMessage = message as ChatWorkerPayload;
-                        userMessage.id = fragola.chat.getState().id;
-                        await fragola.chat.addMessage({role: "user", content: userMessage.data.prompt}, async (message) => {
-                            webviewView.webview.postMessage({
-                                type: "appendMessage",
-                                data: {
-                                    id: userMessage.id,
-                                    index: userMessage.data.loadedLength - Number((userMessage.data.loadedLength > 0)),
-                                    message: message
-                                }
-                            })
-                        });
-                        const assistantStreamResult = await handleChatRequest(context, webviewView.webview, userMessage);
+                        const userMessagePayload = message as ChatWorkerPayload;
+                        const userMessage: messageType = { role: "user", content: userMessagePayload.data.prompt };
+                        webviewView.webview.postMessage({
+                            type: "appendMessage",
+                            data: {
+                                id: userMessagePayload.id,
+                                index: userMessagePayload.data.loadedLength - Number((userMessagePayload.data.loadedLength > 0)),
+                                message: userMessage
+                            }
+                        })
+
+                        userMessagePayload.id = fragola.chat.getState().id;
+                        await fragola.chat.addMessage(userMessage);
+                        const assistantStreamResult = await handleChatRequest(context, webviewView.webview, userMessagePayload);
                         let asMessage = streamChunkToMessage(assistantStreamResult);
                         if (!asMessage.content)
                             asMessage.content = "";
@@ -226,7 +227,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         break;
                     }
                     case "online": {
-                        postMessage({type: "stateUpdate", data: extensionState})
+                        postMessage({ type: "stateUpdate", data: extensionState })
                         sendThemeInfo(currentThemeId);
                         return;
                     }

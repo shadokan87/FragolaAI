@@ -9,7 +9,7 @@
     import { type ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi } from "../store/vscode";
     import { v4 } from "uuid";
-    import { chatStreaming } from "../store/chat.svelte";
+    import { chatStreaming, staticMessageHandler } from "../store/chat.svelte";
     import { extensionStateStore as extensionState } from "../store/chat.svelte";
 
     let inputFocus = $state(false);

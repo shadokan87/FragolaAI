@@ -129,6 +129,23 @@ export function staticMessageHandler(streaming: ReturnType<typeof createStreamin
       (async () => {
         await renderer.render(reader.loaded[index]);
       })();
+    },
+
+    append(message: messageType, id: string) {
+      let reader = streaming.readers.get(id);
+      if (!reader) {
+        streaming.readers.set(id, {length: 0, loaded: [], renderer: []});
+        reader = streaming.readers.get(id);
+      }
+      if (!reader) {
+        throw new Error("Failed to create reader");
+      }
+      reader.loaded.push(message);
+      const renderer = _createRenderer();
+      reader.renderer.push(renderer);
+      (async () => {
+        await renderer.render(reader.loaded[reader.loaded.length - 1]);
+      })();
     }
   }
 }

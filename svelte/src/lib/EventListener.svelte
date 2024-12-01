@@ -38,15 +38,7 @@
                             data: appendMessage
                         }
                         console.log("__APPEND__", payload);
-                        staticMessageHandler(chatStreaming).insertAtIndex(payload.data.message, payload.data.id, payload.data.index);
-                        // const reader = chatStreaming.readers.get(payload.data.id);
-                        // if (!reader) {
-                        //     console.error("Reader undefined");
-                        //     return ;
-                        // }
-                        // reader.loaded.splice(payload.data.index, 0, payload.data.message);
-                        // reader.renderer[payload.data.index] = 
-                        // chatStreaming.readers.set(payload.data.id, reader);
+                        staticMessageHandler(chatStreaming).append(payload.data.message, payload.data.id);
                         break ;   
                     }
                     case "stateUpdate": {
