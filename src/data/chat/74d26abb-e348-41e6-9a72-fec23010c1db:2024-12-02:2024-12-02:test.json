@@ -1,0 +1,12 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "How to use splice javascript ?"
+    },
+    {
+      "role": "assistant",
+      "content": "**Using Splice() in JavaScript**\n=====================================\n\nThe `splice()` method in JavaScript is used to add or remove elements from an array. It can be used to replace elements in the array or delete elements without replacing them.\n\n**Syntax**\n--------\n\n```javascript\narray.splice(start, deleteCount, item1, item2, ...)\n```\n\n* `start`: The index at which to start changing the array. If `start` is greater than the length of the array, `splice()` will not do anything.\n* `deleteCount`: An integer indicating the number of elements to remove from the array. If `deleteCount` is not provided, all elements from the `start` index to the end of the array are removed.\n* `item1, item2, ...`: Elements to add to the array.\n\n**Examples**\n------------\n\n### 1. Adding Elements\n\n```javascript\nlet fruits = ['apple', 'banana', 'cherry'];\nfruits.splice(1, 0, 'orange', 'grape');\nconsole.log(fruits); // ['apple', 'orange', 'grape', 'banana', 'cherry']\n```\n\n### 2. Replacing Elements\n\n```javascript\nlet fruits = ['apple', 'banana', 'cherry'];\nfruits.splice(1, 1, 'orange', 'grape');\nconsole.log(fruits); // ['apple', 'orange', 'grape', 'cherry']\n```\n\n### 3. Deleting Elements\n\n```javascript\nlet fruits = ['apple', 'banana', 'cherry'];\nfruits.splice(1, 1);\nconsole.log(fruits); // ['apple', 'cherry']\n```\n\n### 4. Deleting Multiple Elements\n\n```javascript\nlet fruits = ['apple', 'banana', 'cherry', 'date', 'elderberry'];\nfruits.splice(1, 2);\nconsole.log(fruits); // ['apple', 'date', 'elderberry']\n```\n\n### 5. Removing Elements from the End of the Array\n\n```javascript\nlet fruits = ['apple', 'banana', 'cherry', 'date', 'elderberry'];\nfruits.splice(3);\nconsole.log(fruits); // ['apple', 'banana', 'cherry']\n```\n\n**Returns**\n----------\n\nThe `splice()` method returns an array containing the deleted elements.\n\n```javascript\nlet fruits = ['apple', 'banana', 'cherry'];\nlet deletedFruits = fruits.splice(1, 1);\nconsole.log(deletedFruits); // ['banana']\n```"
+    }
+  ]
+}

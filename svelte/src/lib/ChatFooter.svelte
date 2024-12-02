@@ -12,9 +12,10 @@
     import { chatStreaming, staticMessageHandler, TMP_READER_SENTINEL } from "../store/chat.svelte";
     import { extensionStateStore as extensionState } from "../store/chat.svelte";
     import type { messageType } from "../../../common";
+    import { BehaviorSubject } from "rxjs";
 
     let inputFocus = $state(false);
-    let prompt = $state("");
+    let prompt = $state("How to use splice javascript ?");
 
     const chatInputWrapper: ClassNamesObject = $derived({
         "chat-input-wrapper": true,
@@ -36,13 +37,13 @@
                         if (!$extensionState?.chat.id)
                             return 0;
                         const reader = chatStreaming.readers.get($extensionState.chat.id);
-                        return (reader && reader?.loaded.length) || 0;
+                        return (reader && reader?.loaded$.getValue().length) || 0;
                     })()
                 },
             };
             $codeApi?.postMessage(payload);
             const userMessage: messageType = {role: "user", content: payload.data.prompt};
-            chatStreaming.readers.set(TMP_READER_SENTINEL, {length: 1, loaded: [userMessage], renderer: ["user"]});
+            chatStreaming.readers.set(TMP_READER_SENTINEL, {length: 1, loaded$: new BehaviorSubject<Partial<messageType>[]>([userMessage]), renderer: ["user"]});
 
             console.log("!submit", input.value);
         }
