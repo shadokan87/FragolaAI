@@ -184,23 +184,14 @@ export async function activate(context: vscode.ExtensionContext) {
                         break;
                     case 'chatRequest':
                         console.log("#br1", message.data);
-                        if (extensionState.chat.isTmp) {
-                            // Create a new empty chat, will generate a new id and set it as current
-                            await fragola.chat.create([], "test");
-                        }
                         const userMessagePayload = message as ChatWorkerPayload;
                         const userMessage: messageType = { role: "user", content: userMessagePayload.data.prompt };
-                        webviewView.webview.postMessage({
-                            type: "appendMessage",
-                            data: {
-                                id: userMessagePayload.id,
-                                index: userMessagePayload.data.loadedLength - Number((userMessagePayload.data.loadedLength > 0)),
-                                message: userMessage
-                            }
-                        })
+                        if (extensionState.chat.isTmp) {
+                            // Create a new empty chat, will generate a new id and set it as current
+                            await fragola.chat.create([userMessage], "test");
+                        }
 
                         userMessagePayload.id = fragola.chat.getState().id;
-                        await fragola.chat.addMessage(userMessage);
                         const assistantStreamResult = await handleChatRequest(context, webviewView.webview, userMessagePayload);
                         let asMessage = streamChunkToMessage(assistantStreamResult);
                         if (!asMessage.content)

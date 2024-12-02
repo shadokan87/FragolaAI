@@ -10,6 +10,8 @@
         codeBlockHighlight,
         extensionStateStore as extensionState,
         staticMessageHandler,
+        TMP_READER_SENTINEL,
+        type chatReader,
     } from "../store/chat.svelte";
     import type { appendMessage, extensionState as extensionStateType } from "../../../common";
     import { chatStreaming } from "../store/chat.svelte";
@@ -33,22 +35,10 @@
             "message",
             (event: { data: inCommingPayload }) => {
                 switch (event.data.type) {
-                    case "appendMessage": {
-                        const payload = event.data as inCommingPayload & {
-                            data: appendMessage
-                        }
-                        console.log("__APPEND__", payload);
-                        staticMessageHandler(chatStreaming).append(payload.data.message, payload.data.id);
-                        break ;   
-                    }
                     case "stateUpdate": {
                         const payload = event.data as inCommingPayload & {
                             data: extensionStateType;
                         };
-                        if (payload.data.chat.id) {
-                            if (!chatStreaming.readers.get(payload.data.chat.id)) // Prepare reader to receive data
-                                chatStreaming.readers.set(payload.data.chat.id, {length: 1, loaded: [], renderer: []});
-                        }
                         console.log("__STATE__", payload);
                         extensionState.update(() => payload.data);
                         break;

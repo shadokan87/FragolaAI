@@ -11,24 +11,46 @@ import { readableStreamAsyncIterable } from "openai/streaming.mjs";
 export const extensionStateStore = writableHook<extensionState | undefined>({
   initialValue: undefined,
   onUpdate(previousValue, newValue) {
-    // console.log("_UPDATE_STATE_", newValue);
+    if (!newValue?.chat.id) {
+      console.log("No chat id");
+      return newValue;
+    }
+    let defaultReaderValue: chatReader = {
+      length: 1,
+      loaded: [],
+      renderer: []
+    }
+    const isFirstChatResponse = previousValue?.chat.isTmp && !newValue.chat.isTmp;
+    if (isFirstChatResponse) { // Previous state was tmp which means this is a new chat with 1st response case
+      const tmpReader = chatStreaming.readers.get(TMP_READER_SENTINEL);
+      if (tmpReader) { // Should normally be set as it contains first user message
+        /* We keep the tmp state saved earlier for the currently new message and delete the tmp
+        Because we did not receive the chat.id immediately */
+        defaultReaderValue = { ...tmpReader };
+        chatStreaming.readers.delete(TMP_READER_SENTINEL);
+      }
+    }
+    if (!chatStreaming.readers.get(newValue.chat.id)) // Prepare reader to receive data
+      chatStreaming.readers.set(newValue.chat.id, defaultReaderValue);
     return newValue;
   },
 })
 
 
 type renderFunction = (message: Partial<messageType>) => Promise<void>;
-type renderer = {
+export type noRenderer = "user" | "tool";
+export type renderer = {
   render: renderFunction,
   readonly html: string,
   [key: string]: any
 };
 type createRendererFn = () => renderer;
 
+export const TMP_READER_SENTINEL = "<TMP>";
 export interface chatReader {
   length: number,
   loaded: Partial<messageType>[],
-  renderer: renderer[]
+  renderer: (renderer | noRenderer)[]
 }
 
 /**
@@ -100,11 +122,15 @@ export function createStreaming(createRenderer: createRendererFn) {
       console.log("__READER__", reader);
       readers.set(id, reader);
 
-      if (!reader.renderer.length || !reader.renderer[reader.loaded.length - 1])
-        reader.renderer.push(createRenderer());
-      (async () => {
-        await reader.renderer[reader.loaded.length - 1].render(reader.loaded[reader.loaded.length - 1])
-      })();
+      if (!reader.renderer.length || !reader.renderer[reader.loaded.length - 1]) {
+        if (chunk.choices[0].delta.role != "user" && chunk.choices[0].delta.role != "tool") {
+          reader.renderer.push(createRenderer());
+          (async () => {
+            await (reader.renderer[reader.loaded.length - 1] as renderer).render(reader.loaded[reader.loaded.length - 1])
+          })();
+        } else
+          reader.renderer.push(chunk.choices[0].delta.role);
+      }
       update = !update;
     }
   }
@@ -114,27 +140,10 @@ export function staticMessageHandler(streaming: ReturnType<typeof createStreamin
   const _createRenderer: createRendererFn = createRenderer || streaming.getCreateRenderer();
 
   return {
-    insertAtIndex(message: messageType, id: string, index: number) {
-      let reader = streaming.readers.get(id);
-      if (!reader) {
-        streaming.readers.set(id, {length: 0, loaded: [], renderer: []});
-        reader = streaming.readers.get(id);
-      }
-      if (!reader) {
-        throw new Error("Failed to create reader");
-      }
-      reader.loaded.splice(index, 0, message);
-      const renderer = _createRenderer();
-      reader.renderer.splice(index, 0, renderer);
-      (async () => {
-        await renderer.render(reader.loaded[index]);
-      })();
-    },
-
     append(message: messageType, id: string) {
       let reader = streaming.readers.get(id);
       if (!reader) {
-        streaming.readers.set(id, {length: 0, loaded: [], renderer: []});
+        streaming.readers.set(id, { length: 0, loaded: [], renderer: [] });
         reader = streaming.readers.get(id);
       }
       if (!reader) {
@@ -210,12 +219,12 @@ const createChatMarkedRender = (markedInstance: Marked): renderer => {
         }
       }
       if (newTokens) {
-          await Promise.all(
-            newTokens.map((token, index) =>
-              walkTokens(token, index),
-            ),
-          );
-          tokens = newTokens;
+        await Promise.all(
+          newTokens.map((token, index) =>
+            walkTokens(token, index),
+          ),
+        );
+        tokens = newTokens;
       }
     }
   };
