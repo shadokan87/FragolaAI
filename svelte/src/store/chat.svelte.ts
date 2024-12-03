@@ -8,37 +8,9 @@ import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
 import { readableStreamAsyncIterable } from "openai/streaming.mjs";
 
-export const extensionStateStore = writableHook<extensionState | undefined>({
-  initialValue: undefined,
-  onUpdate(previousValue, newValue) {
-    if (!newValue?.chat.id) {
-      console.log("No chat id");
-      return newValue;
-    }
-    let defaultReaderValue: chatReader = {
-      length: 1,
-      loaded: [],
-      renderer: []
-    }
-    const isFirstChatResponse = previousValue?.chat.isTmp && !newValue.chat.isTmp;
-    if (isFirstChatResponse) { // Previous state was tmp which means this is a new chat with 1st response case
-      const tmpReader = chatStreaming.readers.get(TMP_READER_SENTINEL);
-      if (tmpReader) { // Should normally be set as it contains first user message
-        /* We keep the tmp state saved earlier for the currently new message and delete the tmp
-        Because we did not receive the chat.id immediately */
-        defaultReaderValue = { ...tmpReader };
-        chatStreaming.readers.delete(TMP_READER_SENTINEL);
-      }
-    }
-    if (!chatStreaming.readers.get(newValue.chat.id)) // Prepare reader to receive data
-      chatStreaming.readers.set(newValue.chat.id, defaultReaderValue);
-    return newValue;
-  },
-})
-
 
 type renderFunction = (message: Partial<messageType>) => Promise<void>;
-export type noRenderer = "user" | "tool";
+export type renderedByComponent = "user" | "tool";
 export type renderer = {
   render: renderFunction,
   readonly html: string,
@@ -50,7 +22,39 @@ export const TMP_READER_SENTINEL = "<TMP>";
 export interface chatReader {
   length: number,
   loaded: Partial<messageType>[],
-  renderer: (renderer | noRenderer)[]
+  renderer: (renderer | renderedByComponent)[]
+}
+
+export const chatReaderDefault: chatReader = {
+  length: 0,
+  loaded: [],
+  renderer: []
+}
+
+export function createChatReader(values: chatReader = chatReaderDefault) {
+  let length = $state(values.length);
+  let loaded = $state.raw(values.loaded);
+  let renderer = $state(values.renderer);
+  return {
+    get length() {
+      return length;
+    },
+    set length(value: number) {
+      length = value;
+    },
+    get loaded() {
+      return loaded;
+    },
+    set loaded(value: Partial<messageType>[]) {
+      loaded = value;
+    },
+    get renderer() {
+      return renderer;
+    },
+    set renderer(value: (renderer | renderedByComponent)[]) {
+      renderer = value;
+    }
+  }
 }
 
 /**
@@ -98,8 +102,8 @@ export function createStreaming(createRenderer: createRendererFn) {
       const reader = readers.get(id)
       if (!reader)
         throw new Error("Reader undefined");
-      // if (!(reader.loaded.length))
-      reader.loaded.push({});
+      reader.loaded = [...reader.loaded, {}];
+      reader.length = reader.length + 1;
       streamingState = id
     },
     /**
@@ -117,24 +121,48 @@ export function createStreaming(createRenderer: createRendererFn) {
       const reader = readers.get(id)
       if (!reader)
         throw new Error("Reader undefined");
-      const asMessage = streamChunkToMessage(chunk, reader.loaded.at(-1));
-      reader.loaded[reader.loaded.length - 1] = asMessage;
       console.log("__READER__", reader);
-      readers.set(id, reader);
-
-      if (!reader.renderer.length || !reader.renderer[reader.loaded.length - 1]) {
-        if (chunk.choices[0].delta.role != "user" && chunk.choices[0].delta.role != "tool") {
-          reader.renderer.push(createRenderer());
+      const asMessage = streamChunkToMessage(chunk, reader.loaded.at(-1));
+      const newLoaded = [...reader.loaded];
+      newLoaded[newLoaded.length - 1] = asMessage;
+      reader.loaded = newLoaded;
+      
+      if (["tool"].includes(chunk.choices[0].delta.role || "")) {
+        reader.renderer = [...reader.renderer, chunk.choices[0].delta.role as renderedByComponent];
+      } else {
+        if (!reader.renderer[reader.loaded.length - 1]) {
+          reader.renderer = [...reader.renderer, createRenderer()];
+        }
           (async () => {
-            await (reader.renderer[reader.loaded.length - 1] as renderer).render(reader.loaded[reader.loaded.length - 1])
+            await (reader.renderer.at(-1) as renderer)?.render(asMessage)
           })();
-        } else
-          reader.renderer.push(chunk.choices[0].delta.role);
       }
       update = !update;
     }
   }
 }
+
+export const extensionStateStore = writableHook<extensionState | undefined>({
+  initialValue: undefined,
+  onUpdate(previousValue, newValue) {
+    if (!newValue?.chat.id) {
+      console.log("No chat id");
+      return newValue;
+    }
+    let defaultReaderValue: chatReader = chatReaderDefault;
+    const isFirstChatResponse = previousValue?.chat.isTmp && !newValue.chat.isTmp;
+    if (isFirstChatResponse) {
+      const tmpReader = chatStreaming.readers.get(TMP_READER_SENTINEL);
+      if (tmpReader) {
+        defaultReaderValue = { ...tmpReader };
+        chatStreaming.readers.delete(TMP_READER_SENTINEL);
+      }
+    }
+    if (!chatStreaming.readers.get(newValue.chat.id)) // Prepare reader to receive data
+      chatStreaming.readers.set(newValue.chat.id, createChatReader(defaultReaderValue));
+    return newValue;
+  },
+})
 
 export function staticMessageHandler(streaming: ReturnType<typeof createStreaming>, createRenderer?: createRendererFn) {
   const _createRenderer: createRendererFn = createRenderer || streaming.getCreateRenderer();
@@ -143,17 +171,18 @@ export function staticMessageHandler(streaming: ReturnType<typeof createStreamin
     append(message: messageType, id: string) {
       let reader = streaming.readers.get(id);
       if (!reader) {
-        streaming.readers.set(id, { length: 0, loaded: [], renderer: [] });
+        streaming.readers.set(id, createChatReader());
         reader = streaming.readers.get(id);
       }
       if (!reader) {
         throw new Error("Failed to create reader");
       }
-      reader.loaded.push(message);
-      const renderer = _createRenderer();
-      reader.renderer.push(renderer);
+      const newRenderer = _createRenderer();
+      reader.loaded = [...reader.loaded, message];
+      reader.renderer = [...reader.renderer, newRenderer];
+      
       (async () => {
-        await renderer.render(reader.loaded[reader.loaded.length - 1]);
+        await newRenderer.render(message);
       })();
     }
   }
