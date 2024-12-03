@@ -19,7 +19,7 @@ export const extensionStateStore = writableHook<extensionState | undefined>({
     let defaultReaderValue: chatReader = {
       length: 1,
       loaded$: new BehaviorSubject<Partial<messageType>[]>([]),
-      renderer: []
+      renderer$: new BehaviorSubject<(renderer | noRenderer)[]>([])
     }
     const isFirstChatResponse = previousValue?.chat.isTmp && !newValue.chat.isTmp;
     if (isFirstChatResponse) {
@@ -28,7 +28,7 @@ export const extensionStateStore = writableHook<extensionState | undefined>({
         defaultReaderValue = {
           length: tmpReader.length,
           loaded$: new BehaviorSubject(tmpReader.loaded$.getValue()),
-          renderer: [...tmpReader.renderer]
+          renderer$: new BehaviorSubject(tmpReader.renderer$.getValue())
         };
         chatStreaming.readers.delete(TMP_READER_SENTINEL);
       }
@@ -52,7 +52,7 @@ export const TMP_READER_SENTINEL = "<TMP>";
 export interface chatReader {
   length: number,
   loaded$: BehaviorSubject<Partial<messageType>[]>,
-  renderer: (renderer | noRenderer)[]
+  renderer$: BehaviorSubject<(renderer | noRenderer)[]>
 }
 
 export function createStreaming(createRenderer: createRendererFn) {
@@ -93,6 +93,7 @@ export function createStreaming(createRenderer: createRendererFn) {
         throw new Error("Reader undefined");
 
       const currentMessages = reader.loaded$.getValue();
+      const currentRenderers = reader.renderer$.getValue();
       const asMessage = streamChunkToMessage(chunk, currentMessages[currentMessages.length - 1]);
       const newMessages = [...currentMessages.slice(0, -1), asMessage];
       reader.loaded$.next(newMessages);
@@ -101,24 +102,17 @@ export function createStreaming(createRenderer: createRendererFn) {
       readers.set(id, reader);
 
       if (["user", "tool"].includes(chunk.choices[0].delta.role || "")) {
-        reader.renderer.push(chunk.choices[0].delta.role as noRenderer);
+        reader.renderer$.next([...currentRenderers, chunk.choices[0].delta.role as noRenderer]);
       } else {
-        if (!reader.renderer[newMessages.length - 1])
-          reader.renderer.push(createRenderer());
+        if (!currentRenderers[newMessages.length - 1]) {
+          const newRenderers = [...currentRenderers, createRenderer()];
+          reader.renderer$.next(newRenderers);
+        }
         (async () => {
-          await (reader.renderer[newMessages.length - 1] as renderer).render(newMessages[newMessages.length - 1])
+          await (reader.renderer$.getValue()[newMessages.length - 1] as renderer).render(newMessages[newMessages.length - 1])
         })();
       }
 
-      // if (!reader.renderer.length || !reader.renderer[newMessages.length - 1]) {
-      //   if (chunk.choices[0].delta.role != "user" && chunk.choices[0].delta.role != "tool") {
-      //     reader.renderer.push(createRenderer());
-      //     (async () => {
-      //       await (reader.renderer[newMessages.length - 1] as renderer).render(newMessages[newMessages.length - 1])
-      //     })();
-      //   } else
-      //     reader.renderer.push(chunk.choices[0].delta.role);
-      // }
       update = !update;
     }
   }
@@ -134,7 +128,7 @@ export function staticMessageHandler(streaming: ReturnType<typeof createStreamin
         streaming.readers.set(id, {
           length: 0,
           loaded$: new BehaviorSubject<Partial<messageType>[]>([]),
-          renderer: []
+          renderer$: new BehaviorSubject<(renderer | noRenderer)[]>([])
         });
         reader = streaming.readers.get(id);
       }
@@ -142,9 +136,10 @@ export function staticMessageHandler(streaming: ReturnType<typeof createStreamin
         throw new Error("Failed to create reader");
       }
       const currentMessages = reader.loaded$.getValue();
+      const currentRenderers = reader.renderer$.getValue();
       reader.loaded$.next([...currentMessages, message]);
       const renderer = _createRenderer();
-      reader.renderer.push(renderer);
+      reader.renderer$.next([...currentRenderers, renderer]);
       (async () => {
         await renderer.render(message);
       })();
@@ -198,14 +193,12 @@ const createChatMarkedRender = (markedInstance: Marked): renderer => {
       return html;
     },
     async render(message: Partial<messageType>) {
-      // console.log("__CALL_RENDER__", message);
       let newTokens: TokensList | undefined = undefined;
       switch (message.role) {
         case "assistant": {
           if (!message.content)
             return;
           markdown = Array.isArray(message.content) ? message.content.join(' ') : message.content;
-          // console.log("__MARKDOWN__", markdown);
           newTokens = markedInstance.Lexer.lex(markdown);
           break;
         }

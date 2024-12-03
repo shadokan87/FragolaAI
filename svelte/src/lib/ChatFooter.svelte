@@ -9,7 +9,7 @@
     import { type ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi } from "../store/vscode";
     import { v4 } from "uuid";
-    import { chatStreaming, staticMessageHandler, TMP_READER_SENTINEL } from "../store/chat.svelte";
+    import { chatStreaming, staticMessageHandler, TMP_READER_SENTINEL, type chatReader } from "../store/chat.svelte";
     import { extensionStateStore as extensionState } from "../store/chat.svelte";
     import type { messageType } from "../../../common";
     import { BehaviorSubject } from "rxjs";
@@ -43,7 +43,8 @@
             };
             $codeApi?.postMessage(payload);
             const userMessage: messageType = {role: "user", content: payload.data.prompt};
-            chatStreaming.readers.set(TMP_READER_SENTINEL, {length: 1, loaded$: new BehaviorSubject<Partial<messageType>[]>([userMessage]), renderer: ["user"]});
+            const id = $extensionState?.chat.id || TMP_READER_SENTINEL;
+            chatStreaming.readers.set(id, {length: 1, loaded$: new BehaviorSubject<chatReader['loaded$']['_value']>([userMessage]), renderer$: new BehaviorSubject<chatReader['renderer$']['_value']>(["user"])});
 
             console.log("!submit", input.value);
         }
