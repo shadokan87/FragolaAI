@@ -39,7 +39,7 @@
     .chat-grid {
         display: grid;
         grid-template-rows: 1fr auto;
-        height: 100vh;
+        height: inherit;
     }
     .chat-messages {
         overflow-y: auto;

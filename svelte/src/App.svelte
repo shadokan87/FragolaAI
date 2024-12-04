@@ -7,6 +7,7 @@
   import CodeBlock from "./lib/CodeBlock.svelte";
   import { type extensionState as extensionStateType } from "../../common";
   import { extensionStateStore as extensionState} from "./store/chat.svelte";
+  import Nav from "./Nav.svelte";
 
   function registerCustomElements() {
     if (!customElements.get("code-block")) {
@@ -29,13 +30,39 @@
   });
 </script>
 
-<EventListener />
-{#if $extensionState == undefined}
-  <h1>{"Loading ..."}</h1>
-{:else}
-<Router>
-  <Route path="/chat">
-    <Chat />
-  </Route>
-</Router>
-{/if}
+<div class="app-grid">
+  <EventListener />
+  <div class="nav">
+    <Nav />
+  </div>
+  <div class="content">
+    {#if $extensionState == undefined}
+      <h1>{"Loading ..."}</h1>
+    {:else}
+      <Router>
+        <Route path="/chat">
+          <Chat />
+        </Route>
+      </Router>
+    {/if}
+  </div>
+</div>
+
+<style lang="scss">
+  .app-grid {
+    display: grid;
+    grid-template-rows: auto 2fr;
+    height: 100vh;
+    width: 100%;
+  }
+
+  .nav {
+    grid-row: 1;
+  }
+
+  .content {
+    grid-row: 2;
+    overflow-y: auto;
+    height: 100%;
+  }
+</style>

@@ -27,11 +27,13 @@ export type incommingPayload<T> = basePayload<inTypeUnion> & {parameters: T};
 export type outPayload<T> = basePayload<outTypeUnion> & {parameters: T};
 export namespace payloadTypes {
     export namespace svelte {
-        export type history = incommingPayload<{
+        export type history = outPayload<{
             // No data yet
         }>
     }
     export namespace vscode {
-        
+        export type history = incommingPayload<{
+            ids: string[]
+        }>;
     }
 }
