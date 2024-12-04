@@ -3,7 +3,18 @@ export type basePayload<T> = {
     type: T
 }
 
-
 export const END_SENTINEL = "__END__";
-export type inTypeUnion = "chunck" | "colorTheme" | "shikiHtml" | typeof END_SENTINEL | "stateUpdate" | "appendMessage";
-export type outTypeUnion = "chatRequest" | "online" | "syntaxHighlight";
+export type inTypeUnion = "chunck"
+    | "colorTheme"
+    | "shikiHtml"
+    | typeof END_SENTINEL
+    | "stateUpdate"
+    | "appendMessage"
+    | "history"
+    ;
+export type outTypeUnion = "chatRequest"
+    | "online"
+    | "syntaxHighlight"
+    | "webviewReady"
+    | "alert"
+    | "history";

@@ -39,15 +39,23 @@ export namespace FragolaClient {
             return [];
 
         return files.map(filePath => {
-            const fileName = filePath.split('/').pop()!;
-            const split = fileName.split(":");
             return {
-                id: split[0],
-                createdAt: split[1],
-                updatedAt: split[2],
-                label: split[3].split('.')[0]
+                id: filePath,
+                createdAt: "",
+                updatedAt: "",
+                label: ""
             }
         });
+        // return files.map(filePath => {
+        //     const fileName = filePath.split('/').pop()!;
+        //     const split = fileName.split(":");
+        //     return {
+        //         id: split[0],
+        //         createdAt: split[1],
+        //         updatedAt: split[2],
+        //         label: split[3].split('.')[0]
+        //     }
+        // });
     }
 
     const chatFileJoin = (utils: utilsType, file: chatFile, location: "chat" | "task" = "chat") => {
@@ -110,9 +118,9 @@ export namespace FragolaClient {
 
         async create(newMessages: messageType[], label: string) {
             const id = v4();
-            const dateStr = moment().format('YYYY-MM-DD');
+            // const dateStr = moment().format('YYYY-MM-DD');
             const db = await JSONFilePreset<{ messages: messageType[] }>(
-                this.utils.join("src", "data", "chat", `${id}:${dateStr}:${dateStr}:${label}.json`).fsPath,
+                this.utils.join("src", "data", "chat", `${id}.json`).fsPath,
                 { messages: [] }
             );
             await db.update(({ messages }) => messages.push(...newMessages));

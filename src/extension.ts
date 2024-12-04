@@ -8,8 +8,8 @@ import { FragolaClient } from './Fragola/Fragola.ts';
 import markdown_code_snippet from "./test/streamMocks/markdown_code_snippet.json";
 import knex from 'knex';
 import { config } from 'dotenv';
-import { chunckType, defaultExtensionState, extensionState, messageType } from '@types';
-import { inTypeUnion } from './workers/types.ts';
+import { chunckType, defaultExtensionState, extensionState, messageType, payloadTypes } from '@types';
+import { inTypeUnion, outTypeUnion } from './workers/types.ts';
 import OpenAI from 'openai';
 import { streamChunkToMessage } from '@utils';
 
@@ -175,7 +175,11 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             webviewView.webview.onDidReceiveMessage(async message => {
-                switch (message.type) {
+                switch (message.type as outTypeUnion) {
+                    case "history": {
+                        const payload = message as payloadTypes.svelte.history;
+                        break ;
+                    }
                     case 'webviewReady':
                         sendThemeInfo(currentThemeId);
                         break;

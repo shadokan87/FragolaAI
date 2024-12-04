@@ -1,5 +1,6 @@
 import type OpenAI from "openai";
 import { FragolaClient } from "../src/Fragola/Fragola";
+import { basePayload, inTypeUnion, outTypeUnion } from "../src/workers/types";
 
 export type chunckType = OpenAI.Chat.Completions.ChatCompletionChunk;
 export interface userMessageMetaData {
@@ -20,5 +21,17 @@ export const defaultExtensionState: extensionState = {
     chat: {
         id: undefined,
         isTmp: true
+    }
+}
+export type incommingPayload<T> = basePayload<inTypeUnion> & {parameters: T};
+export type outPayload<T> = basePayload<outTypeUnion> & {parameters: T};
+export namespace payloadTypes {
+    export namespace svelte {
+        export type history = incommingPayload<{
+            // No data yet
+        }>
+    }
+    export namespace vscode {
+        
     }
 }
