@@ -1,9 +1,9 @@
 import { parentPort, workerData } from 'worker_threads';
-import OpenAI from 'openai';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
 import { FragolaClient } from "../../Fragola/Fragola.ts";
 import { chunckType } from '@types';
 import { receiveStreamChunk } from "@utils";
+import { AzureOpenAI } from 'openai';
 
 export type ChatWorkerPayload = {
     data: {
@@ -16,10 +16,13 @@ export type ChatWorkerPayload = {
 if (!parentPort) {
     throw new Error('This file must be run as a worker');
 }
-
-const openai = new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey: process.env.OPENROUTER_API_KEY
+// caonsole.log("!env", process.env);
+const model = "gpt-4o-mini";
+const azureOpenAiEndpoint = (model: string) => `https://ai-eclipsetoure3139ai863411562242.openai.azure.com/openai/deployments/${model}/chat/completions?api-version=2024-08-01-preview`
+const openai = new AzureOpenAI({
+    baseURL: azureOpenAiEndpoint(model),
+    apiKey: process.env['OPENAI_API_KEY'],
+    apiVersion: "2024-08-01-preview"
 });
 
 parentPort.on('message', async (message: ChatWorkerPayload) => {
@@ -32,7 +35,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
         case 'chatRequest': {
             let message: Partial<chunckType> = {};
             const stream = await openai.chat.completions.create({
-                model: "meta-llama/llama-3.1-70b-instruct:free",
+                model,
                 messages: [{ role: "user", content: data.prompt }],
                 stream: true,
             });
