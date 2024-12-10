@@ -50,7 +50,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
                     if (!line) continue;
                     try {
                         const parsedChunk: chunckType = JSON.parse(line);
-                        receiveStreamChunk(fullMessage, parsedChunk);
+                        fullMessage = receiveStreamChunk(fullMessage, parsedChunk);
                         parentPort?.postMessage({
                             type: "chunk", data: parsedChunk, id
                         });
@@ -59,7 +59,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
                     }
                 }
             }
-            console.log("__FULL__", fullMessage);
+            console.log("__FULL__", JSON.stringify(fullMessage));
             parentPort?.postMessage({
                 type: END_SENTINEL, data: fullMessage, id
             });

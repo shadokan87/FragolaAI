@@ -22,7 +22,6 @@ export async function handleChatRequest(
         });
 
         worker.on('message', (result: basePayload<"chunck" | typeof END_SENTINEL> & { data: chunckType }) => {
-            console.log("!Parent here ok: ", result);
             if (result.type == END_SENTINEL) {
                 webview.postMessage(result);
                 worker.terminate();
