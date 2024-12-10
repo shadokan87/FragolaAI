@@ -4,7 +4,7 @@ export type basePayload<T> = {
 }
 
 export const END_SENTINEL = "__END__";
-export type inTypeUnion = "chunck"
+export type inTypeUnion = "chunk"
     | "colorTheme"
     | "shikiHtml"
     | typeof END_SENTINEL

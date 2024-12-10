@@ -6,13 +6,13 @@ import { createUtils } from '../extension.ts';
 import { basePayload, inTypeUnion } from '../workers/types.ts';
 import { FragolaClient } from '../Fragola/Fragola.ts';
 import { END_SENTINEL } from '../workers/types.ts';
-import { chunckType } from '@types';
+import { chunkType } from '@types';
 
 export async function handleChatRequest(
     context: vscode.ExtensionContext,
     webview: vscode.Webview,
     payload: ChatWorkerPayload
-): Promise<chunckType> {
+): Promise<chunkType> {
     const utils = createUtils(webview, context.extensionUri);
     const workerPath = utils.join('dist', 'workers', 'chat', 'chat.worker.js');
 
@@ -21,7 +21,7 @@ export async function handleChatRequest(
             workerData: { payload }
         });
 
-        worker.on('message', (result: basePayload<"chunck" | typeof END_SENTINEL> & { data: chunckType }) => {
+        worker.on('message', (result: basePayload<"chunk" | typeof END_SENTINEL> & { data: chunkType }) => {
             if (result.type == END_SENTINEL) {
                 webview.postMessage(result);
                 worker.terminate();

@@ -7,7 +7,7 @@ import moment from 'moment';
 import { readdir } from "fs/promises";
 import { Low } from "lowdb";
 import { JSONFilePreset } from "lowdb/node";
-import { chunckType,messageType, extensionState } from "@types";
+import { chunkType,messageType, extensionState } from "@types";
 import { BehaviorSubject } from 'rxjs';
 
 export namespace FragolaClient {

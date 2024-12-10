@@ -1,7 +1,7 @@
-import { chunckType, messageType } from "@types";
+import { chunkType, messageType } from "@types";
 import OpenAI from "openai";
 
-export const receiveStreamChunk = (message: Partial<chunckType>, chunk: chunckType) => {
+export const receiveStreamChunk = (message: Partial<chunkType>, chunk: chunkType) => {
     let updatedMessage = structuredClone(message);
     updatedMessage = {
         ...chunk, choices: chunk.choices.map((choice, index) => ({
@@ -15,7 +15,7 @@ export const receiveStreamChunk = (message: Partial<chunckType>, chunk: chunckTy
     return updatedMessage;
 }
 
-export const streamChunkToMessage = (chunk: chunckType, message: Partial<messageType> = {} as Partial<messageType>) => {
+export const streamChunkToMessage = (chunk: chunkType, message: Partial<messageType> = {} as Partial<messageType>) => {
     let updatedMessage = structuredClone(message);
     if (chunk.choices[0].delta.role) {
         updatedMessage.role = chunk.choices[0].delta.role;

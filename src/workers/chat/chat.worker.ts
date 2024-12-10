@@ -1,7 +1,7 @@
 import { parentPort, workerData } from 'worker_threads';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
 import { FragolaClient } from "../../Fragola/Fragola.ts";
-import { chunckType } from '@types';
+import { chunkType } from '@types';
 import { receiveStreamChunk } from "@utils";
 import OpenAI, { AzureOpenAI } from 'openai';
 import axios from 'axios';
@@ -39,7 +39,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
             }, {
                 responseType: 'stream'
             });
-            let fullMessage: Partial<chunckType> = {};
+            let fullMessage: Partial<chunkType> = {};
             let buffer = '';
             for await (const chunk of stream.data) {
                 buffer += chunk.toString('utf-8');
@@ -49,7 +49,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
                 for (const line of lines) {
                     if (!line) continue;
                     try {
-                        const parsedChunk: chunckType = JSON.parse(line);
+                        const parsedChunk: chunkType = JSON.parse(line);
                         fullMessage = receiveStreamChunk(fullMessage, parsedChunk);
                         parentPort?.postMessage({
                             type: "chunk", data: parsedChunk, id

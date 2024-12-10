@@ -8,7 +8,7 @@ import { FragolaClient } from './Fragola/Fragola.ts';
 import markdown_code_snippet from "./test/streamMocks/markdown_code_snippet.json";
 import knex from 'knex';
 import { config } from 'dotenv';
-import { chunckType, defaultExtensionState, extensionState, messageType, payloadTypes } from '@types';
+import { chunkType, defaultExtensionState, extensionState, messageType, payloadTypes } from '@types';
 import { inTypeUnion, outTypeUnion } from './workers/types.ts';
 import OpenAI from 'openai';
 import { streamChunkToMessage } from '@utils';

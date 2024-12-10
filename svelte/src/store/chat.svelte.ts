@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { writableHook } from "./hooks";
 import { createHighlighter } from "shiki";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
-import { type chunckType, type extensionState, receiveStreamChunk, type messageType, streamChunkToMessage } from "../../../common";
+import { type chunkType, type extensionState, receiveStreamChunk, type messageType, streamChunkToMessage } from "../../../common";
 import { Marked, type Token, type Tokens, type TokensList } from "marked";
 import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
@@ -117,7 +117,7 @@ export function createStreaming(createRenderer: createRendererFn) {
      * @param id - The ID of the chat to receive the chunk
      * @param chunk - The chunk data to process
      */
-    receiveChunk(id: string, chunk: chunckType) {
+    receiveChunk(id: string, chunk: chunkType) {
       const reader = readers.get(id)
       if (!reader)
         throw new Error("Reader undefined");

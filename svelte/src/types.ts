@@ -1,3 +1,3 @@
 import type OpenAI from "openai";
 
-export type chunckType = OpenAI.Chat.Completions.ChatCompletionChunk;
+export type chunkType = OpenAI.Chat.Completions.ChatCompletionChunk;

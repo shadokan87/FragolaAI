@@ -37,7 +37,6 @@
         ...rest
     }: props = $props();
 
-    console.log("__CHILD__", children);
     const iconClass = $derived(
         cn({
             "base-icon": true,
