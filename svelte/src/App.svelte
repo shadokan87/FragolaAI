@@ -62,7 +62,7 @@
 
   .content {
     grid-row: 2;
-    overflow-y: auto;
+    overflow-y: none;
     height: 100%;
   }
 </style>

@@ -12,6 +12,7 @@
     import { chatStreaming, createChatReader, staticMessageHandler, TMP_READER_SENTINEL } from "../store/chat.svelte";
     import { extensionStateStore as extensionState } from "../store/chat.svelte";
     import type { messageType } from "../../../common";
+    import ChatInput from "./ChatInput.svelte";
 
     let inputFocus = $state(false);
     let prompt = $state("How to use splice javascript ?");
@@ -57,13 +58,14 @@
     }
 </script>
 
-<Flex _class={"chat-footer-wrapper"}>
-    <!-- Vertical flex with input and util bars -->
+<ChatInput prompt={prompt} onKeydown={handleSubmitPrompt} />
+<!-- <Flex _class={"chat-footer-wrapper"}>
+    Vertical flex with input and util bars
     <Flex gap={"sp-2"}>
         <Divider margin={"0"} />
         <div class={"focused-files-grid"}>
             <Typography>{"Focused files"}</Typography>
-            <!-- TODO: scrollbar ugly asf -->
+            TODO: scrollbar ugly asf
             <div
                 class={"focused-files-container"}
                 onwheel={(e) => {
@@ -89,10 +91,10 @@
             </Flex>
         </div>
         <Divider margin={"0"} />
-        <!-- Horizontal flex util bar with buttons like
-         'attach image', model picker etc on the left and shortcut tips on the right -->
+        Horizontal flex util bar with buttons like
+         'attach image', model picker etc on the left and shortcut tips on the right
         <Flex justifyBetween row _class={"aux-bar"}>
-            <!-- Buttons on the left -->
+            Buttons on the left
             <Flex row gap={"sp-2"}>
                 <Button
                     variant={"fill"}
@@ -109,7 +111,7 @@
                     dropdown={[{ text: "gpt4-o" }, { text: "claude 3.5" }]}
                 />
             </Flex>
-            <!-- Shortcut tips on the right -->
+            Shortcut tips on the right
             <Typography
                 >{"Alt + "}<span class="keyboard-key">
                     {"↵"}
@@ -127,41 +129,41 @@
             />
         </div>
     </Flex>
-</Flex>
+</Flex> -->
 
 <style lang="scss">
-    :global(.aux-bar) {
-        width: 100%;
-    }
-    :global(.chat-footer-wrapper) {
-        margin-bottom: 1em;
-    }
-    .chat-input-wrapper {
-        padding: var(--spacing-2);
-        background-color: var(--vscode-input-background);
-        border-radius: var(--spacing-1);
-        outline: var(--outline-size) solid var(--vscode-input-border);
-    }
-    .chat-input {
-        padding: 1rem; // Added for spacing
-    }
-    .synthetic-focus {
-        outline: var(--outline-size) solid var(--vscode-focusBorder) !important;
-    }
-    .base-input {
-        all: unset;
-        background-color: inherit;
-        color: var(--vscode-input-foreground);
-    }
-    .focused-files-grid {
-        display: grid;
-        grid-template-columns: 1fr 8fr 1fr;
-    }
-    .focused-files-container {
-        // overflow-y: hidden;
-        overflow-x: auto;
-        padding: var(--spacing-1);
-        scrollbar-width: thin; // For Firefox
-        scrollbar-color: var(--vscode-scrollbarSlider-background) transparent;
-    }
+    // :global(.aux-bar) {
+    //     width: 100%;
+    // }
+    // :global(.chat-footer-wrapper) {
+    //     margin-bottom: 1em;
+    // }
+    // .chat-input-wrapper {
+    //     padding: var(--spacing-2);
+    //     background-color: var(--vscode-input-background);
+    //     border-radius: var(--spacing-1);
+    //     outline: var(--outline-size) solid var(--vscode-input-border);
+    // }
+    // .chat-input {
+    //     padding: 1rem; // Added for spacing
+    // }
+    // .synthetic-focus {
+    //     outline: var(--outline-size) solid var(--vscode-focusBorder) !important;
+    // }
+    // .base-input {
+    //     all: unset;
+    //     background-color: inherit;
+    //     color: var(--vscode-input-foreground);
+    // }
+    // .focused-files-grid {
+    //     display: grid;
+    //     grid-template-columns: 1fr 8fr 1fr;
+    // }
+    // .focused-files-container {
+    //     // overflow-y: hidden;
+    //     overflow-x: auto;
+    //     padding: var(--spacing-1);
+    //     scrollbar-width: thin; // For Firefox
+    //     scrollbar-color: var(--vscode-scrollbarSlider-background) transparent;
+    // }
 </style>

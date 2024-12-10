@@ -128,7 +128,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // To get theme kind (light, dark etc)
     const theme = vscode.window.activeColorTheme;
-
     // console.log("__THEME__: ", currentThemeId);
     // Register the webview provider
     const provider: vscode.WebviewViewProvider = {

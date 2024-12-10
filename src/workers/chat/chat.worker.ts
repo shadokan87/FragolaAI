@@ -3,7 +3,8 @@ import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
 import { FragolaClient } from "../../Fragola/Fragola.ts";
 import { chunckType } from '@types';
 import { receiveStreamChunk } from "@utils";
-import { AzureOpenAI } from 'openai';
+import OpenAI, { AzureOpenAI } from 'openai';
+import axios from 'axios';
 
 export type ChatWorkerPayload = {
     data: {
@@ -33,23 +34,37 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
     const { type, data, id }: ChatWorkerPayload = message;
     switch (type) {
         case 'chatRequest': {
-            let message: Partial<chunckType> = {};
-            const stream = await openai.chat.completions.create({
-                model,
-                messages: [{ role: "user", content: data.prompt }],
-                stream: true,
+            const stream = await axios.post("http://localhost:3000/chat/completions", {
+                messages: [{ role: "user", content: data.prompt }]
+            }, {
+                responseType: 'stream'
             });
-            for await (const chunk of stream) {
-                message = receiveStreamChunk(message, chunk);
-                parentPort?.postMessage({
-                    type: "chunck", data: chunk, id
-                });
+            let fullMessage: Partial<chunckType> = {};
+            let buffer = '';
+            for await (const chunk of stream.data) {
+                buffer += chunk.toString('utf-8');
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || ''; // Keep the last incomplete line in the buffer
+                
+                for (const line of lines) {
+                    if (!line) continue;
+                    try {
+                        const parsedChunk: chunckType = JSON.parse(line);
+                        receiveStreamChunk(fullMessage, parsedChunk);
+                        parentPort?.postMessage({
+                            type: "chunk", data: parsedChunk, id
+                        });
+                    } catch (error) {
+                        console.error('Error parsing chunk:', line, error);
+                    }
+                }
             }
+            console.log("__FULL__", fullMessage);
             parentPort?.postMessage({
-                type: END_SENTINEL, data: message, id
+                type: END_SENTINEL, data: fullMessage, id
             });
             parentPort?.close();
-            break;
+            // break;
         }
         default: {
             parentPort?.postMessage({ type: "Error", code: 500, message: `type: ${type} not handled` });

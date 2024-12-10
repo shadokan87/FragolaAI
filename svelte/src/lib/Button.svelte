@@ -11,72 +11,83 @@
         states: { open },
     } = createDropdownMenu({
         positioning: {
-            placement: "top"
+            placement: "top",
         },
-        closeOnOutsideClick: true
+        closeOnOutsideClick: true,
     });
 
     type dropdownOption = {
-        text: string
-    }
+        text: string;
+    };
 
     interface props<T = {}> {
-        kind: "flex"
-        icon?: typeof SvelteComponent<any>,
-        iconProps?: T,
-        text?: string,
-        dropdown?: dropdownOption[],
-        variant?: "fill" | "outline"
+        kind: "flex" | "custom";
+        icon?: typeof SvelteComponent<any>;
+        iconProps?: T;
+        text?: string;
+        dropdown?: dropdownOption[];
+        variant?: "fill" | "outline";
+        children?: any;
     }
-    let {kind, variant = "fill", iconProps = {}, ...rest}: props =  $props();
+    let {
+        kind,
+        variant = "fill",
+        iconProps = {},
+        children,
+        ...rest
+    }: props = $props();
 
-    const iconClass = $derived(cn({
-        "base-icon": true,
-        "fill": variant === "fill",
-        "outline": variant === "outline"
-    }));
+    console.log("__CHILD__", children);
+    const iconClass = $derived(
+        cn({
+            "base-icon": true,
+            fill: variant === "fill",
+            outline: variant === "outline",
+        }),
+    );
 </script>
 
 {#snippet buttonFlexContent()}
-<Flex row gap={"var(--spacing-1)"} _class="button-content">
-    <rest.icon class={iconClass} {...iconProps}/>
-    {#if rest.text}
-    <Typography class="adjusted-line-height">
-        {rest.text}
-    </Typography>
-    {/if}
-</Flex>
+    <Flex row gap={"var(--spacing-1)"} _class="button-content">
+        <rest.icon class={iconClass} {...iconProps} />
+        {#if rest.text}
+            <Typography class="adjusted-line-height">
+                {rest.text}
+            </Typography>
+        {/if}
+    </Flex>
 {/snippet}
 
 {#if rest.dropdown == undefined}
-<button class={"btn"}>
-    {#if kind == "flex"}
-        {@render buttonFlexContent()}
-    {/if}
-</button>
-{:else}
-<div class="dropdown-container">
-    <button use:melt={$trigger} class={"btn"}>
-        {#if kind == "flex"}
+    <button class={"btn"}>
+        {#if children}
+            {@render children()}
+        {:else if kind == "flex"}
             {@render buttonFlexContent()}
         {/if}
     </button>
-    
-    {#if $open}
-        <div use:melt={$menu} class="dropdown-menu">
-            {#each rest.dropdown as option}
-                <button 
-                    use:melt={$item} 
-                    class="dropdown-item"
-                >
-                    <Typography>
-                        {option.text}
-                    </Typography>
-                </button>
-            {/each}
-        </div>
-    {/if}
-</div>
+{:else}
+    <div class="dropdown-container">
+        <button use:melt={$trigger} class={"btn"}>
+            {#if children}
+                {@render children()}
+            {:else if kind == "flex"}
+                {@render buttonFlexContent()}
+            {/if}
+        </button>
+
+        {#if $open}
+            <div use:melt={$menu} class="dropdown-menu">
+                {#each rest.dropdown as option}
+                    <button use:melt={$item} class="dropdown-item">
+                        <Typography>
+                            {option.text}
+                        </Typography>
+                    </button>
+                {/each}
+            </div>
+        {/if}
+    </div>
 {/if}
 
 <style lang="scss">
