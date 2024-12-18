@@ -27,9 +27,6 @@
 
     let { lang, content }: props = $props();
     let html = $state(content);
-    $effect(() => {
-
-    });
 </script>
 
 <Flex _class={"code-block-container"}>

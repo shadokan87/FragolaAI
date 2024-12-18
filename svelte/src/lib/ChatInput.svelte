@@ -44,16 +44,11 @@
                 <Button kind="flex" icon={RiFileImageFill} />
             </Flex>
             <Flex _class="bottom-bar" row gap="sp-2">
-                <Button kind="custom">
-                    <Flex gap="sp-2" row>
-                        <Typography
-                            >{"Submit"}<span class="keyboard-key">
-                                {"↵"}
-                            </span></Typography
-                        >
-                        <RiSendPlane2Fill />
-                    </Flex>
-                </Button>
+                <Typography
+                    >{"Submit"}<span class="keyboard-key">
+                        {"↵"}
+                    </span></Typography
+                >
                 <Typography
                     >{"Alt + "}<span class="keyboard-key">
                         {"↵"}

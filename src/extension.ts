@@ -56,7 +56,7 @@ const replacePlaceHolders = (content: string, utils: ReturnType<typeof createUti
     );
 };
 
-const processJsFiles = async (extensionUri: vscode.Uri, utils: ReturnType<typeof createUtils>) => {
+const processJsFiles = async (extensionUri: vscode.Uri, utils: ReturnType<typeof createUtils>, sed?: Array<(jsFile: string) => string>) => {
     const svelteBuildOutputLocation = ["svelte", "dist"];
     const assetsPath = join(extensionUri.fsPath, "svelte", "dist", "assets");
 
@@ -66,6 +66,20 @@ const processJsFiles = async (extensionUri: vscode.Uri, utils: ReturnType<typeof
     files.forEach(async fileName => {
         const filePath = join(assetsPath, fileName);
         let content = readFileSync(filePath).toString();
+        
+        if (sed && sed.length) {
+            for (const sedCallback of sed) {
+                content = sedCallback(content);
+            }
+
+            writeFile(filePath, content, (err) => {
+                if (err) {
+                    console.error(err.message);
+                    process.exit(1);
+                }
+            });
+        }
+        
         const replacedJs = replacePlaceHolders(content, utils, svelteBuildOutputLocation);
 
         if (replacedJs) {
@@ -94,14 +108,18 @@ const resolveWebview = (
         webviewView.webview.options = {
             enableScripts: true,
             localResourceRoots: [
-                vscode.Uri.joinPath(extensionUri, "svelte"),
+                vscode.Uri.joinPath(extensionUri, "svelte", "dist", "assets"),
+                vscode.Uri.joinPath(extensionUri, "dist", "workers", "webview"), // Add this line
                 vscode.Uri.joinPath(extensionUri, "src", "data")
             ]
         };
 
         const utils = createUtils(webviewView.webview, extensionUri);
-        processJsFiles(extensionUri, utils);
-        webviewView.webview.html = createWebviewContent(extensionUri, utils).replace(/__VSCODE_CSP_SOURCE__/g, webviewView.webview.cspSource);
+        const worker_path = utils.joinAsWebViewUri("svelte", "dist", "assets","syntaxHighlight.worker.js");
+        processJsFiles(extensionUri, utils, [(jsFile) => jsFile.replace(/__VSCODE_WORKER_PATH__/g, worker_path.toString())]);
+        webviewView.webview.html = createWebviewContent(extensionUri, utils)
+        .replace(/__VSCODE_CSP_SOURCE__/g, webviewView.webview.cspSource)
+        ;
     }
 };
 
@@ -221,7 +239,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         break;
                     }
                     case "online": {
-                        postMessage({ type: "stateUpdate", data: extensionState })
+                        postMessage({ type: "stateUpdate", data: extensionState });
                         sendThemeInfo(currentThemeId);
                         return;
                     }

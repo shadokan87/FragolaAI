@@ -44,11 +44,6 @@ export async function handleChatRequest(
             }
         });
 
-        // const payload: ChatWorkerPayload = {
-        //     type: 'chatRequest',
-        //     data: { prompt }
-        // };
-
         worker.postMessage(payload);
     });
 }

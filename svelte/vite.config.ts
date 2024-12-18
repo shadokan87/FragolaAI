@@ -17,12 +17,13 @@ export default defineConfig({
           '<head>',
           `<head>
             <meta http-equiv="Content-Security-Policy" content="
-              default-src 'self' blob: data:;
-              style-src 'unsafe-inline' __VSCODE_CSP_SOURCE__;
-              script-src 'unsafe-eval' 'unsafe-inline' 'nonce-${nonce}' blob: __VSCODE_CSP_SOURCE__;
-              img-src __VSCODE_CSP_SOURCE__ https:;
-              font-src __VSCODE_CSP_SOURCE__;
-              connect-src 'self' blob: data:;
+              default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+              style-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+              script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+              img-src * data: blob:;
+              font-src * data: blob:;
+              connect-src * data: blob:;
+              worker-src * data: blob:;
             ">`
         )
       }
@@ -34,7 +35,7 @@ export default defineConfig({
       output: {
         format: 'es',
         chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name].js',
         manualChunks: undefined
       }
     }

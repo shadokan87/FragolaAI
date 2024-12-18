@@ -29,6 +29,7 @@ async function main() {
 		entryPoints: [
 			'src/extension.ts',
 			'src/workers/chat/chat.worker.ts',
+			'src/workers/webview/syntaxHighlight.worker.ts'
 		],
 		bundle: true,
 		format: 'cjs',

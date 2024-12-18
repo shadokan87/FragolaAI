@@ -194,7 +194,8 @@ const chatMarkedInstance = new Marked().use({
       const el = document.createElement("code-block");
       const id: string | undefined = (token as any)['id'];
       if (id) {
-        const content = codeBlockHighlight().get(id);
+        // const content = codeBlockHighlight().get(id);
+        const content = token.text;
         el.setAttribute("content", content ? content : "");
       }
       el.setAttribute("lang", token.lang || "");

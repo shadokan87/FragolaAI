@@ -18,12 +18,14 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
+    "postbuild": "cp -r ../dist/workers/webview/* ./dist/assets/",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json"
   },
   "type": "module",
   "dependencies": {
     "@types/prismjs": "^1.26.5",
+    "crossoriginworker": "^1.1.0",
     "lucide-svelte": "^0.456.0",
     "openai": "^4.71.0",
     "svelte-routing": "^2.13.0",
