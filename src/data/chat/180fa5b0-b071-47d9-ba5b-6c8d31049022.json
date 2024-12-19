@@ -1,8 +1,0 @@
-{
-  "messages": [
-    {
-      "role": "user",
-      "content": "can pouchdb used with javascript ?"
-    }
-  ]
-}

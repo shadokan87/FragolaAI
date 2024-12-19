@@ -29,7 +29,6 @@ async function main() {
 		entryPoints: [
 			'src/extension.ts',
 			'src/workers/chat/chat.worker.ts',
-			'src/workers/webview/syntaxHighlight.worker.ts'
 		],
 		bundle: true,
 		format: 'cjs',
@@ -41,7 +40,7 @@ async function main() {
 		outbase: 'src', // to maintain the folder structure
 		external: [
 			'vscode',
-			'better-sqlite3',
+			'sqlite3',
 			'mariasql',
 			'mssql',
 			'mysql',

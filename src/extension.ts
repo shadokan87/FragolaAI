@@ -6,7 +6,7 @@ import { handleChatRequest } from './handlers/chatRequest.ts';
 import { ChatWorkerPayload } from './workers/chat/chat.worker.ts';
 import { FragolaClient } from './Fragola/Fragola.ts';
 import markdown_code_snippet from "./test/streamMocks/markdown_code_snippet.json";
-import knex from 'knex';
+import { knex as Knex } from 'knex';
 import { config } from 'dotenv';
 import { chunkType, defaultExtensionState, extensionState, messageType, payloadTypes } from '@types';
 import { inTypeUnion, outTypeUnion } from './workers/types.ts';
@@ -66,7 +66,7 @@ const processJsFiles = async (extensionUri: vscode.Uri, utils: ReturnType<typeof
     files.forEach(async fileName => {
         const filePath = join(assetsPath, fileName);
         let content = readFileSync(filePath).toString();
-        
+
         if (sed && sed.length) {
             for (const sedCallback of sed) {
                 content = sedCallback(content);
@@ -79,7 +79,7 @@ const processJsFiles = async (extensionUri: vscode.Uri, utils: ReturnType<typeof
                 }
             });
         }
-        
+
         const replacedJs = replacePlaceHolders(content, utils, svelteBuildOutputLocation);
 
         if (replacedJs) {
@@ -115,11 +115,11 @@ const resolveWebview = (
         };
 
         const utils = createUtils(webviewView.webview, extensionUri);
-        const worker_path = utils.joinAsWebViewUri("svelte", "dist", "assets","syntaxHighlight.worker.js");
+        const worker_path = utils.joinAsWebViewUri("svelte", "dist", "assets", "syntaxHighlight.worker.js");
         processJsFiles(extensionUri, utils, [(jsFile) => jsFile.replace(/__VSCODE_WORKER_PATH__/g, worker_path.toString())]);
         webviewView.webview.html = createWebviewContent(extensionUri, utils)
-        .replace(/__VSCODE_CSP_SOURCE__/g, webviewView.webview.cspSource)
-        ;
+            .replace(/__VSCODE_CSP_SOURCE__/g, webviewView.webview.cspSource)
+            ;
     }
 };
 
@@ -156,6 +156,21 @@ export async function activate(context: vscode.ExtensionContext) {
         ) {
             resolveWebview(webviewView, context.extensionUri);
             const utils = createUtils(webviewView.webview, context.extensionUri);
+            const knex = Knex({
+                client: 'better-sqlite3',
+                connection: {
+                    filename: utils.join("src", "data", "database.sqlite3").fsPath
+                },
+                migrations: {
+                    directory: utils.join("src", "data", "migrations").fsPath
+                },
+                useNullAsDefault: true
+            });
+            // Create a test chat entry
+            await knex('chats').insert({
+                test: "Hello world!"
+            });
+
             config({ path: utils.join(".env").fsPath })
             console.log("key: ", process.env.OPENROUTER_API_KEY);
             function restoreExtensionState(): extensionState {
@@ -195,7 +210,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 switch (message.type as outTypeUnion) {
                     case "history": {
                         const payload = message as payloadTypes.svelte.history;
-                        break ;
+                        break;
                     }
                     case 'webviewReady':
                         sendThemeInfo(currentThemeId);
