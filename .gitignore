@@ -177,4 +177,5 @@ dist
 .env*
 .flaskenv*
 !.env.project
-!.env.vault
+!.env.vaultsrc/data/chat/*
+src/data/chat/*
