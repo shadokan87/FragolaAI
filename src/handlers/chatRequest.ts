@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { Worker } from 'worker_threads';
 import { ChatWorkerPayload } from '../workers/chat/chat.worker.ts';
-import { createUtils } from '../extension.ts';
+import { createUtils } from '../Fragola/utils.ts';
 import { basePayload, inTypeUnion } from '../workers/types.ts';
 import { FragolaClient } from '../Fragola/Fragola.ts';
 import { END_SENTINEL } from '../workers/types.ts';

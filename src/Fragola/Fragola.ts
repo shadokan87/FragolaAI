@@ -2,7 +2,7 @@ import type OpenAI from "openai";
 import knex from "knex";
 import { Tables } from "knex/types/tables";
 import { v4 } from "uuid";
-import { createUtils } from "../extension";
+import { createUtils } from "./utils";
 import moment from 'moment';
 import { readdir } from "fs/promises";
 import { Low } from "lowdb";
@@ -14,7 +14,6 @@ export namespace FragolaClient {
     interface chatFile {
         id: string
         createdAt: string,
-        updatedAt: string,
         label: string,
     }
 
@@ -42,24 +41,13 @@ export namespace FragolaClient {
             return {
                 id: filePath,
                 createdAt: "",
-                updatedAt: "",
                 label: ""
             }
         });
-        // return files.map(filePath => {
-        //     const fileName = filePath.split('/').pop()!;
-        //     const split = fileName.split(":");
-        //     return {
-        //         id: split[0],
-        //         createdAt: split[1],
-        //         updatedAt: split[2],
-        //         label: split[3].split('.')[0]
-        //     }
-        // });
     }
 
     const chatFileJoin = (utils: utilsType, file: chatFile, location: "chat" | "task" = "chat") => {
-        let join = `${file.id}:${file.createdAt}:${file.updatedAt}:${file.label}`;
+        let join = `${file.id}:${file.createdAt}:${file.label}`;
         return utils.join("src", "data", location).fsPath
     }
 

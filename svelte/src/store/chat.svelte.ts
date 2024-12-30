@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { writableHook } from "./hooks";
-import { createHighlighter } from "shiki";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
 import { type chunkType, type extensionState, receiveStreamChunk, type messageType, streamChunkToMessage } from "../../../common";
 import { Marked, type Token, type Tokens, type TokensList } from "marked";
