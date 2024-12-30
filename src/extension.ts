@@ -1,17 +1,4 @@
 import * as vscode from 'vscode';
-import { join } from "path";
-import { readFileSync, writeFile } from 'fs';
-import { readdir } from 'fs/promises';
-import { handleChatRequest } from './handlers/chatRequest.ts';
-import { ChatWorkerPayload } from './workers/chat/chat.worker.ts';
-import { FragolaClient } from './Fragola/Fragola.ts';
-import markdown_code_snippet from "./test/streamMocks/markdown_code_snippet.json";
-import { knex as Knex } from 'knex';
-import { config } from 'dotenv';
-import { chunkType, defaultExtensionState, extensionState, messageType, payloadTypes } from '@types';
-import { inTypeUnion, outTypeUnion } from './workers/types.ts';
-import OpenAI from 'openai';
-import { streamChunkToMessage } from '@utils';
 import { FragolaVscode } from './Fragola/vscode.ts';
 
 // Track the visibility state of the chat view
