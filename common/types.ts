@@ -1,8 +1,9 @@
 import type OpenAI from "openai";
 import { FragolaClient } from "../src/Fragola/Fragola";
 import { basePayload, inTypeUnion, outTypeUnion } from "../src/workers/types";
+import { CompletionResponseChunk } from "@shadokan87/token.js";
 
-export type chunkType = OpenAI.Chat.Completions.ChatCompletionChunk;
+export type chunkType = CompletionResponseChunk;
 export interface userMessageMetaData {
     fileAttachments: string[]
 }

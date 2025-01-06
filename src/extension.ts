@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 import { FragolaVscode } from './Fragola/vscode.ts';
+import { config } from 'dotenv';
+import { join } from 'path';
+import { _join } from './Fragola/utils.ts';
 
 // Track the visibility state of the chat view
 let isChatViewVisible = false;
@@ -18,6 +21,8 @@ const toggleChatView = async () => {
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "fragola-ai" is now active!');
+    config({ path: _join(context.extensionUri, ".env").fsPath});
+    console.log("__CHECK_ENV__", process.env["AWS_SECRET_ACCESS_KEY"])
 
     const provider = new FragolaVscode(context)
     const sidebarView = vscode.window.registerWebviewViewProvider(

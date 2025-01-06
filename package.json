@@ -79,6 +79,7 @@
   },
   "dependencies": {
     "@electron/rebuild": "^3.7.1",
+    "@shadokan87/token.js": "0.5.3",
     "@types/lowdb": "^1.0.15",
     "@types/node-fetch": "^2.6.11",
     "axios": "^1.7.9",

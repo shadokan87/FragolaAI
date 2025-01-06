@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import { createUtils } from "./utils";
 import { FragolaClient } from "./Fragola";
-import { config } from "dotenv";
 import { extensionState, defaultExtensionState, messageType } from "@types";
 import { outTypeUnion } from "../workers/types";
 import { ChatWorkerPayload } from "../workers/chat/chat.worker";
@@ -41,8 +40,6 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                 .replace(/__VSCODE_CSP_SOURCE__/g, webviewView.webview.cspSource)
                 ;
         }
-        
-        config({ path: utils.join(".env").fsPath });
         
         function restoreExtensionState(): extensionState {
             return defaultExtensionState;

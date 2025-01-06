@@ -17,11 +17,10 @@
 		"paths": {
 			"@types": ["./common/types.ts"],
 			"@utils": ["./common/utils.ts"]
-		}
+		},
 	},
 	"exclude": [
 		"./svelte",
 		"workers",
-		"./token.js"
 	]
 }

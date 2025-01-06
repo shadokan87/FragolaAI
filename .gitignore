@@ -179,3 +179,5 @@ dist
 !.env.project
 !.env.vaultsrc/data/chat/*
 src/data/chat/*
+
+!.env.vault
