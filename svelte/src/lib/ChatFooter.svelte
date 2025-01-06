@@ -32,7 +32,9 @@
                 type: "chatRequest",
                 // id: v4(),
                 data: {
-                    prompt: input.value,
+                    prompt: {
+                        text: input.value
+                    },
                     loadedLength: (() => {
                         if (!$extensionState?.chat.id)
                             return 0;

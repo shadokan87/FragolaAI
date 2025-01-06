@@ -5,7 +5,14 @@ import { CompletionResponseChunk } from "@shadokan87/token.js";
 
 export type chunkType = CompletionResponseChunk;
 export interface userMessageMetaData {
-    fileAttachments: string[]
+    mentions: {
+        folders: string[],
+        files: string[]
+    }
+}
+export type promptType = {
+    text: string,
+    meta?: Partial<userMessageMetaData>
 }
 export type messageExtentedType = messageType & userMessageMetaData;
 export type messageType = OpenAI.Chat.Completions.ChatCompletionMessageParam;

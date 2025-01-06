@@ -20,9 +20,7 @@ const toggleChatView = async () => {
 };
 
 export async function activate(context: vscode.ExtensionContext) {
-    console.log('Congratulations, your extension "fragola-ai" is now active!');
     config({ path: _join(context.extensionUri, ".env").fsPath});
-    console.log("__CHECK_ENV__", process.env["AWS_SECRET_ACCESS_KEY"])
 
     const provider = new FragolaVscode(context)
     const sidebarView = vscode.window.registerWebviewViewProvider(

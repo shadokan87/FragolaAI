@@ -242,7 +242,6 @@ const createChatMarkedRender = (markedInstance: Marked): renderer => {
           if (!message.content)
             return;
           markdown = Array.isArray(message.content) ? message.content.join(' ') : message.content;
-          // console.log("__MARKDOWN__", markdown);
           newTokens = markedInstance.Lexer.lex(markdown);
           break;
         }

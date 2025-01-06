@@ -82,7 +82,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                 case 'chatRequest':
                     console.log("#br1", message.data);
                     const userMessagePayload = message as ChatWorkerPayload;
-                    const userMessage: messageType = { role: "user", content: userMessagePayload.data.prompt };
+                    const userMessage: messageType = { role: "user", content: userMessagePayload.data.prompt.text };
                     if (extensionState.chat.isTmp) {
                         await fragola.chat.create([userMessage], "test");
                     }

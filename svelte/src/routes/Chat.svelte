@@ -8,6 +8,7 @@
         type Token,
         type Tokens,
         type TokensList,
+    // @ts-ignore
     } from "marked";
     import "../app.scss";
     import ChatFooter from "../lib/ChatFooter.svelte";

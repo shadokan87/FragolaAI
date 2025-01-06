@@ -1,11 +1,11 @@
 import { parentPort, workerData } from 'worker_threads';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
-import { chunkType } from "@types";
+import { chunkType, promptType } from "@types";
 import { receiveStreamChunk } from "@utils";
 
 export type ChatWorkerPayload = {
     data: {
-        prompt: string,
+        prompt: promptType,
         loadedLength: number
     }
 } & basePayload<outTypeUnion>;
@@ -35,7 +35,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
                 messages: [
                     {
                         role: 'user',
-                        content: data.prompt,
+                        content: data.prompt.text,
                     },
                 ],
             });
