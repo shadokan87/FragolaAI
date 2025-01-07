@@ -30,17 +30,10 @@
             const input = e.target as HTMLInputElement;
             const payload: ChatWorkerPayload = {
                 type: "chatRequest",
-                // id: v4(),
                 data: {
                     prompt: {
                         text: input.value
-                    },
-                    loadedLength: (() => {
-                        if (!$extensionState?.chat.id)
-                            return 0;
-                        const reader = chatStreaming.readers.get($extensionState.chat.id);
-                        return (reader && reader?.loaded.length) || 0;
-                    })()
+                    }
                 },
             };
             $codeApi?.postMessage(payload);
