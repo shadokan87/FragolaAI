@@ -1,11 +1,11 @@
 import { parentPort, workerData } from 'worker_threads';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
-import { chunkType, promptType } from "@types";
+import { chunkType, Prompt } from "@types";
 import { receiveStreamChunk } from "@utils";
 
 export type ChatWorkerPayload = {
     data: {
-        prompt: promptType,
+        prompt: Prompt,
         loadedLength: number
     }
 } & basePayload<outTypeUnion>;
@@ -18,7 +18,6 @@ if (!parentPort) {
 parentPort.on('message', async (message: ChatWorkerPayload) => {
     console.log("#br3");
     const TokenJS = (await import("@shadokan87/token.js")).TokenJS;
-
     const tokenjs = new TokenJS().extendModelList("bedrock", 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', "anthropic.claude-3-sonnet-20240229-v1:0");
 
     // Process the message

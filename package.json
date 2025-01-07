@@ -80,10 +80,13 @@
   "dependencies": {
     "@electron/rebuild": "^3.7.1",
     "@shadokan87/token.js": "0.5.3",
+    "@types/crypto-js": "^4.2.2",
     "@types/lowdb": "^1.0.15",
     "@types/node-fetch": "^2.6.11",
     "axios": "^1.7.9",
     "better-sqlite3": "^11.7.0",
+    "crypto-js": "^4.2.0",
+    "directory-tree": "^3.5.2",
     "dotenv": "^16.4.5",
     "dotenv-vault": "^1.26.2",
     "fragola-ai": "./",

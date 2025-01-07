@@ -32,7 +32,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                     vscode.Uri.joinPath(extensionUri, "src", "data")
                 ]
             };
-    
+
             const utils = createUtils(webviewView.webview, extensionUri);
             const worker_path = utils.joinAsWebViewUri("svelte", "dist", "assets", "syntaxHighlight.worker.js");
             processJsFiles(extensionUri, utils, [(jsFile) => jsFile.replace(/__VSCODE_WORKER_PATH__/g, worker_path.toString())]);
@@ -40,11 +40,11 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                 .replace(/__VSCODE_CSP_SOURCE__/g, webviewView.webview.cspSource)
                 ;
         }
-        
+
         function restoreExtensionState(): extensionState {
             return defaultExtensionState;
         }
-        
+
         let extensionState = restoreExtensionState();
         const fragola = new FragolaClient.createInstance(utils, new FragolaClient.Chat({ ...extensionState.chat }));
 
@@ -62,10 +62,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         let currentThemeId = vscode.workspace.getConfiguration('workbench').get('colorTheme') as string;
         const { postMessage } = utils;
         const sendThemeInfo = (data: string) => {
-            postMessage({
-                type: "colorTheme",
-                data
-            });
+
         };
 
         webviewView.webview.onDidReceiveMessage(async message => {
@@ -74,7 +71,10 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                     break;
                 }
                 case 'webviewReady':
-                    sendThemeInfo(currentThemeId);
+                    postMessage({
+                        type: "colorTheme",
+                        data: currentThemeId
+                    });
                     break;
                 case 'alert':
                     vscode.window.showInformationMessage(message.text);

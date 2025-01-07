@@ -10,7 +10,7 @@ export interface userMessageMetaData {
         files: string[]
     }
 }
-export type promptType = {
+export type Prompt = {
     text: string,
     meta?: Partial<userMessageMetaData>
 }
