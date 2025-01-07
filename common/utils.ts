@@ -1,5 +1,4 @@
-import { chunkType, messageType } from "@types";
-import OpenAI from "openai";
+import { chunkType, extensionState, InteractionMode, MessageType } from "@types";
 
 export const receiveStreamChunk = (message: Partial<chunkType>, chunk: chunkType) => {
     let updatedMessage = structuredClone(message);
@@ -15,7 +14,7 @@ export const receiveStreamChunk = (message: Partial<chunkType>, chunk: chunkType
     return updatedMessage;
 }
 
-export const streamChunkToMessage = (chunk: chunkType, message: Partial<messageType> = {} as Partial<messageType>) => {
+export const streamChunkToMessage = (chunk: chunkType, message: Partial<MessageType> = {} as Partial<MessageType>) => {
     let updatedMessage = structuredClone(message);
     if (chunk.choices[0].delta.role) {
         updatedMessage.role = chunk.choices[0].delta.role;
@@ -24,5 +23,12 @@ export const streamChunkToMessage = (chunk: chunkType, message: Partial<messageT
     return updatedMessage;
 }
 
-
-// const test: OpenAI.Chat.Completions.ChatCompletion[] = []
+export const defaultExtensionState: extensionState = {
+    ui: {
+        chatSelectionIndex: -1,
+        buildSelectionIndex: -1,
+        interactionMode: InteractionMode.CHAT
+    },
+    chatHistory: [],
+    buildHistory: []
+}

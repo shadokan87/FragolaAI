@@ -13,11 +13,10 @@
         TMP_READER_SENTINEL,
         type chatReader,
     } from "../store/chat.svelte";
-    import type { appendMessage, extensionState as extensionStateType } from "../../../common";
+    import type { extensionState as extensionStateType, chunkType } from "../../../common";
     import { chatStreaming } from "../store/chat.svelte";
     // import {specific} from "../store/chat.svelte";
 
-    type chunkType = OpenAI.Chat.Completions.ChatCompletionChunk;
     let chunks: chunkType[] = $state.raw([]);
     type inCommingPayload = basePayload<inTypeUnion>;
     // const streaming = createStreaming();

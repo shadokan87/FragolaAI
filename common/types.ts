@@ -1,7 +1,7 @@
 import type OpenAI from "openai";
 import { FragolaClient } from "../src/Fragola/Fragola";
 import { basePayload, inTypeUnion, outTypeUnion } from "../src/workers/types";
-import { CompletionResponseChunk } from "@shadokan87/token.js";
+import { CompletionResponseChunk, ChatCompletionMessageParam } from "@shadokan87/token.js";
 
 export type chunkType = CompletionResponseChunk;
 
@@ -15,7 +15,13 @@ export interface userMessageMetaData {
         folders: string[],
         files: string[]
     },
-    interactionMode: InteractionMode
+    interactionMode: InteractionMode,
+    label: string
+}
+
+export type HistoryIndex = {
+    id: string,
+    meta: userMessageMetaData
 }
 
 export type Prompt = {
@@ -23,9 +29,9 @@ export type Prompt = {
     meta?: Partial<userMessageMetaData>
 }
 
-export type messageExtentedType = messageType & userMessageMetaData;
+export type MessageExtendedType = MessageType & userMessageMetaData;
 
-export type messageType = OpenAI.Chat.Completions.ChatCompletionMessageParam;
+export type MessageType = ChatCompletionMessageParam;
 
 export interface extensionState {
     ui: {
@@ -33,24 +39,8 @@ export interface extensionState {
         buildSelectionIndex: number
         interactionMode: InteractionMode
     },
-    chatHistory: messageExtentedType[],
-    buildHistory: messageExtentedType[]
-}
-
-export interface appendMessage {
-    id: string,
-    index: number,
-    message: messageType
-}
-
-export const defaultExtensionState: extensionState = {
-    ui: {
-        chatSelectionIndex: -1,
-        buildSelectionIndex: -1,
-        interactionMode: InteractionMode.CHAT
-    },
-    chatHistory: [],
-    buildHistory: []
+    chatHistory: MessageType[],
+    buildHistory: MessageType[]
 }
 
 export type incommingPayload<T> = basePayload<inTypeUnion> & { parameters: T };

@@ -11,7 +11,7 @@
     import { v4 } from "uuid";
     import { chatStreaming, createChatReader, staticMessageHandler, TMP_READER_SENTINEL } from "../store/chat.svelte";
     import { extensionStateStore as extensionState } from "../store/chat.svelte";
-    import type { messageType } from "../../../common";
+    import type { MessageType } from "../../../common";
     import ChatInput from "./ChatInput.svelte";
 
     let inputFocus = $state(false);
@@ -37,7 +37,7 @@
                 },
             };
             $codeApi?.postMessage(payload);
-            const userMessage: messageType = {role: "user", content: payload.data.prompt};
+            const userMessage: MessageType = {role: "user", content: payload.data.prompt};
             if ($extensionState?.chat.id) {
                 const reader = chatStreaming.readers.get($extensionState.chat.id);
                 if (!reader)

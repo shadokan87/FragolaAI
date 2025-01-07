@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { createUtils } from "./utils";
 import { FragolaClient } from "./Fragola";
-import { extensionState, defaultExtensionState, messageType } from "@types";
+import { extensionState, defaultExtensionState, MessageType } from "@types";
 import { outTypeUnion } from "../workers/types";
 import { ChatWorkerPayload } from "../workers/chat/chat.worker";
 import { handleChatRequest } from "../handlers/chatRequest";
@@ -49,14 +49,14 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         const fragola = new FragolaClient.createInstance(utils, new FragolaClient.Chat({ ...extensionState.chat }));
 
         // Subscribe to chat state changes
-        fragola.chat.state$.subscribe(chatState => {
-            const newState = { ...extensionState, chat: chatState };
-            extensionState = newState;
-            webviewView.webview.postMessage({
-                type: "stateUpdate",
-                data: newState
-            });
-        });
+        // fragola.chat.state$.subscribe(chatState => {
+        //     const newState = { ...extensionState, chat: chatState };
+        //     extensionState = newState;
+        //     webviewView.webview.postMessage({
+        //         type: "stateUpdate",
+        //         data: newState
+        //     });
+        // });
 
         // Color theme sync
         let currentThemeId = vscode.workspace.getConfiguration('workbench').get('colorTheme') as string;
@@ -82,7 +82,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                 case 'chatRequest':
                     console.log("#br1", message.data);
                     const userMessagePayload = message as ChatWorkerPayload;
-                    const userMessage: messageType = { role: "user", content: userMessagePayload.data.prompt.text };
+                    const userMessage: MessageType = { role: "user", content: userMessagePayload.data.prompt.text };
                     if (extensionState.chat.isTmp) {
                         await fragola.chat.create([userMessage], "test");
                     }
@@ -94,7 +94,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                         asMessage.content = "";
                     if (!asMessage.role)
                         asMessage.role = "assistant";
-                    await fragola.chat.addMessage(asMessage as messageType);
+                    await fragola.chat.addMessage(asMessage as MessageType);
                     console.log("!msg", assistantStreamResult);
                     break;
                 case "online": {

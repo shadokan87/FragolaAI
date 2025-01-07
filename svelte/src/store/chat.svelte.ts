@@ -1,14 +1,14 @@
 import OpenAI from "openai";
 import { writableHook } from "./hooks";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
-import { type chunkType, type extensionState, receiveStreamChunk, type messageType, streamChunkToMessage } from "../../../common";
+import { type chunkType, type extensionState, receiveStreamChunk, type MessageType, streamChunkToMessage } from "../../../common";
 import { Marked, type Token, type Tokens, type TokensList } from "marked";
 import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
 import { readableStreamAsyncIterable } from "openai/streaming.mjs";
 
 
-type renderFunction = (message: Partial<messageType>) => Promise<void>;
+type renderFunction = (message: Partial<MessageType>) => Promise<void>;
 export type renderedByComponent = "user" | "tool";
 export type renderer = {
   render: renderFunction,
@@ -20,7 +20,7 @@ type createRendererFn = () => renderer;
 export const TMP_READER_SENTINEL = "<TMP>";
 export interface chatReader {
   length: number,
-  loaded: Partial<messageType>[],
+  loaded: Partial<MessageType>[],
   renderer: (renderer | renderedByComponent)[]
 }
 
@@ -44,7 +44,7 @@ export function createChatReader(values: chatReader = chatReaderDefault) {
     get loaded() {
       return loaded;
     },
-    set loaded(value: Partial<messageType>[]) {
+    set loaded(value: Partial<MessageType>[]) {
       loaded = value;
     },
     get renderer() {
@@ -143,31 +143,31 @@ export function createStreaming(createRenderer: createRendererFn) {
 
 export const extensionStateStore = writableHook<extensionState | undefined>({
   initialValue: undefined,
-  onUpdate(previousValue, newValue) {
-    if (!newValue?.chat.id) {
-      console.log("No chat id");
-      return newValue;
-    }
-    let defaultReaderValue: chatReader = chatReaderDefault;
-    const isFirstChatResponse = previousValue?.chat.isTmp && !newValue.chat.isTmp;
-    if (isFirstChatResponse) {
-      const tmpReader = chatStreaming.readers.get(TMP_READER_SENTINEL);
-      if (tmpReader) {
-        defaultReaderValue = { ...tmpReader };
-        chatStreaming.readers.delete(TMP_READER_SENTINEL);
-      }
-    }
-    if (!chatStreaming.readers.get(newValue.chat.id)) // Prepare reader to receive data
-      chatStreaming.readers.set(newValue.chat.id, createChatReader(defaultReaderValue));
-    return newValue;
-  },
+  // onUpdate(previousValue, newValue) {
+  //   if (!newValue?.chat.id) {
+  //     console.log("No chat id");
+  //     return newValue;
+  //   }
+  //   let defaultReaderValue: chatReader = chatReaderDefault;
+  //   const isFirstChatResponse = previousValue?.chat.isTmp && !newValue.chat.isTmp;
+  //   if (isFirstChatResponse) {
+  //     const tmpReader = chatStreaming.readers.get(TMP_READER_SENTINEL);
+  //     if (tmpReader) {
+  //       defaultReaderValue = { ...tmpReader };
+  //       chatStreaming.readers.delete(TMP_READER_SENTINEL);
+  //     }
+  //   }
+  //   if (!chatStreaming.readers.get(newValue.chat.id)) // Prepare reader to receive data
+  //     chatStreaming.readers.set(newValue.chat.id, createChatReader(defaultReaderValue));
+  //   return newValue;
+  // },
 })
 
 export function staticMessageHandler(streaming: ReturnType<typeof createStreaming>, createRenderer?: createRendererFn) {
   const _createRenderer: createRendererFn = createRenderer || streaming.getCreateRenderer();
 
   return {
-    append(message: messageType, id: string) {
+    append(message: MessageType, id: string) {
       let reader = streaming.readers.get(id);
       if (!reader) {
         streaming.readers.set(id, createChatReader());
@@ -234,7 +234,7 @@ const createChatMarkedRender = (markedInstance: Marked): renderer => {
     get html() {
       return html;
     },
-    async render(message: Partial<messageType>) {
+    async render(message: Partial<MessageType>) {
       let newTokens: TokensList | undefined = undefined;
       switch (message.role) {
         case "user": // Intentional no-break

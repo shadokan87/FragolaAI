@@ -9,7 +9,6 @@ export type inTypeUnion = "chunk"
     | "shikiHtml"
     | typeof END_SENTINEL
     | "stateUpdate"
-    | "appendMessage"
     | "history"
     ;
 export type outTypeUnion = "chatRequest"
