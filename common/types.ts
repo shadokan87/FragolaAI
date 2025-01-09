@@ -3,45 +3,63 @@ import { FragolaClient } from "../src/Fragola/Fragola";
 import { basePayload, inTypeUnion, outTypeUnion } from "../src/workers/types";
 import { CompletionResponseChunk, ChatCompletionMessageParam } from "@shadokan87/token.js";
 
+export const NONE_SENTINEL = "<NONE>";
+
 export type chunkType = CompletionResponseChunk;
 
 export enum InteractionMode {
-    CHAT,
-    BUILD
+    CHAT = "CHAT",
+    BUILD = "BUILD"
+}
+
+export enum MentionKind {
+    FILE = "FILE",
+    FOLDER = "FOLDER"
 }
 
 export interface userMessageMetaData {
-    mentions: {
-        folders: string[],
-        files: string[]
-    },
+    prompt: Prompt,
     interactionMode: InteractionMode,
-    label: string
+}
+
+export interface conversationMetaData {
+    label: string | undefined,
+    createdAt: string
 }
 
 export type HistoryIndex = {
     id: string,
-    meta: userMessageMetaData
+    meta: conversationMetaData
 }
 
-export type Prompt = {
-    text: string,
-    meta?: Partial<userMessageMetaData>
+export type Mention = {
+    kind: MentionKind,
+    content: string
 }
 
-export type MessageExtendedType = MessageType & userMessageMetaData;
+export type Prompt = (string | Mention)[];
+
+export type MessageExtendedType = MessageType & {meta: userMessageMetaData};
 
 export type MessageType = ChatCompletionMessageParam;
 
 export interface extensionState {
-    ui: {
-        chatSelectionIndex: number,
-        buildSelectionIndex: number
-        interactionMode: InteractionMode
-    },
-    chatHistory: MessageType[],
-    buildHistory: MessageType[]
+    workspace: {
+        ui: {
+            conversationId: HistoryIndex["id"],
+            interactionMode: InteractionMode
+        },
+        historyIndex: HistoryIndex[],
+        messages: MessageType[],
+        isConversationTmp: boolean
+    }, global: {
+
+    }
 }
+
+export type WorkspaceKeys = keyof extensionState['workspace'];
+
+export type GlobalKeys = keyof extensionState['global'];
 
 export type incommingPayload<T> = basePayload<inTypeUnion> & { parameters: T };
 

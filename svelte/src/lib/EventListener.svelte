@@ -51,13 +51,13 @@
                             data: chunkType;
                         };
                         console.log("__CHUNK__", payload);
-                        if (!payload.id) {
-                            console.error("Id is undefined");
-                            return ;
-                        }
-                        if (!chatStreaming.isStreaming())
-                            chatStreaming.stream(payload.id)
-                        chatStreaming.receiveChunk(payload.id, payload.data);
+                        // if (!payload.id) {
+                        //     console.error("Id is undefined");
+                        //     return ;
+                        // }
+                        // if (!chatStreaming.isStreaming())
+                        //     chatStreaming.stream(payload.id)
+                        // chatStreaming.receiveChunk(payload.id, payload.data);
                         break;
                     }
                     case "shikiHtml": {

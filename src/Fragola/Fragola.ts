@@ -7,17 +7,20 @@ import moment from 'moment';
 import { readdir } from "fs/promises";
 import { Low } from "lowdb";
 import { JSONFilePreset } from "lowdb/node";
-import { chunkType,MessageType, extensionState, MessageExtendedType } from "@types";
+import { chunkType, MessageType, extensionState, MessageExtendedType, HistoryIndex } from "@types";
 import { BehaviorSubject } from 'rxjs';
+import { updateExtensionState } from "@utils";
 
 export namespace FragolaClient {
-    interface chatFile {
-        id: string
-        createdAt: string,
-        label: string,
+    export type utilsType = ReturnType<typeof createUtils>;
+
+    export type chatFile = {
+        id: string,
+        createdAt: number,
+        label: string
     }
 
-    export interface InstanceState {
+    export type InstanceState = {
         chat: {
             id: string | undefined,
             db?: Low<{
@@ -27,41 +30,70 @@ export namespace FragolaClient {
         }
     }
 
-    type utilsType = ReturnType<typeof createUtils>;
-
-    async function getChatFiles(utils: utilsType, location: "chat" | "task" = "chat", pattern?: string): Promise<chatFile[]> {
-        const globPattern = pattern || '*';
-        const { glob } = await import('glob');
-        const files = await glob(`${utils.join("src", "data", location).fsPath}/${globPattern}`);
-
-        if (!files.length)
-            return [];
-
-        return files.map(filePath => {
-            return {
-                id: filePath,
-                createdAt: "",
-                label: ""
-            }
-        });
-    }
-
-    const chatFileJoin = (utils: utilsType, file: chatFile, location: "chat" | "task" = "chat") => {
-        let join = `${file.id}:${file.createdAt}:${file.label}`;
-        return utils.join("src", "data", location).fsPath
-    }
-
-    export class Chat {
-        constructor(history: extensionState['chatHistory']) {
-
+    export const createInstance = (utils: utilsType, chat: Chat) => {
+        return {
+            utils,
+            chat
         }
     }
-
-    export class createInstance {
-        constructor(
+    // async create(newMessages: messageType[], label: string) {
+    //     const id = v4();
+    //     // const dateStr = moment().format('YYYY-MM-DD');
+    //     const db = await JSONFilePreset<{ messages: messageType[] }>(
+    //         this.utils.join("src", "data", "chat", `${id}.json`).fsPath,
+    //         { messages: [] }
+    //     );
+    //     await db.update(({ messages }) => messages.push(...newMessages));
+    //     const all = await getChatFiles(this.utils, "chat");
+    //     console.log("!all", all);
+    //     const newState = { id, db };
+    //     await this.set(newState);
+    //     return id;
+    // }
+    export type DbType = (MessageExtendedType | MessageType)[];
+    export class Chat {
+        constructor(private state$: BehaviorSubject<extensionState>,
             private utils: ReturnType<typeof createUtils>,
-            public chat: Chat = new Chat([])
-        ) {
+            private db: Map<HistoryIndex['id'], Low<DbType>> = new Map()) {
+        }
+
+        setMessages(newMessages: MessageType[]) {
+            updateExtensionState(this.state$, (prev) => {
+                return {
+                    ...prev,
+                    workspace: {
+                        ...prev.workspace,
+                        messages: newMessages
+                    }
+                }
+            })
+        }
+
+        async create(initialMessages: MessageExtendedType[]) {
+            const id = v4();
+            const db = await JSONFilePreset<DbType>(
+                this.utils.join("src", "data", "chat", `${id}.json`).fsPath, 
+                initialMessages
+            );
+            await db.write();
+            this.db.set(id, db);
+            return id;
+        }
+
+        async addMessages(conversationId: HistoryIndex['id'], messages: (MessageExtendedType | MessageType)[]) {
+            const filePath = this.utils.join("src", "data", "chat", `${conversationId}.json`).fsPath;
+            let db = this.db.get(conversationId);
+            
+            if (!db) {
+                db = await JSONFilePreset<DbType>(filePath, []);
+                this.db.set(conversationId, db);
+            }
+
+            await db.update((data) => {
+                data.push(...messages);
+            });
+            
+            this.setMessages([...this.state$.getValue().workspace.messages, ...messages]);
         }
     }
 }

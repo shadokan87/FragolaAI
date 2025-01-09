@@ -14,6 +14,5 @@ export type inTypeUnion = "chunk"
 export type outTypeUnion = "chatRequest"
     | "online"
     | "syntaxHighlight"
-    | "webviewReady"
     | "alert"
     | "history";

@@ -9,10 +9,16 @@
     import { type ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi } from "../store/vscode";
     import { v4 } from "uuid";
-    import { chatStreaming, createChatReader, staticMessageHandler, TMP_READER_SENTINEL } from "../store/chat.svelte";
+    import {
+        chatStreaming,
+        createChatReader,
+        staticMessageHandler,
+        TMP_READER_SENTINEL,
+    } from "../store/chat.svelte";
     import { extensionStateStore as extensionState } from "../store/chat.svelte";
-    import type { MessageType } from "../../../common";
+    import type { MessageType, Prompt } from "../../../common";
     import ChatInput from "./ChatInput.svelte";
+    import { NONE_SENTINEL } from "../../../common/types";
 
     let inputFocus = $state(false);
     let prompt = $state("How to use splice javascript ?");
@@ -28,32 +34,38 @@
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             const input = e.target as HTMLInputElement;
+            if (!$extensionState) {
+                console.error("Extension state undefined");
+                return;
+            }
+            const prompt: Prompt = [input.value];
             const payload: ChatWorkerPayload = {
                 type: "chatRequest",
                 data: {
-                    prompt: {
-                        text: input.value
-                    }
+                    prompt,
                 },
             };
             $codeApi?.postMessage(payload);
-            const userMessage: MessageType = {role: "user", content: payload.data.prompt};
-            if ($extensionState?.chat.id) {
-                const reader = chatStreaming.readers.get($extensionState.chat.id);
-                if (!reader)
-                    throw new Error("Chat id exist but reader undefined");
-                reader.length = reader.length + 1;
-                reader.loaded = [...reader.loaded, userMessage];
-                reader.renderer = [...reader.renderer, "user"];
-            } else {
-                chatStreaming.readers.set(TMP_READER_SENTINEL, createChatReader({loaded: [userMessage], length: 1, renderer: ["user"]}));
-            }
+            const userMessage: MessageType = {
+                role: "user",
+                content: payload.data.prompt,
+            };
+            // if ($extensionState?.chat.id) {
+            //     const reader = chatStreaming.readers.get($extensionState.chat.id);
+            //     if (!reader)
+            //         throw new Error("Chat id exist but reader undefined");
+            //     reader.length = reader.length + 1;
+            //     reader.loaded = [...reader.loaded, userMessage];
+            //     reader.renderer = [...reader.renderer, "user"];
+            // } else {
+            //     chatStreaming.readers.set(TMP_READER_SENTINEL, createChatReader({loaded: [userMessage], length: 1, renderer: ["user"]}));
+            // }
             console.log("!submit", input.value);
         }
     }
 </script>
 
-<ChatInput prompt={prompt} onKeydown={handleSubmitPrompt} />
+<ChatInput {prompt} onKeydown={handleSubmitPrompt} />
 
 <style lang="scss">
     // :global(.aux-bar) {
