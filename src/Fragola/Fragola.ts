@@ -9,7 +9,8 @@ import { Low } from "lowdb";
 import { JSONFilePreset } from "lowdb/node";
 import { chunkType, MessageType, extensionState, MessageExtendedType, HistoryIndex } from "@types";
 import { BehaviorSubject } from 'rxjs';
-import { updateExtensionState } from "@utils";
+import { createUpdateState } from "@utils";
+import { FragolaVscode } from "./vscode";
 
 export namespace FragolaClient {
     export type utilsType = ReturnType<typeof createUtils>;
@@ -54,11 +55,12 @@ export namespace FragolaClient {
     export class Chat {
         constructor(private state$: BehaviorSubject<extensionState>,
             private utils: ReturnType<typeof createUtils>,
-            private db: Map<HistoryIndex['id'], Low<DbType>> = new Map()) {
+            private updateExtensionState: (callback: Parameters<ReturnType<typeof createUpdateState<extensionState>>>[1]) => void
+        ) {
         }
 
         setMessages(newMessages: MessageType[]) {
-            updateExtensionState(this.state$, (prev) => {
+            this.updateExtensionState((prev) => {
                 return {
                     ...prev,
                     workspace: {
@@ -69,31 +71,31 @@ export namespace FragolaClient {
             })
         }
 
-        async create(initialMessages: MessageExtendedType[]) {
-            const id = v4();
-            const db = await JSONFilePreset<DbType>(
-                this.utils.join("src", "data", "chat", `${id}.json`).fsPath, 
-                initialMessages
-            );
-            await db.write();
-            this.db.set(id, db);
-            return id;
+        addMessages(conversationId: HistoryIndex['id'], messages: (MessageExtendedType | MessageType)[]) {
+            this.setMessages([...this.state$.getValue().workspace.messages, ...messages]);
         }
 
-        async addMessages(conversationId: HistoryIndex['id'], messages: (MessageExtendedType | MessageType)[]) {
-            const filePath = this.utils.join("src", "data", "chat", `${conversationId}.json`).fsPath;
-            let db = this.db.get(conversationId);
-            
-            if (!db) {
-                db = await JSONFilePreset<DbType>(filePath, []);
-                this.db.set(conversationId, db);
-            }
-
-            await db.update((data) => {
-                data.push(...messages);
-            });
-            
-            this.setMessages([...this.state$.getValue().workspace.messages, ...messages]);
+        async create(initialMessages: MessageExtendedType[]) {
+            const id = v4();
+            this.updateExtensionState((prev) => {
+                const historyIndex: HistoryIndex[] = [...prev.workspace.historyIndex, {
+                    id, meta: {
+                        label: undefined, createdAt: moment().format('YYYY-MM-DD')
+                    }
+                }];
+                return {
+                    ...prev,
+                    workspace: {
+                        ...prev.workspace,
+                        ui: {
+                            ...prev.workspace.ui,
+                            conversationId: id
+                        },
+                        historyIndex,
+                        messages: initialMessages
+                    }
+                }
+            })
         }
     }
 }

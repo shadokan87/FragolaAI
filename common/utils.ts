@@ -55,4 +55,4 @@ export function createUpdateState<T>(middleware: (prev: T, newValue: T) => T): (
     }
 }
 
-export const updateExtensionState = createUpdateState<extensionState>(updateExtensionStateMiddleware);
+// export const updateExtensionState = createUpdateState<extensionState>(updateExtensionStateMiddleware);

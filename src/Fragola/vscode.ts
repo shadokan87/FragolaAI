@@ -5,7 +5,7 @@ import { chunkType, extensionState, GlobalKeys, HistoryIndex, InteractionMode, M
 import { outTypeUnion } from "../workers/types";
 import { ChatWorkerPayload } from "../workers/chat/chat.worker";
 import { handleChatRequest } from "../handlers/chatRequest";
-import { streamChunkToMessage, defaultExtensionState, updateExtensionState as _updateExtensionState } from "@utils";
+import { streamChunkToMessage, defaultExtensionState, createUpdateState } from "@utils";
 import { processJsFiles, createWebviewContent } from "./postSvelteBuild";
 import { BehaviorSubject } from 'rxjs';
 import moment from "moment";
@@ -13,12 +13,27 @@ import { ChatCompletionMessageParam } from "@shadokan87/token.js";
 
 type StateScope = "global" | "workspace";
 
+const createUpdateExtensionStateMiddleware = (extensionContext: vscode.ExtensionContext) => (prev: extensionState, newValue: extensionState): extensionState => {
+    let _newValue = structuredClone(newValue);
+    console.log("__MIDDLEWARE__");
+    console.log("__PREV__", prev);
+    console.log("__NEW__", newValue);
+    if (prev.workspace.historyIndex.length < newValue.workspace.historyIndex.length) { // Discussion creation
+        console.log("__CREATE__");
+    }
+    // if (prev.workspace.isConversationTmp && _newValue.workspace.messages.length)
+    //     _newValue.workspace.isConversationTmp = false
+    return _newValue;
+}
+
 export class FragolaVscode implements vscode.WebviewViewProvider {
     private extensionContext: vscode.ExtensionContext;
     private state$ = new BehaviorSubject<extensionState>(defaultExtensionState);
+    private _updateExtensionState: ReturnType<typeof createUpdateState<extensionState>>;
 
     constructor(extensionContext: vscode.ExtensionContext) {
         this.extensionContext = extensionContext;
+        this._updateExtensionState = createUpdateState(createUpdateExtensionStateMiddleware(this.extensionContext));
     }
 
     async updateState<T extends string>(key: T, value: any, scope: StateScope = "workspace") {
@@ -37,8 +52,8 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         await this.extensionContext[`${scope}State`].get(key);
     }
 
-    updateExtensionState(callback: Parameters<typeof _updateExtensionState>[1]) {
-        _updateExtensionState(this.state$, callback);
+    updateExtensionState(callback: Parameters<typeof this._updateExtensionState>[1]) {
+        this._updateExtensionState(this.state$, callback);
     }
 
     async resolveWebviewView(
@@ -71,7 +86,9 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         //     return defaultExtensionState;
         // }
 
-        const fragola = FragolaClient.createInstance(utils, new FragolaClient.Chat(this.state$, utils));
+        const fragola = FragolaClient.createInstance(utils, new FragolaClient.Chat(this.state$, utils, (prev) => {
+            this.updateExtensionState(prev);
+        }));
 
         // Subscribe to state changes and notify webview
         this.state$.subscribe(newState => {
@@ -111,26 +128,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                     }
                     if (this.state$.getValue().workspace.ui.conversationId == NONE_SENTINEL) {
                         try {
-                            const id = await fragola.chat.create([extendedMessage]);
-                            this.updateExtensionState((prev) => {
-                                const historyIndex: HistoryIndex[] = [...prev.workspace.historyIndex, {
-                                    id, meta: {
-                                        label: undefined, createdAt: moment().format('YYYY-MM-DD')
-                                    }
-                                }];
-                                return {
-                                    ...prev,
-                                    workspace: {
-                                        ...prev.workspace,
-                                        ui: {
-                                            ...prev.workspace.ui,
-                                            conversationId: id
-                                        },
-                                        historyIndex,
-                                        messages: [extendedMessage]
-                                    }
-                                }
-                            })
+                            await fragola.chat.create([extendedMessage]);
                         } catch (e) {
                             console.error("__ERR__", e);
                         }

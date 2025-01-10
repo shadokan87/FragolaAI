@@ -21,7 +21,8 @@
     import { NONE_SENTINEL } from "../../../common/types";
 
     let inputFocus = $state(false);
-    let prompt = $state("How to use splice javascript ?");
+    // let prompt = $state("How to use splice javascript ?");
+    let prompt = $state("This is a test, answer with a random sentence");
 
     const chatInputWrapper: ClassNamesObject = $derived({
         "chat-input-wrapper": true,
