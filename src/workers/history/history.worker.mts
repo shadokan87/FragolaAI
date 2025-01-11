@@ -12,7 +12,7 @@ export type HistoryWorkerPayload = ({
     kind: "UPDATE",
     newMessages: (MessageExtendedType | MessageType)[]
 }) & {
-    workspaceRoot: string,
+    extensionFsPath: string,
     id: string
 }
 
@@ -21,7 +21,7 @@ if (!parentPort) {
 }
 
 parentPort.on("message", async (message: HistoryWorkerPayload) => {
-    const filePath = join(message.workspaceRoot, "src", "data", "chat", `${message.id}.json`);
+    const filePath = join(message.extensionFsPath, "src", "data", "chat", `${message.id}.json`);
     switch (message.kind) {
         case "CREATE": {
             const db = await JSONFilePreset<DbType>(

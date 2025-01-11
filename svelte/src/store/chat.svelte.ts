@@ -1,7 +1,7 @@
 import OpenAI from "openai";
-import { writableHook } from "./hooks";
+import { writableHook, type WritableHook } from "./hooks";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
-import { type chunkType, type extensionState, receiveStreamChunk, type MessageType, streamChunkToMessage } from "../../../common";
+import { type chunkType, type extensionState, receiveStreamChunk, type MessageType, streamChunkToMessage, NONE_SENTINEL } from "../../../common";
 import { Marked, type Token, type Tokens, type TokensList } from "marked";
 import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
@@ -125,43 +125,63 @@ export function createStreaming(createRenderer: createRendererFn) {
       const newLoaded = [...reader.loaded];
       newLoaded[newLoaded.length - 1] = asMessage;
       reader.loaded = newLoaded;
-      
+
       if (["tool"].includes(chunk.choices[0].delta.role || "")) {
         reader.renderer = [...reader.renderer, chunk.choices[0].delta.role as renderedByComponent];
       } else {
         if (!reader.renderer[reader.loaded.length - 1]) {
           reader.renderer = [...reader.renderer, createRenderer()];
         }
-          (async () => {
-            await (reader.renderer.at(-1) as renderer)?.render(asMessage)
-          })();
+        (async () => {
+          await (reader.renderer.at(-1) as renderer)?.render(asMessage)
+        })();
       }
       update = !update;
     }
   }
 }
-
+//TODO: potential useless '?' keyword
 export const extensionStateStore = writableHook<extensionState | undefined>({
   initialValue: undefined,
-  // onUpdate(previousValue, newValue) {
-  //   if (!newValue?.chat.id) {
-  //     console.log("No chat id");
-  //     return newValue;
-  //   }
-  //   let defaultReaderValue: chatReader = chatReaderDefault;
-  //   const isFirstChatResponse = previousValue?.chat.isTmp && !newValue.chat.isTmp;
-  //   if (isFirstChatResponse) {
-  //     const tmpReader = chatStreaming.readers.get(TMP_READER_SENTINEL);
-  //     if (tmpReader) {
-  //       defaultReaderValue = { ...tmpReader };
-  //       chatStreaming.readers.delete(TMP_READER_SENTINEL);
-  //     }
-  //   }
-  //   if (!chatStreaming.readers.get(newValue.chat.id)) // Prepare reader to receive data
-  //     chatStreaming.readers.set(newValue.chat.id, createChatReader(defaultReaderValue));
-  //   return newValue;
-  // },
+  copyMethod: (value) => structuredClone(value),
+  onUpdate(previousValue, newValue) {
+    if (!previousValue || !newValue)
+      return newValue;
+    if (newValue?.workspace.ui.conversationId == NONE_SENTINEL) {
+      console.log("No chat id");
+      return newValue;
+    }
+    let defaultReaderValue: chatReader = chatReaderDefault;
+    // const isFirstChatResponse = previousValue?.workspace.ui.conversationId == NONE_SENTINEL && newValue?.workspace.ui.conversationId != NONE_SENTINEL;
+    // if (isFirstChatResponse) {
+    //   const tmpReader = chatStreaming.readers.get(TMP_READER_SENTINEL);
+    //   if (tmpReader) {
+    //     defaultReaderValue = { ...tmpReader };
+    //     chatStreaming.readers.delete(TMP_READER_SENTINEL);
+    //   }
+    // }
+    if (!chatStreaming.readers.has(newValue?.workspace.ui.conversationId)) { // Prepare reader to receive data
+      if (newValue.workspace.messages.length != 0) {
+        defaultReaderValue.length = newValue.workspace.messages.length;
+        defaultReaderValue.loaded = newValue.workspace.messages;
+      }
+      chatStreaming.readers.set(newValue.workspace.ui.conversationId, createChatReader(defaultReaderValue));
+    } else {
+      const newReader = chatStreaming.readers.get(newValue.workspace.ui.conversationId);
+      if (!newReader) {
+        //TODO: handle error
+        console.error("Unexpected undefinde reader");
+        return newValue;
+      }
+      newReader.length = newValue.workspace.messages.length;
+      newReader.loaded = newValue.workspace.messages;
+      chatStreaming.readers.set(newValue.workspace.ui.conversationId, newReader);
+    }
+    return newValue;
+  },
 })
+// Creating a reference without the store value undefined to avoid '?', this reference should only be used in pages that guarantee the state is not undefined
+export const extensionStateStoreInitialized = extensionStateStore as WritableHook<extensionState>;
 
 export function staticMessageHandler(streaming: ReturnType<typeof createStreaming>, createRenderer?: createRendererFn) {
   const _createRenderer: createRendererFn = createRenderer || streaming.getCreateRenderer();
@@ -179,7 +199,7 @@ export function staticMessageHandler(streaming: ReturnType<typeof createStreamin
       const newRenderer = _createRenderer();
       reader.loaded = [...reader.loaded, message];
       reader.renderer = [...reader.renderer, newRenderer];
-      
+
       (async () => {
         await newRenderer.render(message);
       })();

@@ -1,11 +1,12 @@
 import { parentPort, workerData } from 'worker_threads';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
-import { chunkType, Prompt } from "@types";
+import { chunkType, extensionState, Prompt } from "@types";
 import { receiveStreamChunk } from "@utils";
 
 export type ChatWorkerPayload = {
     data: {
         prompt: Prompt,
+        id: extensionState['workspace']['ui']['conversationId']
     }
 } & basePayload<outTypeUnion>;
 

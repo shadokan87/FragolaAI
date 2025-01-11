@@ -9,7 +9,6 @@ import { Low } from "lowdb";
 import { JSONFilePreset } from "lowdb/node";
 import { chunkType, MessageType, extensionState, MessageExtendedType, HistoryIndex } from "@types";
 import { BehaviorSubject } from 'rxjs';
-import { createUpdateState } from "@utils";
 import { FragolaVscode } from "./vscode";
 
 export namespace FragolaClient {
@@ -37,30 +36,19 @@ export namespace FragolaClient {
             chat
         }
     }
-    // async create(newMessages: messageType[], label: string) {
-    //     const id = v4();
-    //     // const dateStr = moment().format('YYYY-MM-DD');
-    //     const db = await JSONFilePreset<{ messages: messageType[] }>(
-    //         this.utils.join("src", "data", "chat", `${id}.json`).fsPath,
-    //         { messages: [] }
-    //     );
-    //     await db.update(({ messages }) => messages.push(...newMessages));
-    //     const all = await getChatFiles(this.utils, "chat");
-    //     console.log("!all", all);
-    //     const newState = { id, db };
-    //     await this.set(newState);
-    //     return id;
-    // }
     export type DbType = (MessageExtendedType | MessageType)[];
     export class Chat {
         constructor(private state$: BehaviorSubject<extensionState>,
-            private utils: ReturnType<typeof createUtils>,
-            private updateExtensionState: (callback: Parameters<ReturnType<typeof createUpdateState<extensionState>>>[1]) => void
+            private utils: ReturnType<typeof createUtils>
         ) {
         }
 
+        updateExtensionState(callback: (prev: extensionState) => extensionState) {
+            this.state$.next(callback(this.state$.getValue()));
+        }
+
         setMessages(newMessages: MessageType[]) {
-            this.updateExtensionState((prev) => {
+            this.updateExtensionState(prev => {
                 return {
                     ...prev,
                     workspace: {
@@ -71,11 +59,11 @@ export namespace FragolaClient {
             })
         }
 
-        addMessages(conversationId: HistoryIndex['id'], messages: (MessageExtendedType | MessageType)[]) {
+        addMessages(messages: (MessageExtendedType | MessageType)[]) {
             this.setMessages([...this.state$.getValue().workspace.messages, ...messages]);
         }
 
-        async create(initialMessages: MessageExtendedType[]) {
+        create(initialMessages: MessageExtendedType[]) {
             const id = v4();
             this.updateExtensionState((prev) => {
                 const historyIndex: HistoryIndex[] = [...prev.workspace.historyIndex, {
@@ -96,6 +84,7 @@ export namespace FragolaClient {
                     }
                 }
             })
+            return id
         }
     }
 }

@@ -1,36 +1,31 @@
 <script lang="ts">
-    import {
-        Lexer,
-        Marked,
-        marked,
-        type MarkedExtension,
-        type MarkedOptions,
-        type Token,
-        type Tokens,
-        type TokensList,
-    // @ts-ignore
-    } from "marked";
     import "../app.scss";
     import ChatFooter from "../lib/ChatFooter.svelte";
-    import { chatStreaming, codeBlockHighlight, extensionStateStore, TMP_READER_SENTINEL, type chatReader } from "../store/chat.svelte";
+    import {
+        chatStreaming,
+        codeBlockHighlight,
+        extensionStateStoreInitialized as extensionState,
+        TMP_READER_SENTINEL,
+        type chatReader,
+    } from "../store/chat.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
+    import { NONE_SENTINEL } from "../../../common";
 
-    let chatId: string | undefined = $state(undefined);
     let reader: chatReader | undefined = $state(undefined);
     $effect(() => {
-        if ($extensionStateStore?.chat.isTmp)
-            chatId = TMP_READER_SENTINEL;
-        else
-            chatId = $extensionStateStore?.chat.id;
-        reader = chatId && chatStreaming.readers.get(chatId) || undefined;
-        console.log("__CHAT_ID__", chatId);
+        reader =
+            ($extensionState.workspace.ui.conversationId != NONE_SENTINEL &&
+                chatStreaming.readers.get(
+                    $extensionState.workspace.ui.conversationId,
+                )) ||
+            undefined;
     });
 </script>
 
 <main class="chat-grid">
     <div class="chat-messages">
-        {#if chatId}
-            <RenderChatReader bind:reader={reader}/>
+        {#if $extensionState.workspace.ui.conversationId != NONE_SENTINEL}
+            <RenderChatReader bind:reader />
         {/if}
     </div>
     <ChatFooter />

@@ -39,7 +39,7 @@ export type Mention = {
 
 export type Prompt = (string | Mention)[];
 
-export type MessageExtendedType = MessageType & {meta: userMessageMetaData};
+export type MessageExtendedType = MessageType & { meta: userMessageMetaData };
 
 export type MessageType = ChatCompletionMessageParam;
 
@@ -51,7 +51,6 @@ export interface extensionState {
         },
         historyIndex: HistoryIndex[],
         messages: MessageType[],
-        isConversationTmp: boolean
     }, global: {
 
     }

@@ -5,55 +5,39 @@ import { chunkType, extensionState, GlobalKeys, HistoryIndex, InteractionMode, M
 import { outTypeUnion } from "../workers/types";
 import { ChatWorkerPayload } from "../workers/chat/chat.worker";
 import { handleChatRequest } from "../handlers/chatRequest";
-import { streamChunkToMessage, defaultExtensionState, createUpdateState } from "@utils";
+import { streamChunkToMessage, defaultExtensionState } from "@utils";
 import { processJsFiles, createWebviewContent } from "./postSvelteBuild";
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, pairwise, map, distinctUntilChanged } from 'rxjs';
 import moment from "moment";
 import { ChatCompletionMessageParam } from "@shadokan87/token.js";
+import { stateChangeMiddleware } from "./middleware";
+import { historyHandler } from "../handlers/history";
+import { HistoryWorkerPayload } from "../workers/history/history.worker.mts";
 
 type StateScope = "global" | "workspace";
 
-const createUpdateExtensionStateMiddleware = (extensionContext: vscode.ExtensionContext) => (prev: extensionState, newValue: extensionState): extensionState => {
-    let _newValue = structuredClone(newValue);
-    console.log("__MIDDLEWARE__");
-    console.log("__PREV__", prev);
-    console.log("__NEW__", newValue);
-    if (prev.workspace.historyIndex.length < newValue.workspace.historyIndex.length) { // Discussion creation
-        console.log("__CREATE__");
-    }
-    // if (prev.workspace.isConversationTmp && _newValue.workspace.messages.length)
-    //     _newValue.workspace.isConversationTmp = false
-    return _newValue;
-}
-
 export class FragolaVscode implements vscode.WebviewViewProvider {
     private extensionContext: vscode.ExtensionContext;
-    private state$ = new BehaviorSubject<extensionState>(defaultExtensionState);
-    private _updateExtensionState: ReturnType<typeof createUpdateState<extensionState>>;
 
-    constructor(extensionContext: vscode.ExtensionContext) {
+    constructor(extensionContext: vscode.ExtensionContext, private state$ = new BehaviorSubject<extensionState>(defaultExtensionState)) {
         this.extensionContext = extensionContext;
-        this._updateExtensionState = createUpdateState(createUpdateExtensionStateMiddleware(this.extensionContext));
     }
 
     async updateState<T extends string>(key: T, value: any, scope: StateScope = "workspace") {
         await this.extensionContext[`${scope}State`].update(key, value);
-        // const currentState = this.state$.getValue();
-        // this.state$.next({
-        //     ...currentState,
-        //     [scope]: {
-        //         ...currentState[scope],
-        //         [key]: value
-        //     }
-        // });
     }
 
     async getState<T extends string>(key: T, scope: StateScope = "workspace") {
         await this.extensionContext[`${scope}State`].get(key);
     }
 
-    updateExtensionState(callback: Parameters<typeof this._updateExtensionState>[1]) {
-        this._updateExtensionState(this.state$, callback);
+    updateExtensionState(callback: (prev: extensionState) => extensionState) {
+        this.state$.next(callback(this.state$.getValue()));
+    }
+
+    handleHistoryError(payload: HistoryWorkerPayload, error: Error) {
+        // TODO: error handling
+        console.error(`Failed to ${payload.kind.toLowerCase()} messages, error: ${error.message}`);
     }
 
     async resolveWebviewView(
@@ -86,9 +70,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         //     return defaultExtensionState;
         // }
 
-        const fragola = FragolaClient.createInstance(utils, new FragolaClient.Chat(this.state$, utils, (prev) => {
-            this.updateExtensionState(prev);
-        }));
+        const fragola = FragolaClient.createInstance(utils, new FragolaClient.Chat(this.state$, utils));
 
         // Subscribe to state changes and notify webview
         this.state$.subscribe(newState => {
@@ -126,26 +108,41 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                             interactionMode: this.state$.getValue().workspace.ui.interactionMode,
                         }
                     }
-                    if (this.state$.getValue().workspace.ui.conversationId == NONE_SENTINEL) {
+                    let conversationId = userMessagePayload.id;
+                    if (conversationId == NONE_SENTINEL || !conversationId) {
                         try {
-                            await fragola.chat.create([extendedMessage]);
+                            conversationId = fragola.chat.create([extendedMessage]);
+                            const historyPayload: HistoryWorkerPayload = {
+                                kind: "CREATE",
+                                initialMessages: [extendedMessage],
+                                id: conversationId,
+                                extensionFsPath: this.extensionContext.extensionUri.fsPath
+                            }
+                            historyHandler(this.extensionContext, webviewView.webview, historyPayload, () => { }, (error) => this.handleHistoryError(historyPayload, error));
                         } catch (e) {
                             console.error("__ERR__", e);
                         }
                     } else {
-                        await fragola.chat.addMessages(this.state$.getValue().workspace.ui.conversationId, [extendedMessage]);
+                        fragola.chat.addMessages(conversationId, [extendedMessage]);
                     }
-                    const assistantStreamResult = await handleChatRequest(this.extensionContext, webviewView.webview, userMessagePayload);
+                    const assistantStreamResult = await handleChatRequest(this.extensionContext, webviewView.webview, {...userMessagePayload, id: conversationId});
                     let asMessage = streamChunkToMessage(assistantStreamResult);
                     if (!asMessage.content)
                         asMessage.content = "";
                     if (!asMessage.role)
                         asMessage.role = "assistant"
                     try {
-                        await fragola.chat.addMessages(
-                            this.state$.getValue().workspace.ui.conversationId
-
-                            , [asMessage as MessageType])
+                        if (!conversationId)
+                            throw new Error("conversationId undefined");
+                        fragola.chat.addMessages(
+                            conversationId, [asMessage as MessageType]);
+                        const historyPayload: HistoryWorkerPayload = {
+                            kind: "UPDATE",
+                            newMessages: [asMessage as MessageType],
+                            id: conversationId,
+                            extensionFsPath: this.extensionContext.extensionUri.fsPath
+                        };
+                        historyHandler(this.extensionContext, webviewView.webview, historyPayload, () => { }, (error) => this.handleHistoryError(historyPayload, error));
                     } catch (e) {
                         console.error("__ERR__", e);
                     }

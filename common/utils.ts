@@ -33,26 +33,25 @@ export const defaultExtensionState: extensionState = {
         },
         historyIndex: [],
         messages: [],
-        isConversationTmp: true
     },
     global: {
 
     }
 }
 
-export function updateExtensionStateMiddleware(prev: extensionState, newValue: extensionState): extensionState {
-    let _newValue = structuredClone(newValue);
-    // if (prev.workspace.isConversationTmp && _newValue.workspace.messages.length)
-    //     _newValue.workspace.isConversationTmp = false
-    return _newValue;
-}
+// export function updateExtensionStateMiddleware(prev: extensionState, newValue: extensionState): extensionState {
+//     let _newValue = structuredClone(newValue);
+//     // if (prev.workspace.isConversationTmp && _newValue.workspace.messages.length)
+//     //     _newValue.workspace.isConversationTmp = false
+//     return _newValue;
+// }
 
-export function createUpdateState<T>(middleware: (prev: T, newValue: T) => T): (state$: BehaviorSubject<T>, callback: (prev: T) => T) => void {
-    return (state$, callback) => {
-        const prevState = state$.getValue();
-        const newState = callback(prevState);
-        state$.next(middleware(prevState, newState));
-    }
-}
+// export function createUpdateState<T>(middleware: (prev: T, newValue: T) => T): (state$: BehaviorSubject<T>, callback: (prev: T) => T) => void {
+//     return (state$, callback) => {
+//         const prevState = state$.getValue();
+//         const newState = callback(prevState);
+//         state$.next(middleware(prevState, newState));
+//     }
+// }
 
 // export const updateExtensionState = createUpdateState<extensionState>(updateExtensionStateMiddleware);
