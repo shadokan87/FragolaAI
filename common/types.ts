@@ -51,6 +51,7 @@ export interface extensionState {
         },
         historyIndex: HistoryIndex[],
         messages: MessageType[],
+        streamState: "NONE" | "AWAITING" | "STREAMING",
     }, global: {
 
     }

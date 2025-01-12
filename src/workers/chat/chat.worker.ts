@@ -25,7 +25,6 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
     const { type, data, id }: ChatWorkerPayload = message;
     switch (type) {
         case 'chatRequest': {
-            let fullMessage: Partial<chunkType> = {};
             const stream = await tokenjs.chat.completions.create({
                 stream: true,
                 provider: 'bedrock',
@@ -39,16 +38,14 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
                 ],
             });
             for await (const chunk of stream) {
-                fullMessage = receiveStreamChunk(fullMessage, chunk);
                 parentPort?.postMessage({
                     type: "chunk", data: chunk, id
                 });
             }
             parentPort?.postMessage({
-                type: END_SENTINEL, data: fullMessage, id
+                type: END_SENTINEL, data: {}, id
             });
             parentPort?.close();
-            // break;
         }
         default: {
             parentPort?.postMessage({ type: "Error", code: 500, message: `type: ${type} not handled` });

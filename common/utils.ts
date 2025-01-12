@@ -33,6 +33,7 @@ export const defaultExtensionState: extensionState = {
         },
         historyIndex: [],
         messages: [],
+        streamState: "NONE"
     },
     global: {
 

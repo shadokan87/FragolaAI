@@ -47,20 +47,28 @@ export namespace FragolaClient {
             this.state$.next(callback(this.state$.getValue()));
         }
 
-        setMessages(newMessages: MessageType[]) {
+        setMessages(callback: (prev: extensionState) => MessageType[]) {
             this.updateExtensionState(prev => {
                 return {
                     ...prev,
                     workspace: {
                         ...prev.workspace,
-                        messages: newMessages
+                        messages: callback(prev)
                     }
                 }
             })
         }
 
-        addMessages(messages: (MessageExtendedType | MessageType)[]) {
-            this.setMessages([...this.state$.getValue().workspace.messages, ...messages]);
+        // replaceLastMessage(message: (MessageType)[]) {
+        //     this.setMessages((prev) => [...prev.workspace.messages.slice(0, -1), ...message])
+        // }
+
+        addMessages(messages: (MessageExtendedType | MessageType)[], replaceLast: boolean = false) {
+            this.setMessages((prev) => {
+                if (replaceLast)
+                    return [...prev.workspace.messages.slice(0, -1), ...messages];
+                return [...prev.workspace.messages, ...messages]
+            });
         }
 
         create(initialMessages: MessageExtendedType[]) {
