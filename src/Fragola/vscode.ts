@@ -5,14 +5,15 @@ import { chunkType, extensionState, GlobalKeys, HistoryIndex, InteractionMode, M
 import { outTypeUnion } from "../workers/types";
 import { ChatWorkerPayload } from "../workers/chat/chat.worker";
 import { handleChatRequest } from "../handlers/chatRequest";
-import { streamChunkToMessage, defaultExtensionState, receiveStreamChunk } from "@utils";
+import { streamChunkToMessage, defaultExtensionState, receiveStreamChunk, Mutex } from "@utils";
 import { processJsFiles, createWebviewContent } from "./postSvelteBuild";
-import { BehaviorSubject, pairwise, map, distinctUntilChanged } from 'rxjs';
+import { BehaviorSubject, pairwise, map, distinctUntilChanged, } from 'rxjs';
 import moment from "moment";
-import { ChatCompletionMessageParam } from "@shadokan87/token.js";
+import { ChatCompletionMessageParam, CompletionResponseChunk } from "@shadokan87/token.js";
 import { stateChangeMiddleware } from "./middleware";
 import { historyHandler } from "../handlers/history";
 import { HistoryWorkerPayload } from "../workers/history/history.worker.mts";
+import { promisify } from 'util';
 
 type StateScope = "global" | "workspace";
 
@@ -41,7 +42,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
     }
 
     setStreamingState(state: extensionState["workspace"]) {
-        
+
     }
 
     async resolveWebviewView(
@@ -139,11 +140,15 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                     } else {
                         fragola.chat.addMessages([extendedMessage]);
                     }
-
                     let fullMessage: Partial<MessageType> = {};
                     let streamStateSet = false;
+                    if (!conversationId) {
+                        //TODO: handle error
+                        console.error("conversationId undefined");
+                        return;
+                    }
                     handleChatRequest(this.extensionContext, webviewView.webview, { ...userMessagePayload, id: conversationId }, () => {
-                        // Stream over with sucess
+                        // Stream completed with sucess
                         this.updateExtensionState((prev) => {
                             return {
                                 ...prev, workspace: {
@@ -152,9 +157,21 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                                 }
                             }
                         });
+
+                        const historyPayload: HistoryWorkerPayload = {
+                            kind: "UPDATE",
+                            newMessages: [fullMessage as MessageType],
+                            id: conversationId,
+                            extensionFsPath: this.extensionContext.extensionUri.fsPath
+                        };
+
+                        historyHandler(this.extensionContext, webviewView.webview, historyPayload, () => {
+                        }, (error) => {
+
+                        })
                     },
                         (chunk) => {
-                        // Streaming
+                            // Currently Streaming
                             if (!streamStateSet) {
                                 this.updateExtensionState((prev) => {
                                     return {
@@ -167,9 +184,48 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                                 streamStateSet = true;
                             }
                             fullMessage = streamChunkToMessage(chunk, fullMessage);
-                            fragola.chat.addMessages([fullMessage as MessageType], true);
-                            console.log("__FULL__", fullMessage);
+                            // fragola.chat.addMessages([fullMessage as MessageType], true);
+                            // // if (!conversationId) {
+                            // //     //TODO: handle error
+                            // //     console.error("conversationId undefined");
+                            // //     return;
+                            // // }
+                            // const historyPayload: HistoryWorkerPayload = {
+                            //     kind: "UPDATE",
+                            //     newMessages: [fullMessage as MessageType],
+                            //     replaceLast,
+                            //     id: conversationId,
+                            //     extensionFsPath: this.extensionContext.extensionUri.fsPath
+                            // };
+                            // (async () => {
+                            //     await dbWriteMutex.acquire();
+                            //     try {
+                            //         historyHandler(this.extensionContext, webviewView.webview, historyPayload, () => {
+                            //             console.log("__SUCCESS_CALLED__");
+                            //             replaceLast = true;
+                            //             dbWriteMutex.release();
+                            //         }, (error) => {
+                            //             dbWriteMutex.release();
+                            //             allowDbWrite = true;
+                            //             this.handleHistoryError(historyPayload, error)
+                            //         });
+                            //     } catch (e) {
+                            //         dbWriteMutex.release();
+                            //     } finally {
+                            //         // dbWriteMutex.release();
+                            //     }
+                            // })();
+                            // console.log("__FULL__", fullMessage);
                         }, (error) => {
+                            // Error during stream
+                            this.updateExtensionState((prev) => {
+                                return {
+                                    ...prev, workspace: {
+                                        ...prev.workspace,
+                                        streamState: "NONE"
+                                    }
+                                }
+                            });
                             console.error("__CHUNK_ERROR__", error);
                         });
                     // let asMessage = streamChunkToMessage(assistantStreamResult);

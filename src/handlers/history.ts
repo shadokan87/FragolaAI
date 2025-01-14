@@ -17,10 +17,12 @@ export function historyHandler(
         workerData: { payload }
     });
 
-    worker.on('message', (result) => {
-        webview.postMessage(result);
-        worker.terminate();
-        onSuccess();
+    worker.on('message', (result: { type: "SUCCESS" | "ERROR" }) => {
+        // webview.postMessage(result);
+        if (result.type == "SUCCESS") {
+            worker.terminate();
+            onSuccess();
+        }
     });
 
     worker.on('error', (error) => {

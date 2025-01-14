@@ -22,11 +22,13 @@ export function handleChatRequest(
     });
 
     worker.on('message', (result: basePayload<"chunk" | typeof END_SENTINEL> & { data: chunkType }) => {
-        onChunk(result.data)
+        console.log("___RES", result);
         if (result.type === END_SENTINEL) {
+            console.log("__END_SENTINEL_HERE__");
             onSuccess();
             worker.terminate();
-        }
+        } else
+            onChunk(result.data)
     });
 
     worker.on('error', (error) => {

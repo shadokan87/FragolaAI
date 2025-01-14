@@ -10,7 +10,8 @@ export type HistoryWorkerPayload = ({
     initialMessages: MessageExtendedType[],
 } | {
     kind: "UPDATE",
-    newMessages: (MessageExtendedType | MessageType)[]
+    newMessages: (MessageExtendedType | MessageType)[],
+    replaceLast?: boolean
 }) & {
     extensionFsPath: string,
     id: string
@@ -24,17 +25,39 @@ parentPort.on("message", async (message: HistoryWorkerPayload) => {
     const filePath = join(message.extensionFsPath, "src", "data", "chat", `${message.id}.json`);
     switch (message.kind) {
         case "CREATE": {
-            const db = await JSONFilePreset<DbType>(
-                join(filePath),
-                message.initialMessages
-            );
-            await db.write();
+            try {
+                const db = await JSONFilePreset<DbType>(
+                    join(filePath),
+                    message.initialMessages
+                );
+                await db.write();
+                parentPort?.postMessage({
+                    type: "SUCCESS"
+                })
+            } catch (e) {
+                parentPort?.postMessage({
+                    type: "ERROR"
+                })
+            }
             break;
         } case "UPDATE": {
-            const db = await JSONFilePreset<DbType>(filePath, []);
-            await db.update((data) => {
-                data.push(...message.newMessages);
-            });
+            try {
+                const db = await JSONFilePreset<DbType>(filePath, []);
+                await db.update((data) => {
+                    if (message.replaceLast) {
+                        data.pop();
+                    }
+                    data.push(...message.newMessages);
+                });
+                parentPort?.postMessage({
+                    type: "SUCCESS"
+                })
+            } catch (e) {
+                console.error("__ERR_WORKER__", e);
+                parentPort?.postMessage({
+                    type: "ERROR"
+                })
+            }
             break;
         }
         default: {

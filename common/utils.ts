@@ -40,6 +40,31 @@ export const defaultExtensionState: extensionState = {
     }
 }
 
+export class Mutex {
+    private locked: boolean = false;
+    private queue: (() => void)[] = [];
+
+    async acquire(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            if (!this.locked) {
+                this.locked = true;
+                resolve();
+            } else {
+                this.queue.push(resolve);
+            }
+        });
+    }
+
+    release(): void {
+        if (this.queue.length > 0) {
+            const nextResolve = this.queue.shift();
+            if (nextResolve) nextResolve();
+        } else {
+            this.locked = false;
+        }
+    }
+}
+
 // export function updateExtensionStateMiddleware(prev: extensionState, newValue: extensionState): extensionState {
 //     let _newValue = structuredClone(newValue);
 //     // if (prev.workspace.isConversationTmp && _newValue.workspace.messages.length)
