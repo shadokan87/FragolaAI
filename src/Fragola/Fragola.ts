@@ -53,7 +53,7 @@ export namespace FragolaClient {
                     ...prev,
                     workspace: {
                         ...prev.workspace,
-                        messages: callback(prev)
+                        messages: callback(prev),
                     }
                 }
             })
@@ -88,7 +88,7 @@ export namespace FragolaClient {
                             conversationId: id
                         },
                         historyIndex,
-                        messages: initialMessages
+                        messages: initialMessages,
                     }
                 }
             })

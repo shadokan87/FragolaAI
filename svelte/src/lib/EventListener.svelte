@@ -7,19 +7,12 @@
     import { receiveStreamChunk } from "../../../common/utils";
     import { codeStore as codeApi, colorTheme } from "../store/vscode";
     import {
-        codeBlockHighlight,
         extensionStateStore as extensionState,
-        staticMessageHandler,
-        TMP_READER_SENTINEL,
-        type chatReader,
     } from "../store/chat.svelte";
     import type { extensionState as extensionStateType, chunkType } from "../../../common";
-    import { chatStreaming } from "../store/chat.svelte";
-    // import {specific} from "../store/chat.svelte";
 
     let chunks: chunkType[] = $state.raw([]);
     type inCommingPayload = basePayload<inTypeUnion>;
-    // const streaming = createStreaming();
     onMount(() => {
         if (!$codeStore) {
             const code = (window as any)["acquireVsCodeApi"]();
@@ -40,32 +33,6 @@
                         };
                         console.log("__STATE__", payload);
                         extensionState.update(() => payload.data);
-                        break;
-                    }
-                    case "__END__": {
-                        chatStreaming.stopStream();
-                        break;
-                    }
-                    case "chunk": {
-                        const payload = event.data as inCommingPayload & {
-                            data: chunkType;
-                        };
-                        console.log("__CHUNK__", payload);
-                        if (!payload.id) {
-                            console.error("Id is undefined");
-                            return ;
-                        }
-                        if (!chatStreaming.isStreaming())
-                            chatStreaming.stream(payload.id)
-                        chatStreaming.receiveChunk(payload.id, payload.data);
-                        break;
-                    }
-                    case "shikiHtml": {
-                        const payload = event.data as inCommingPayload & {
-                            data: string;
-                        };
-                        if (payload.id)
-                            codeBlockHighlight().set(payload.id, payload.data);
                         break;
                     }
                     case "colorTheme": {

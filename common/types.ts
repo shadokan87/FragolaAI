@@ -52,10 +52,13 @@ export interface extensionState {
         historyIndex: HistoryIndex[],
         messages: MessageType[],
         streamState: "NONE" | "AWAITING" | "STREAMING",
+        // updateEvent?: "MESSAGE_CREATE" | "MESSAGE_PUSH" | "MESSAGE_LAST_UPDATE" | "MESSAGE_POP"
     }, global: {
 
     }
 }
+
+export type ConversationId = extensionState["workspace"]["ui"]["conversationId"];
 
 export type WorkspaceKeys = keyof extensionState['workspace'];
 

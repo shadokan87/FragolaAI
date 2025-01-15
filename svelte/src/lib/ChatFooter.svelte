@@ -9,12 +9,6 @@
     import { type ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi } from "../store/vscode";
     import { v4 } from "uuid";
-    import {
-        chatStreaming,
-        createChatReader,
-        staticMessageHandler,
-        TMP_READER_SENTINEL,
-    } from "../store/chat.svelte";
     import { extensionStateStore as extensionState } from "../store/chat.svelte";
     import type { MessageType, Prompt } from "../../../common";
     import ChatInput from "./ChatInput.svelte";

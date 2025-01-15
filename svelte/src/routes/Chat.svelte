@@ -2,23 +2,24 @@
     import "../app.scss";
     import ChatFooter from "../lib/ChatFooter.svelte";
     import {
-        chatStreaming,
-        codeBlockHighlight,
         extensionStateStoreInitialized as extensionState,
-        TMP_READER_SENTINEL,
-        type chatReader,
+        LLMMessagesRendererCache,
+        type ChatView,
     } from "../store/chat.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
     import { NONE_SENTINEL } from "../../../common";
 
-    let reader: chatReader | undefined = $state(undefined);
+    let reader: ChatView | undefined = $state(undefined);
     $effect(() => {
-        reader =
-            ($extensionState.workspace.ui.conversationId != NONE_SENTINEL &&
-                chatStreaming.readers.get(
-                    $extensionState.workspace.ui.conversationId,
-                )) ||
-            undefined;
+        const { conversationId } = $extensionState.workspace.ui;
+        if (conversationId != NONE_SENTINEL) {
+            reader = LLMMessagesRendererCache.getCache.get(conversationId);
+            if (!reader) {
+                // TODO: handle error
+                console.error("reader undefined but expected value");
+            }
+        } else
+            reader = undefined;
     });
 </script>
 
