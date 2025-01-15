@@ -6,7 +6,7 @@ import { receiveStreamChunk } from "@utils";
 export type ChatWorkerPayload = {
     data: {
         prompt: Prompt,
-        id: extensionState['workspace']['ui']['conversationId']
+        conversationId: extensionState['workspace']['ui']['conversationId']
     }
 } & basePayload<outTypeUnion>;
 

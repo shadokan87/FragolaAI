@@ -123,7 +123,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                             interactionMode: this.state$.getValue().workspace.ui.interactionMode,
                         }
                     }
-                    let conversationId = userMessagePayload.id;
+                    let { conversationId } = userMessagePayload.data;
                     if (conversationId == NONE_SENTINEL || !conversationId) {
                         try {
                             conversationId = fragola.chat.create([extendedMessage]);
@@ -138,7 +138,18 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                             console.error("__ERR__", e);
                         }
                     } else {
-                        fragola.chat.addMessages([extendedMessage]);
+                        try {
+                            const historyPayload: HistoryWorkerPayload = {
+                                kind: "UPDATE",
+                                newMessages: [extendedMessage],
+                                id: conversationId,
+                                extensionFsPath: this.extensionContext.extensionUri.fsPath
+                            }
+                            historyHandler(this.extensionContext, webviewView.webview, historyPayload, () => { }, (error) => this.handleHistoryError(historyPayload, error));
+                            fragola.chat.addMessages([extendedMessage]);
+                        } catch (e) {
+
+                        }
                     }
                     let fullMessage: Partial<MessageType> = {};
                     let streamStateSet = false;
@@ -184,38 +195,6 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                                 streamStateSet = true;
                             }
                             fullMessage = streamChunkToMessage(chunk, fullMessage);
-                            // fragola.chat.addMessages([fullMessage as MessageType], true);
-                            // // if (!conversationId) {
-                            // //     //TODO: handle error
-                            // //     console.error("conversationId undefined");
-                            // //     return;
-                            // // }
-                            // const historyPayload: HistoryWorkerPayload = {
-                            //     kind: "UPDATE",
-                            //     newMessages: [fullMessage as MessageType],
-                            //     replaceLast,
-                            //     id: conversationId,
-                            //     extensionFsPath: this.extensionContext.extensionUri.fsPath
-                            // };
-                            // (async () => {
-                            //     await dbWriteMutex.acquire();
-                            //     try {
-                            //         historyHandler(this.extensionContext, webviewView.webview, historyPayload, () => {
-                            //             console.log("__SUCCESS_CALLED__");
-                            //             replaceLast = true;
-                            //             dbWriteMutex.release();
-                            //         }, (error) => {
-                            //             dbWriteMutex.release();
-                            //             allowDbWrite = true;
-                            //             this.handleHistoryError(historyPayload, error)
-                            //         });
-                            //     } catch (e) {
-                            //         dbWriteMutex.release();
-                            //     } finally {
-                            //         // dbWriteMutex.release();
-                            //     }
-                            // })();
-                            // console.log("__FULL__", fullMessage);
                         }, (error) => {
                             // Error during stream
                             this.updateExtensionState((prev) => {

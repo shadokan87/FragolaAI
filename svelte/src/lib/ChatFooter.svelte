@@ -44,7 +44,7 @@
                 type: "chatRequest",
                 data: {
                     prompt,
-                    id: $extensionState.workspace.ui.conversationId
+                    conversationId: $extensionState.workspace.ui.conversationId
                 },
             };
             $codeApi?.postMessage(payload);
