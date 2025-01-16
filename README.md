@@ -1,71 +1,54 @@
-# fragola-ai README
+# 🍓 Fragola AI
 
-This is the README for your extension "fragola-ai". After writing up a brief description, we recommend including the following sections.
+FragolaAI is a work in progress coding assistant designed to enhance the development process. Once completed, users will be able to alternate between chat and build modes. In chat mode, developers can ask general coding questions or questions about the codebase, while build mode focuses on making medium to large-scale changes in the codebase while maintaining context. FragolaAI leverages static code analysis and agentic AI features to provide fast, context-aware assistance.
 
-## Features
+## 🌟 V1 Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### 💬 Chat Mode
+- 🤔 Ask general coding questions
+- 🔍 Inquire about specific codebases
+- ⚡ Get instant, context-aware responses
 
-For example if there is an image subfolder under your extension project workspace:
+### 🛠️ Build Mode
+- 🖋️ Instruct the assistant to make codebase changes
+- 🤝 Interactive process: accept/deny changes or command execution
+- 🔄 Real-time code modifications with safety checks
 
-\!\[feature X\]\(images/feature-x.png\)
+### 🧠 LLM Support
+- 🌐 Wide range of Language Model support:
+  - 💎 Premium models: OpenAI, Claude
+  - 🌈 Open-source models via OpenRouter
+  - 💻 Local models support through Ollama
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### 📊 Static Code Analysis
+- 🧩 Understand codebase structures
+- 🎯 Provide accurate and context-relevant completions
 
-## Requirements
+### 🔗 Codebase Embedding
+- 🧬 Embedding of your codebase for complex codebase-wide queries
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## 📈 Project Status
 
-## Extension Settings
+FragolaAI is currently under active development. 🔨 Key components and features are being implemented and tested. The project is not yet available for public use or contribution.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## ✅ TODO
 
-For example:
+- [🚧 In progress] Core VSCode extension
+- [ ] Static code analysis
+- [ ] Codebase embedding
+- [ ] Support for OpenAI & Anthropic premium models
+- [ ] Chat mode
+- [ ] Build mode
+- [ ] Support for OpenRouter provider
+- [ ] User authentication and API key management
 
-This extension contributes the following settings:
+## 📢 Stay Updated
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+While FragolaAI is not yet available, you can stay informed about its progress:
 
-## Known Issues
+- 🌟 Follow our [GitHub repository](https://github.com/shadokan87/FragolaAI)
+- 🔔 Check back here for updates on the project's status
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+We're excited about the potential of FragolaAI and look forward to sharing it with the developer community in the future!
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+📝 Note: Users will need to provide their own API keys. Most popular providers will be supported.
