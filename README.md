@@ -33,7 +33,7 @@ FragolaAI is currently under active development. 🔨 Key components and feature
 
 ## ✅ TODO
 
-- [🚧 In progress] Core VSCode extension
+- [ ] ( 🚧 In progress )Core VSCode extension
 - [ ] Static code analysis
 - [ ] Codebase embedding
 - [ ] Support for OpenAI & Anthropic premium models
