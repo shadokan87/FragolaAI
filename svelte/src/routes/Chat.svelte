@@ -9,24 +9,13 @@
     import RenderChatReader from "../lib/RenderChatReader.svelte";
     import { NONE_SENTINEL } from "../../../common";
 
-    let reader: ChatView | undefined = $state(undefined);
-    $effect(() => {
-        const { conversationId } = $extensionState.workspace.ui;
-        if (conversationId != NONE_SENTINEL) {
-            reader = LLMMessagesRendererCache.getCache.get(conversationId);
-            if (!reader) {
-                // TODO: handle error
-                console.error("reader undefined but expected value");
-            }
-        } else
-            reader = undefined;
-    });
+    let reader = $derived(LLMMessagesRendererCache.getCache.get($extensionState.workspace.ui.conversationId))
 </script>
 
 <main class="chat-grid">
     <div class="chat-messages">
         {#if $extensionState.workspace.ui.conversationId != NONE_SENTINEL}
-            <RenderChatReader bind:reader />
+            <RenderChatReader reader={reader} />
         {/if}
     </div>
     <ChatFooter />

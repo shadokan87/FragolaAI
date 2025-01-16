@@ -11,7 +11,7 @@
     export interface props {
         reader: ChatView | undefined;
     }
-    const { reader = $bindable() }: props = $props();
+    const { reader }: props = $props();
 </script>
 
 {#if reader && reader.renderer.length}

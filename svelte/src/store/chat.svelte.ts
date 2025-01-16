@@ -17,60 +17,61 @@ export type renderer = {
 };
 
 export interface ChatView {
-  messages: extensionState["workspace"]["messages"],
+  // messages: extensionState["workspace"]["messages"],
   renderer: (renderer | renderedByComponent)[],
   index: number
 }
 type createRendererFn = (message: extensionState["workspace"]["messages"][0]) => ChatView["renderer"][0];
 
 // Simple runtime cache for markdown rendering
-export function createMessagesCache(createRenderer: createRendererFn) {
+export function createMessagesCache() {
   let readers = $state<Map<ConversationId, ChatView>>(new Map());
 
   return {
-    create(conversationId: ConversationId, initialMessages: extensionState["workspace"]["messages"]) {
-      readers.set(conversationId, { renderer: initialMessages.map(message => createRenderer(message)), messages: initialMessages, index: 0 })
+    create(conversationId: ConversationId) {
+      readers.set(conversationId, { renderer: [], index: 0 })
     },
     get getCache() {
       return readers;
     },
     update(conversationId: ConversationId, newValue: ChatView) {
       readers.set(conversationId, newValue);
+      console.log("__READERS__", readers);
     }
   }
 }
 
-export const LLMMessagesRendererCache = createMessagesCache((message) => {
-  if (message.role == "assistant")
-    return createChatMarkedRender(chatMarkedInstance);
-  return message.role as renderedByComponent;
-});
+export const LLMMessagesRendererCache = createMessagesCache();
 
 export const extensionStateStore = writableHook<extensionState | undefined>({
   initialValue: undefined,
   copyMethod: (value) => structuredClone(value),
   onUpdate(previousValue, newValue) {
-    if (!previousValue || !newValue)
+    if (!previousValue || !newValue || newValue.workspace.ui.conversationId == NONE_SENTINEL)
       return newValue;
     let cache = LLMMessagesRendererCache.getCache;
     if (!cache.has(newValue.workspace.ui.conversationId))
-      LLMMessagesRendererCache.create(newValue.workspace.ui.conversationId, newValue.workspace.messages);
+      LLMMessagesRendererCache.create(newValue.workspace.ui.conversationId);
 
     const currentMessagesCache = cache.get(newValue.workspace.ui.conversationId);
     if (!currentMessagesCache)
       throw new Error("Message cache undefined");
 
     let i = currentMessagesCache.index;
-    while (i < currentMessagesCache.messages.length) {
+    while (i < newValue.workspace.messages.length) {
+      if (i >= currentMessagesCache.renderer.length) {
+        const newRenderer = createChatMarkedRender(chatMarkedInstance);
+        LLMMessagesRendererCache.update(newValue.workspace.ui.conversationId, { renderer: [...currentMessagesCache.renderer, newRenderer], index: currentMessagesCache.index })
+      }
       const renderer = currentMessagesCache.renderer[i];
       if (typeof renderer != "string") // If it is a string, the message is rendered by a component so we skip it
-        renderer.render(currentMessagesCache.messages[i]);
+        renderer.render(newValue.workspace.messages[i]);
       i++;
     }
-    // If we're streaming, the cache must re-render last index on next state update
+    // // If we're streaming, the cache must re-render last index on next state update
     if (newValue.workspace.streamState)
-      i--;
-    LLMMessagesRendererCache.update(newValue.workspace.ui.conversationId, {...currentMessagesCache, index: i});
+      i = newValue.workspace.messages.length - 1;
+    // LLMMessagesRendererCache.update(newValue.workspace.ui.conversationId, {...currentMessagesCache, index: i});
     return newValue;
   },
 })
