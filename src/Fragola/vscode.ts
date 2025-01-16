@@ -10,7 +10,6 @@ import { processJsFiles, createWebviewContent } from "./postSvelteBuild";
 import { BehaviorSubject, pairwise, map, distinctUntilChanged, } from 'rxjs';
 import moment from "moment";
 import { ChatCompletionMessageParam, CompletionResponseChunk } from "@shadokan87/token.js";
-import { stateChangeMiddleware } from "./middleware";
 import { historyHandler } from "../handlers/history";
 import { HistoryWorkerPayload } from "../workers/history/history.worker.mts";
 import { promisify } from 'util';
