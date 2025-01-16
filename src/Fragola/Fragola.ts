@@ -7,7 +7,7 @@ import moment from 'moment';
 import { readdir } from "fs/promises";
 import { Low } from "lowdb";
 import { JSONFilePreset } from "lowdb/node";
-import { chunkType, MessageType, extensionState, MessageExtendedType, HistoryIndex } from "@types";
+import { chunkType, MessageType, ExtensionState, MessageExtendedType, HistoryIndex } from "@types";
 import { BehaviorSubject } from 'rxjs';
 import { FragolaVscode } from "./vscode";
 
@@ -38,16 +38,16 @@ export namespace FragolaClient {
     }
     export type DbType = (MessageExtendedType | MessageType)[];
     export class Chat {
-        constructor(private state$: BehaviorSubject<extensionState>,
+        constructor(private state$: BehaviorSubject<ExtensionState>,
             private utils: ReturnType<typeof createUtils>
         ) {
         }
 
-        updateExtensionState(callback: (prev: extensionState) => extensionState) {
+        updateExtensionState(callback: (prev: ExtensionState) => ExtensionState) {
             this.state$.next(callback(this.state$.getValue()));
         }
 
-        setMessages(callback: (prev: extensionState) => MessageType[]) {
+        setMessages(callback: (prev: ExtensionState) => MessageType[]) {
             this.updateExtensionState(prev => {
                 return {
                     ...prev,

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { createUtils } from "./utils";
 import { FragolaClient } from "./Fragola";
-import { chunkType, extensionState, GlobalKeys, HistoryIndex, InteractionMode, MessageExtendedType, MessageType, NONE_SENTINEL } from "@types";
+import { chunkType, ExtensionState, GlobalKeys, HistoryIndex, InteractionMode, MessageExtendedType, MessageType, NONE_SENTINEL } from "@types";
 import { outTypeUnion } from "../workers/types";
 import { ChatWorkerPayload } from "../workers/chat/chat.worker";
 import { handleChatRequest } from "../handlers/chatRequest";
@@ -20,7 +20,7 @@ type StateScope = "global" | "workspace";
 export class FragolaVscode implements vscode.WebviewViewProvider {
     private extensionContext: vscode.ExtensionContext;
 
-    constructor(extensionContext: vscode.ExtensionContext, private state$ = new BehaviorSubject<extensionState>(defaultExtensionState)) {
+    constructor(extensionContext: vscode.ExtensionContext, private state$ = new BehaviorSubject<ExtensionState>(defaultExtensionState)) {
         this.extensionContext = extensionContext;
     }
 
@@ -32,7 +32,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         await this.extensionContext[`${scope}State`].get(key);
     }
 
-    updateExtensionState(callback: (prev: extensionState) => extensionState) {
+    updateExtensionState(callback: (prev: ExtensionState) => ExtensionState) {
         this.state$.next(callback(this.state$.getValue()));
     }
 
@@ -41,7 +41,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         console.error(`Failed to ${payload.kind.toLowerCase()} messages, error: ${error.message}`);
     }
 
-    setStreamingState(state: extensionState["workspace"]) {
+    setStreamingState(state: ExtensionState["workspace"]) {
 
     }
 
@@ -71,7 +71,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                 ;
         }
 
-        // function restoreExtensionState(): extensionState {
+        // function restoreExtensionState(): ExtensionState {
         //     return defaultExtensionState;
         // }
 
