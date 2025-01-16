@@ -43,7 +43,7 @@ export type MessageExtendedType = MessageType & { meta: userMessageMetaData };
 
 export type MessageType = ChatCompletionMessageParam;
 
-export interface extensionState {
+export interface ExtensionState {
     workspace: {
         ui: {
             conversationId: HistoryIndex["id"],
@@ -58,11 +58,11 @@ export interface extensionState {
     }
 }
 
-export type ConversationId = extensionState["workspace"]["ui"]["conversationId"];
+export type ConversationId = ExtensionState["workspace"]["ui"]["conversationId"];
 
-export type WorkspaceKeys = keyof extensionState['workspace'];
+export type WorkspaceKeys = keyof ExtensionState['workspace'];
 
-export type GlobalKeys = keyof extensionState['global'];
+export type GlobalKeys = keyof ExtensionState['global'];
 
 export type incommingPayload<T> = basePayload<inTypeUnion> & { parameters: T };
 

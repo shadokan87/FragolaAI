@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { writableHook, type WritableHook } from "./hooks";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
-import { type chunkType, type extensionState, receiveStreamChunk, type MessageType, streamChunkToMessage, NONE_SENTINEL, type ConversationId } from "../../../common";
+import { type chunkType, type ExtensionState, receiveStreamChunk, type MessageType, streamChunkToMessage, NONE_SENTINEL, type ConversationId } from "../../../common";
 import { Marked, type Token, type Tokens, type TokensList } from "marked";
 import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
@@ -17,11 +17,11 @@ export type renderer = {
 };
 
 export interface ChatView {
-  // messages: extensionState["workspace"]["messages"],
+  // messages: ExtensionState["workspace"]["messages"],
   renderer: (renderer | renderedByComponent)[],
   index: number
 }
-type createRendererFn = (message: extensionState["workspace"]["messages"][0]) => ChatView["renderer"][0];
+type createRendererFn = (message: ExtensionState["workspace"]["messages"][0]) => ChatView["renderer"][0];
 
 // Simple runtime cache for markdown rendering
 export function createMessagesCache() {
@@ -44,23 +44,23 @@ export function createMessagesCache() {
 export const LLMMessagesRendererCache = createMessagesCache();
 
 export function createExtensionState() {
-  let extensionState = $state<extensionState | undefined>(undefined);
+  let ExtensionState = $state<ExtensionState | undefined>(undefined);
   $effect(() => {
 
   });
   return {
     get value() {
-      return extensionState
+      return ExtensionState
     },
-    set(newState: extensionState) {
-      extensionState = newState
+    set(newState: ExtensionState) {
+      ExtensionState = newState
     }
   }
 }
 
-export const _extensionState = createExtensionState();
+export const _ExtensionState = createExtensionState();
 
-export const extensionStateStore = writableHook<extensionState | undefined>({
+export const ExtensionStateStore = writableHook<ExtensionState | undefined>({
   initialValue: undefined,
   copyMethod: (value) => structuredClone(value),
   onUpdate(previousValue, newValue) {
@@ -93,7 +93,7 @@ export const extensionStateStore = writableHook<extensionState | undefined>({
   },
 })
 // Creating a reference without the store value undefined to avoid '?', this reference should only be used in pages that guarantee the state is not undefined
-export const extensionStateStoreInitialized = extensionStateStore as WritableHook<extensionState>;
+export const ExtensionStateStoreInitialized = ExtensionStateStore as WritableHook<ExtensionState>;
 
 const chatMarkedInstance = new Marked().use({
   renderer: {

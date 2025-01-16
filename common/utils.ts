@@ -1,4 +1,4 @@
-import { chunkType, extensionState, InteractionMode, MessageType } from "./types";
+import { chunkType, ExtensionState, InteractionMode, MessageType } from "./types";
 import { NONE_SENTINEL } from "./types";
 import { BehaviorSubject } from "rxjs";
 
@@ -25,7 +25,7 @@ export const streamChunkToMessage = (chunk: chunkType, message: Partial<MessageT
     return updatedMessage;
 }
 
-export const defaultExtensionState: extensionState = {
+export const defaultExtensionState: ExtensionState = {
     workspace: {
         ui: {
             conversationId: NONE_SENTINEL,
@@ -65,7 +65,7 @@ export class Mutex {
     }
 }
 
-// export function updateExtensionStateMiddleware(prev: extensionState, newValue: extensionState): extensionState {
+// export function updateExtensionStateMiddleware(prev: ExtensionState, newValue: ExtensionState): ExtensionState {
 //     let _newValue = structuredClone(newValue);
 //     // if (prev.workspace.isConversationTmp && _newValue.workspace.messages.length)
 //     //     _newValue.workspace.isConversationTmp = false
@@ -80,4 +80,4 @@ export class Mutex {
 //     }
 // }
 
-// export const updateExtensionState = createUpdateState<extensionState>(updateExtensionStateMiddleware);
+// export const updateExtensionState = createUpdateState<ExtensionState>(updateExtensionStateMiddleware);
