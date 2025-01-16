@@ -43,6 +43,23 @@ export function createMessagesCache() {
 
 export const LLMMessagesRendererCache = createMessagesCache();
 
+export function createExtensionState() {
+  let extensionState = $state<extensionState | undefined>(undefined);
+  $effect(() => {
+
+  });
+  return {
+    get value() {
+      return extensionState
+    },
+    set(newState: extensionState) {
+      extensionState = newState
+    }
+  }
+}
+
+export const _extensionState = createExtensionState();
+
 export const extensionStateStore = writableHook<extensionState | undefined>({
   initialValue: undefined,
   copyMethod: (value) => structuredClone(value),
