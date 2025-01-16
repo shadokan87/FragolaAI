@@ -5,8 +5,7 @@
   import { navigate } from "svelte-routing";
   import EventListener from "./lib/EventListener.svelte";
   import CodeBlock from "./lib/CodeBlock.svelte";
-  import { type extensionState as extensionStateType } from "../../common";
-  import { extensionStateStore as extensionState} from "./store/chat.svelte";
+  import { extensionState } from "./store/chat.svelte";
   import Nav from "./Nav.svelte";
 
   function registerCustomElements() {
@@ -36,7 +35,7 @@
     <Nav />
   </div>
   <div class="content">
-    {#if $extensionState == undefined}
+    {#if !extensionState.isDefined}
       <h1>{"Loading ..."}</h1>
     {:else}
       <Router>

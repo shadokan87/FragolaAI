@@ -44,56 +44,26 @@ export function createMessagesCache() {
 export const LLMMessagesRendererCache = createMessagesCache();
 
 export function createExtensionState() {
-  let ExtensionState = $state<ExtensionState | undefined>(undefined);
+  let extensionState = $state<ExtensionState | undefined>(undefined);
+  // Using this variable to check for undefined to avoid "?" everywhere
+  let isDefined = $derived(extensionState != undefined);
   $effect(() => {
 
   });
   return {
+    get isDefined() {
+      return isDefined
+    },
     get value() {
-      return ExtensionState
+      return extensionState as ExtensionState
     },
     set(newState: ExtensionState) {
-      ExtensionState = newState
+      extensionState = newState
     }
   }
 }
 
-export const _ExtensionState = createExtensionState();
-
-export const ExtensionStateStore = writableHook<ExtensionState | undefined>({
-  initialValue: undefined,
-  copyMethod: (value) => structuredClone(value),
-  onUpdate(previousValue, newValue) {
-    if (!previousValue || !newValue || newValue.workspace.ui.conversationId == NONE_SENTINEL)
-      return newValue;
-    let cache = LLMMessagesRendererCache.getCache;
-    if (!cache.has(newValue.workspace.ui.conversationId))
-      LLMMessagesRendererCache.create(newValue.workspace.ui.conversationId);
-
-    const currentMessagesCache = cache.get(newValue.workspace.ui.conversationId);
-    if (!currentMessagesCache)
-      throw new Error("Message cache undefined");
-
-    let i = currentMessagesCache.index;
-    while (i < newValue.workspace.messages.length) {
-      if (i >= currentMessagesCache.renderer.length) {
-        const newRenderer = createChatMarkedRender(chatMarkedInstance);
-        LLMMessagesRendererCache.update(newValue.workspace.ui.conversationId, { renderer: [...currentMessagesCache.renderer, newRenderer], index: currentMessagesCache.index })
-      }
-      const renderer = currentMessagesCache.renderer[i];
-      if (typeof renderer != "string") // If it is a string, the message is rendered by a component so we skip it
-        renderer.render(newValue.workspace.messages[i]);
-      i++;
-    }
-    // // If we're streaming, the cache must re-render last index on next state update
-    if (newValue.workspace.streamState)
-      i = newValue.workspace.messages.length - 1;
-    // LLMMessagesRendererCache.update(newValue.workspace.ui.conversationId, {...currentMessagesCache, index: i});
-    return newValue;
-  },
-})
-// Creating a reference without the store value undefined to avoid '?', this reference should only be used in pages that guarantee the state is not undefined
-export const ExtensionStateStoreInitialized = ExtensionStateStore as WritableHook<ExtensionState>;
+export const extensionState = createExtensionState();
 
 const chatMarkedInstance = new Marked().use({
   renderer: {

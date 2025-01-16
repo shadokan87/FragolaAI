@@ -7,9 +7,9 @@
     import { receiveStreamChunk } from "../../../common/utils";
     import { codeStore as codeApi, colorTheme } from "../store/vscode";
     import {
-        extensionStateStore as extensionState,
+        extensionState
     } from "../store/chat.svelte";
-    import type { extensionState as extensionStateType, chunkType } from "../../../common";
+    import type { ExtensionState, chunkType } from "../../../common";
 
     let chunks: chunkType[] = $state.raw([]);
     type inCommingPayload = basePayload<inTypeUnion>;
@@ -29,10 +29,10 @@
                 switch (event.data.type) {
                     case "stateUpdate": {
                         const payload = event.data as inCommingPayload & {
-                            data: extensionStateType;
+                            data: ExtensionState;
                         };
                         console.log("__STATE__", payload);
-                        extensionState.update(() => payload.data);
+                        extensionState.set(payload.data);
                         break;
                     }
                     case "colorTheme": {
