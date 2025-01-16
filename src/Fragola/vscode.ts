@@ -160,6 +160,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                     }
                     handleChatRequest(this.extensionContext, webviewView.webview, { ...userMessagePayload, id: conversationId }, () => {
                         // Stream completed with sucess
+                        // We're saving in file system only after streaming
                         this.updateExtensionState((prev) => {
                             return {
                                 ...prev, workspace: {
@@ -183,18 +184,30 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                     },
                         (chunk) => {
                             // Currently Streaming
+                            fullMessage = streamChunkToMessage(chunk, fullMessage);
                             if (!streamStateSet) {
                                 this.updateExtensionState((prev) => {
                                     return {
                                         ...prev, workspace: {
                                             ...prev.workspace,
-                                            streamState: "STREAMING"
+                                            streamState: "STREAMING",
+                                            messages: [...prev.workspace.messages, fullMessage as MessageType]
                                         }
                                     }
                                 });
                                 streamStateSet = true;
                             }
-                            fullMessage = streamChunkToMessage(chunk, fullMessage);
+                            else {
+                                this.updateExtensionState((prev) => {
+                                    return {
+                                        ...prev, workspace: {
+                                            ...prev.workspace,
+                                            messages: [...prev.workspace.messages.slice(0, -1), fullMessage as MessageType]
+                                        }
+                                    }
+                                });
+
+                            }
                         }, (error) => {
                             // Error during stream
                             this.updateExtensionState((prev) => {
