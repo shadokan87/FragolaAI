@@ -6,6 +6,7 @@ import { Marked, type Token, type Tokens, type TokensList } from "marked";
 import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
 import { render } from "svelte/server";
+import { workspace } from "vscode";
 
 
 type renderFunction = (message: Partial<MessageType>) => Promise<void>;
@@ -16,25 +17,20 @@ export type renderer = {
   [key: string]: any
 };
 
-export interface ChatView {
-  // messages: ExtensionState["workspace"]["messages"],
-  renderer: (renderer | renderedByComponent)[],
-  index: number
-}
-type createRendererFn = (message: ExtensionState["workspace"]["messages"][0]) => ChatView["renderer"][0];
+// type createRendererFn = (message: ExtensionState["workspace"]["messages"][0]) => renderer;
 
 // Simple runtime cache for markdown rendering
 export function createMessagesCache() {
-  let readers = $state<Map<ConversationId, ChatView>>(new Map());
+  let readers = $state<Map<ConversationId, renderer[]>>(new Map());
 
   return {
     create(conversationId: ConversationId) {
-      readers.set(conversationId, { renderer: [], index: 0 })
+      readers.set(conversationId, [])
     },
     get getCache() {
       return readers;
     },
-    update(conversationId: ConversationId, newValue: ChatView) {
+    update(conversationId: ConversationId, newValue: renderer[]) {
       readers.set(conversationId, newValue);
       console.log("__READERS__", readers);
     }
@@ -48,8 +44,33 @@ export function createExtensionState() {
   // Using this variable to check for undefined to avoid "?" everywhere
   let isDefined = $derived(extensionState != undefined);
   $effect(() => {
-
-  });
+    if (!extensionState)
+      return;
+    if (!LLMMessagesRendererCache.getCache.has(extensionState.workspace.ui.conversationId)) {
+      LLMMessagesRendererCache.update(extensionState.workspace.ui.conversationId, []);
+    }
+    const renderer = LLMMessagesRendererCache.getCache.get(extensionState.workspace.ui.conversationId);
+    if (!renderer) {
+      // TODO: handle error
+      console.error("Expected renderer to be defined");
+      return;
+    }
+    if (render.length == extensionState.workspace.messages.length) {
+      if (extensionState.workspace.streamState == "STREAMING") {
+        const lastMessage = extensionState.workspace.messages.at(-1);
+        if (lastMessage)
+          renderer.at(-1)?.render(lastMessage)
+      }
+    } else {
+      let i = renderer.length;
+      while (i < extensionState.workspace.messages.length) {
+        renderer[i] = createChatMarkedRender(chatMarkedInstance);
+        if (typeof renderer[i] != "string")
+          renderer[i].render(extensionState.workspace.messages[i]);
+        i++;
+      }
+    }
+  })
   return {
     get isDefined() {
       return isDefined
@@ -115,7 +136,6 @@ const createChatMarkedRender = (markedInstance: Marked): renderer => {
     async render(message: Partial<MessageType>) {
       let newTokens: TokensList | undefined = undefined;
       switch (message.role) {
-        case "user": // Intentional no-break
         case "assistant": {
           if (!message.content)
             return;

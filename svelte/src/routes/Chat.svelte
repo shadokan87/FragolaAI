@@ -4,7 +4,6 @@
     import {
         extensionState,
         LLMMessagesRendererCache,
-        type ChatView,
     } from "../store/chat.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
     import { NONE_SENTINEL } from "../../../common";
