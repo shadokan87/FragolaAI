@@ -2,6 +2,7 @@
     import {
         RiAddFill,
         RiFileImageFill,
+        RiFileWarningFill,
         RiSendPlane2Fill,
         RiSendPlaneFill,
     } from "svelte-remixicon";
@@ -9,6 +10,7 @@
     import Button from "./Button.svelte";
     import Flex from "./Flex.svelte";
     import Typography from "./Typography.svelte";
+    import { extensionState } from "../store/chat.svelte";
 
     interface props {
         onKeydown: (e: KeyboardEvent) => void;
@@ -27,6 +29,7 @@
         <div class="focused-files">
             <Flex row gap="sp-2">
                 <Button kind="flex" icon={RiAddFill} />
+                <Button kind="flex" icon={RiFileWarningFill} text="Log state" onclick={() => console.log(`__LOG_STATE__`, extensionState.value)}/>
                 {#each Array.from({ length: 5 }, (_, i) => `Attach image ${i + 1}`) as text}
                     <Button kind="flex" icon={RiFileImageFill} {text} />
                 {/each}

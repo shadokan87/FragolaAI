@@ -7,12 +7,91 @@
     import { receiveStreamChunk } from "../../../common/utils";
     import { codeStore as codeApi, colorTheme } from "../store/vscode";
     import {
-        extensionState
+        extensionState,
+        LLMMessagesRendererCache,
+        createChatMarkedRender,
+        chatMarkedInstance,
+        type renderer,
+        type RendererLike,
+        type renderedByComponent,
+        MessagesRolesToRenderWithMarkDown,
     } from "../store/chat.svelte";
-    import type { ExtensionState, chunkType } from "../../../common";
+    import {
+        NONE_SENTINEL,
+        type ExtensionState,
+        type chunkType,
+    } from "../../../common";
 
     let chunks: chunkType[] = $state.raw([]);
     type inCommingPayload = basePayload<inTypeUnion>;
+
+    $effect(() => {
+        if (
+            !extensionState.isDefined ||
+            extensionState.value.workspace.ui.conversationId == NONE_SENTINEL
+        )
+            return;
+        const rendererRef: RendererLike[] | undefined =
+            LLMMessagesRendererCache.value.get(
+                extensionState.value.workspace.ui.conversationId,
+            );
+        if (!rendererRef) {
+            //TODO: handle error
+            console.error("Expected renderer to be defined");
+            return;
+        }
+        const renderer = Array.from(rendererRef);
+        const updateKind = ((): "STREAM" | "MESSAGE" | "NONE" => {
+            switch (true) {
+                // case extensionState.value.workspace.streamState == "STREAMING": {
+                // }
+                case extensionState.value.workspace.messages.length !=
+                    renderer.length:
+                    return "MESSAGE";
+                case extensionState.value.workspace.streamState == "STREAMING":
+                    return "STREAM";
+                default:
+                    return "NONE";
+            }
+        })();
+
+        if (updateKind == "NONE") return;
+        if (updateKind == "STREAM") {
+            const lastMessage = extensionState.value.workspace.messages.at(-1);
+            console.log("need to render: ", lastMessage);
+            if (!lastMessage) {
+                //TODO: handle error
+                console.error("Expected last message to exist");
+            } else if (!renderer.at(-1)) {
+                //TODO: handle error
+                console.error("Expected last renderer to exist");
+            } else if (typeof renderer == "string") {
+                //TODO: handle error
+                console.error("Expected render by markdown");
+            } else {
+                let msg = {...lastMessage};
+                console.log("_MSG", msg);
+                (renderer.at(-1) as renderer).render(msg);
+            }
+        }
+        if (updateKind == "MESSAGE") {
+            let i = renderer.length;
+
+            while (i < extensionState.value.workspace.messages.length) {
+                const message = extensionState.value.workspace.messages[i];
+                if (MessagesRolesToRenderWithMarkDown.includes(message.role)) {
+                    renderer[i] = createChatMarkedRender(chatMarkedInstance);
+                    (renderer[i] as renderer).render(message);
+                } else {
+                    renderer[i] = message.role as renderedByComponent;
+                }
+                LLMMessagesRendererCache.update(extensionState.value.workspace.ui.conversationId, renderer);
+                i++;
+            }
+        }
+        console.log(`__UPDATE_KIND__`, updateKind);
+    });
+
     onMount(() => {
         if (!$codeStore) {
             const code = (window as any)["acquireVsCodeApi"]();

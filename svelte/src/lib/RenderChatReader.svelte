@@ -1,29 +1,29 @@
 <script lang="ts">
     import type { Marked, Token, TokensList } from "marked";
     import {
-        extensionStateStore,
-        type ChatView,
+    extensionState,
         type renderedByComponent,
-        type renderer,
+        type renderer as rendererType,
     } from "../store/chat.svelte";
     import Divider from "./Divider.svelte";
 
     export interface props {
-        reader: ChatView | undefined;
+        renderer: rendererType[] | undefined;
     }
-    const { reader }: props = $props();
+    const { renderer }: props = $props();
 </script>
 
-{#if reader && reader.renderer.length}
-    {#each reader.renderer as renderer, i}
+{#if renderer && renderer.length}
+    {#each renderer as renderer, i}
         {#if typeof renderer !== "string"}
             <div>
                 {@html renderer.html}
             </div>
         {:else}
-            <p>{reader.messages[i].content}</p>
+            <p>{extensionState.value.workspace.messages[i].content}</p>
+            <!-- <p>{renderer.messages[i].content}</p> -->
         {/if}
-        {#if i < reader.renderer.length - 1}
+        {#if i < renderer.length - 1}
             <Divider />
         {/if}
     {/each}

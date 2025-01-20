@@ -28,12 +28,14 @@
         dropdown?: dropdownOption[];
         variant?: "fill" | "outline";
         children?: any;
+        onclick?: () => void;
     }
     let {
         kind,
         variant = "fill",
         iconProps = {},
         children,
+        onclick,
         ...rest
     }: props = $props();
 
@@ -58,7 +60,7 @@
 {/snippet}
 
 {#if rest.dropdown == undefined}
-    <button class={"btn"}>
+    <button class={"btn"} onclick={onclick}>
         {#if children}
             {@render children()}
         {:else if kind == "flex"}
@@ -67,7 +69,7 @@
     </button>
 {:else}
     <div class="dropdown-container">
-        <button use:melt={$trigger} class={"btn"}>
+        <button use:melt={$trigger} class={"btn"} onclick={onclick}>
             {#if children}
                 {@render children()}
             {:else if kind == "flex"}

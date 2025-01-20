@@ -9,7 +9,7 @@
     import { type ChatWorkerPayload } from "../../../src/workers/chat/chat.worker";
     import { codeStore as codeApi } from "../store/vscode";
     import { v4 } from "uuid";
-    import { extensionStateStore as extensionState } from "../store/chat.svelte";
+    import { extensionState } from "../store/chat.svelte";
     import type { MessageType, Prompt } from "../../../common";
     import ChatInput from "./ChatInput.svelte";
     import { NONE_SENTINEL } from "../../../common/types";
@@ -29,7 +29,7 @@
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             const input = e.target as HTMLInputElement;
-            if (!$extensionState) {
+            if (!extensionState.isDefined) {
                 console.error("Extension state undefined");
                 return;
             }
@@ -38,7 +38,7 @@
                 type: "chatRequest",
                 data: {
                     prompt,
-                    conversationId: $extensionState.workspace.ui.conversationId
+                    conversationId: extensionState.value.workspace.ui.conversationId
                 },
             };
             $codeApi?.postMessage(payload);

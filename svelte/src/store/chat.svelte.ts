@@ -1,36 +1,37 @@
 import OpenAI from "openai";
 import { writableHook, type WritableHook } from "./hooks";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
-import { type chunkType, type ExtensionState, receiveStreamChunk, type MessageType, streamChunkToMessage, NONE_SENTINEL, type ConversationId } from "../../../common";
+import { type chunkType, type ExtensionState, receiveStreamChunk, type MessageType, streamChunkToMessage, NONE_SENTINEL, type ConversationId, Mutex } from "../../../common";
 import { Marked, type Token, type Tokens, type TokensList } from "marked";
 import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
 import { render } from "svelte/server";
-import { workspace } from "vscode";
 
 
-type renderFunction = (message: Partial<MessageType>) => Promise<void>;
+type renderFunction = (message: Partial<MessageType>) => void;
 export type renderedByComponent = "user" | "tool";
 export type renderer = {
   render: renderFunction,
   readonly html: string,
   [key: string]: any
 };
+export type RendererLike = renderer | renderedByComponent;
+export const MessagesRolesToRenderWithMarkDown = ["assistant"];
 
 // type createRendererFn = (message: ExtensionState["workspace"]["messages"][0]) => renderer;
 
 // Simple runtime cache for markdown rendering
 export function createMessagesCache() {
-  let readers = $state<Map<ConversationId, renderer[]>>(new Map());
+  let readers = $state<Map<ConversationId, RendererLike[]>>(new Map());
 
   return {
     create(conversationId: ConversationId) {
       readers.set(conversationId, [])
     },
-    get getCache() {
+    get value() {
       return readers;
     },
-    update(conversationId: ConversationId, newValue: renderer[]) {
+    update(conversationId: ConversationId, newValue: RendererLike[]) {
       readers.set(conversationId, newValue);
       console.log("__READERS__", readers);
     }
@@ -41,44 +42,17 @@ export const LLMMessagesRendererCache = createMessagesCache();
 
 export function createExtensionState() {
   let extensionState = $state<ExtensionState | undefined>(undefined);
-  // Using this variable to check for undefined to avoid "?" everywhere
-  let isDefined = $derived(extensionState != undefined);
-  $effect(() => {
-    if (!extensionState)
-      return;
-    if (!LLMMessagesRendererCache.getCache.has(extensionState.workspace.ui.conversationId)) {
-      LLMMessagesRendererCache.update(extensionState.workspace.ui.conversationId, []);
-    }
-    const renderer = LLMMessagesRendererCache.getCache.get(extensionState.workspace.ui.conversationId);
-    if (!renderer) {
-      // TODO: handle error
-      console.error("Expected renderer to be defined");
-      return;
-    }
-    if (render.length == extensionState.workspace.messages.length) {
-      if (extensionState.workspace.streamState == "STREAMING") {
-        const lastMessage = extensionState.workspace.messages.at(-1);
-        if (lastMessage)
-          renderer.at(-1)?.render(lastMessage)
-      }
-    } else {
-      let i = renderer.length;
-      while (i < extensionState.workspace.messages.length) {
-        renderer[i] = createChatMarkedRender(chatMarkedInstance);
-        if (typeof renderer[i] != "string")
-          renderer[i].render(extensionState.workspace.messages[i]);
-        i++;
-      }
-    }
-  })
   return {
     get isDefined() {
-      return isDefined
+      return extensionState != undefined
     },
     get value() {
       return extensionState as ExtensionState
     },
     set(newState: ExtensionState) {
+      // Prepare empty cache for new conversation
+      if (newState.workspace.ui.conversationId != NONE_SENTINEL && !LLMMessagesRendererCache.value.has(newState.workspace.ui.conversationId))
+        LLMMessagesRendererCache.update(newState.workspace.ui.conversationId, []);
       extensionState = newState
     }
   }
@@ -86,7 +60,7 @@ export function createExtensionState() {
 
 export const extensionState = createExtensionState();
 
-const chatMarkedInstance = new Marked().use({
+export const chatMarkedInstance = new Marked().use({
   renderer: {
     code(token: Tokens.Code) {
       const el = document.createElement("code-block");
@@ -103,10 +77,11 @@ const chatMarkedInstance = new Marked().use({
   },
 });
 
-const createChatMarkedRender = (markedInstance: Marked): renderer => {
+export const createChatMarkedRender = (markedInstance: Marked): renderer => {
   let markdown: string = $state("");
   let tokens: TokensList | [] = $state.raw([]);
   let html: string = $derived(markedInstance.parser(tokens));
+  const mutex = new Mutex();
 
   const walkTokens = async (
     token: Token,
@@ -133,25 +108,34 @@ const createChatMarkedRender = (markedInstance: Marked): renderer => {
     get html() {
       return html;
     },
-    async render(message: Partial<MessageType>) {
+    render(message: Partial<MessageType>) {
       let newTokens: TokensList | undefined = undefined;
-      switch (message.role) {
-        case "assistant": {
-          if (!message.content)
-            return;
-          markdown = Array.isArray(message.content) ? message.content.join(' ') : message.content;
-          newTokens = markedInstance.Lexer.lex(markdown);
-          break;
+      (async () => {
+        await mutex.acquire();
+        try {
+          switch (message.role) {
+            case "assistant": {
+              if (!message.content)
+                return;
+              markdown = Array.isArray(message.content) ? message.content.join(' ') : message.content;
+              newTokens = markedInstance.Lexer.lex(markdown);
+              break;
+            }
+          }
+          if (newTokens) {
+            (async () => {
+              await Promise.all(
+                newTokens.map((token, index) =>
+                  walkTokens(token, index),
+                ),
+              );
+              tokens = newTokens;
+            })();
+          }
+        } finally {
+          mutex.release();
         }
-      }
-      if (newTokens) {
-        await Promise.all(
-          newTokens.map((token, index) =>
-            walkTokens(token, index),
-          ),
-        );
-        tokens = newTokens;
-      }
+      })();
     }
   };
 };

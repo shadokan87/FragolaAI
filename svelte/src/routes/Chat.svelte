@@ -4,17 +4,18 @@
     import {
         extensionState,
         LLMMessagesRendererCache,
+        type renderer
     } from "../store/chat.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
     import { NONE_SENTINEL } from "../../../common";
 
-    let reader = $derived(LLMMessagesRendererCache.getCache.get(extensionState.value.workspace.ui.conversationId))
+    let rendererValue = $derived<renderer[] | undefined>(LLMMessagesRendererCache.value.get(extensionState.value.workspace.ui.conversationId))
 </script>
 
 <main class="chat-grid">
     <div class="chat-messages">
         {#if extensionState.value.workspace.ui.conversationId != NONE_SENTINEL}
-            <RenderChatReader reader={reader} />
+            <RenderChatReader renderer={rendererValue} />
         {/if}
     </div>
     <ChatFooter />
