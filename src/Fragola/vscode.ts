@@ -11,20 +11,24 @@ import { BehaviorSubject, pairwise, map, distinctUntilChanged, } from 'rxjs';
 import moment from "moment";
 import { ChatCompletionMessageParam, CompletionResponseChunk } from "@shadokan87/token.js";
 import { historyHandler } from "../handlers/history";
-import { HistoryWorkerPayload } from "../workers/history/history.worker.mts";
+import { DbType, HistoryWorkerPayload } from "../workers/history/history.worker.mts";
 import { promisify } from 'util';
 import { isEqual } from 'lodash';
+import { join } from "path";
+import { existsSync } from "fs";
+import { TextFileSync } from "lowdb/node";
 
 type StateScope = "global" | "workspace";
 
 export class FragolaVscode implements vscode.WebviewViewProvider {
     private extensionContext: vscode.ExtensionContext;
     private isChatViewVisible = false;
-
-    constructor(extensionContext: vscode.ExtensionContext, private state$ = new BehaviorSubject<ExtensionState>(defaultExtensionState)) {
+    private state$: BehaviorSubject<ExtensionState>;
+    constructor(extensionContext: vscode.ExtensionContext) {
         this.extensionContext = extensionContext;
         this.registerCommands();
-        (async () => await this.restoreExtensionState())();
+        const restoredState = this.restoreExtensionState();
+        this.state$ = new BehaviorSubject(restoredState);
     }
 
     async updateState<T extends string>(key: T, value: any, scope: StateScope = "workspace") {
@@ -35,20 +39,32 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         return this.extensionContext[`${scope}State`].get(key);
     }
 
-    async restoreExtensionState() {
+    restoreExtensionState() {
         const workspaceStateRaw = this.getState("workspace");
-        const globalStateRaw = await this.getState("global");
-        let extensionState: ExtensionState = {...defaultExtensionState};
-        // console.log(`__RESTORED__, ${typeof workspaceState}`, workspaceState);
+        const globalStateRaw = this.getState("global");
+        let extensionState: ExtensionState = { ...defaultExtensionState };
+        let saveWorkspaceState = false;
         if (typeof workspaceStateRaw == "object") {
             const workspaceState = workspaceStateRaw as ExtensionState["workspace"];
             if (Object.keys(workspaceState).length == 0)
-                return ;
+                return extensionState;
             extensionState.workspace = workspaceState;
             if (extensionState.workspace.ui.conversationId != NONE_SENTINEL) {
-                
+                const filePath = join(this.extensionContext.extensionUri.fsPath, "src", "data", "chat", extensionState.workspace.ui.conversationId) + ".json";
+                const textFile = new TextFileSync(filePath);
+                const content = textFile.read();
+                if (!content) {
+                    extensionState.workspace.ui.conversationId = NONE_SENTINEL;
+                    saveWorkspaceState = true;
+                } else {
+                    const contentCasted: DbType = JSON.parse(content);
+                    extensionState.workspace.messages = contentCasted;
+                }
             }
         }
+        if (saveWorkspaceState)
+            this.updateState("workspace", extensionState.workspace);
+        return extensionState;
     }
 
     updateExtensionState(callback: (prev: ExtensionState) => ExtensionState) {
@@ -143,7 +159,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                     this.updateState("global", newCopy.global);
                     console.log("__SAVED_STATE__", this.extensionContext.workspaceState.get("global"));
                 }
-            
+
                 if (!isEqual(prevCopy.workspace, newCopy.workspace)) {
                     this.updateState("workspace", newCopy.workspace, "workspace");
                     console.log("__SAVED_STATE__", this.extensionContext.workspaceState.get("workspace"));

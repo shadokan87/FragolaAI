@@ -4,12 +4,20 @@
     import {
         extensionState,
         LLMMessagesRendererCache,
-        type renderer
+        type renderer,
+
+        type RendererLike
+
     } from "../store/chat.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
     import { NONE_SENTINEL } from "../../../common";
 
-    let rendererValue = $derived<renderer[] | undefined>(LLMMessagesRendererCache.value.get(extensionState.value.workspace.ui.conversationId))
+    let rendererValue = $state<RendererLike[] | undefined>(undefined)
+    // let rendererValue = $derived<RendererLike[] | undefined>(LLMMessagesRendererCache.value.get(extensionState.value.workspace.ui.conversationId))
+    $effect(() => {
+        rendererValue = LLMMessagesRendererCache.value.get(extensionState.value.workspace.ui.conversationId);
+        // console.log("__CACHE_UPDATE__", LLMMessagesRendererCache.value);
+    });
 </script>
 
 <main class="chat-grid">

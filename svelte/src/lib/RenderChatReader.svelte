@@ -3,14 +3,17 @@
     import {
     extensionState,
         type renderedByComponent,
-        type renderer as rendererType,
+        type RendererLike,
     } from "../store/chat.svelte";
     import Divider from "./Divider.svelte";
 
     export interface props {
-        renderer: rendererType[] | undefined;
+        renderer: RendererLike[] | undefined;
     }
     const { renderer }: props = $props();
+    $effect(() => {
+        console.log("__RENDER__", renderer);
+    });
 </script>
 
 {#if renderer && renderer.length}
