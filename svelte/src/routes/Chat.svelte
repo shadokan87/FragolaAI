@@ -13,10 +13,8 @@
     import { NONE_SENTINEL } from "../../../common";
 
     let rendererValue = $state<RendererLike[] | undefined>(undefined)
-    // let rendererValue = $derived<RendererLike[] | undefined>(LLMMessagesRendererCache.value.get(extensionState.value.workspace.ui.conversationId))
     $effect(() => {
         rendererValue = LLMMessagesRendererCache.value.get(extensionState.value.workspace.ui.conversationId);
-        // console.log("__CACHE_UPDATE__", LLMMessagesRendererCache.value);
     });
 </script>
 

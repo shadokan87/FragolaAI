@@ -47,7 +47,8 @@ export interface ExtensionState {
     workspace: {
         ui: {
             conversationId: HistoryIndex["id"],
-            interactionMode: InteractionMode
+            interactionMode: InteractionMode,
+            showHistory: boolean
         },
         historyIndex: HistoryIndex[],
         messages: MessageType[],

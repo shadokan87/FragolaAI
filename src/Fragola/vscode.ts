@@ -108,6 +108,21 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         })
     }
 
+    private commandShowHistory() {
+        this.updateExtensionState((prev) => {
+            return {
+                ...prev,
+                workspace: {
+                    ...prev.workspace,
+                    ui: {
+                        ...prev.workspace.ui,
+                        showHistory: !prev.workspace.ui.showHistory
+                    }
+                }
+            }
+        })
+    }
+
     private registerCommands() {
         // Register command for keyboard shortcut with toggle functionality
         this.extensionContext.subscriptions.push(
@@ -117,6 +132,11 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         // Register newConversation command
         this.extensionContext.subscriptions.push(
             vscode.commands.registerCommand('fragola-ai.newConversation', () => this.commandNewConversation())
+        );
+
+        // Register showHistory command
+        this.extensionContext.subscriptions.push(
+            vscode.commands.registerCommand('fragola-ai.showHistory', () => this.commandShowHistory())
         );
     }
 

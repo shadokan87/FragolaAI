@@ -29,7 +29,8 @@ export const defaultExtensionState: ExtensionState = Object.freeze({
     workspace: {
         ui: {
             conversationId: NONE_SENTINEL,
-            interactionMode: InteractionMode.CHAT
+            interactionMode: InteractionMode.CHAT,
+            showHistory: false,
         },
         historyIndex: [],
         messages: [],
