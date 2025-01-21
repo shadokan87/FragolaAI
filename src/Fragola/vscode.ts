@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { createUtils } from "./utils";
+import { createUtils, copyStateWithoutRuntimeVariables, joinAsWebViewUri } from "./utils";
 import { FragolaClient } from "./Fragola";
 import { chunkType, ExtensionState, GlobalKeys, HistoryIndex, InteractionMode, MessageExtendedType, MessageType, NONE_SENTINEL } from "@types";
 import { outTypeUnion } from "../workers/types";
@@ -13,22 +13,42 @@ import { ChatCompletionMessageParam, CompletionResponseChunk } from "@shadokan87
 import { historyHandler } from "../handlers/history";
 import { HistoryWorkerPayload } from "../workers/history/history.worker.mts";
 import { promisify } from 'util';
+import { isEqual } from 'lodash';
 
 type StateScope = "global" | "workspace";
 
 export class FragolaVscode implements vscode.WebviewViewProvider {
     private extensionContext: vscode.ExtensionContext;
+    private isChatViewVisible = false;
 
     constructor(extensionContext: vscode.ExtensionContext, private state$ = new BehaviorSubject<ExtensionState>(defaultExtensionState)) {
         this.extensionContext = extensionContext;
+        this.registerCommands();
+        (async () => await this.restoreExtensionState())();
     }
 
     async updateState<T extends string>(key: T, value: any, scope: StateScope = "workspace") {
         await this.extensionContext[`${scope}State`].update(key, value);
     }
 
-    async getState<T extends string>(key: T, scope: StateScope = "workspace") {
-        await this.extensionContext[`${scope}State`].get(key);
+    getState<T extends string>(key: T, scope: StateScope = "workspace") {
+        return this.extensionContext[`${scope}State`].get(key);
+    }
+
+    async restoreExtensionState() {
+        const workspaceStateRaw = this.getState("workspace");
+        const globalStateRaw = await this.getState("global");
+        let extensionState: ExtensionState = {...defaultExtensionState};
+        // console.log(`__RESTORED__, ${typeof workspaceState}`, workspaceState);
+        if (typeof workspaceStateRaw == "object") {
+            const workspaceState = workspaceStateRaw as ExtensionState["workspace"];
+            if (Object.keys(workspaceState).length == 0)
+                return ;
+            extensionState.workspace = workspaceState;
+            if (extensionState.workspace.ui.conversationId != NONE_SENTINEL) {
+                
+            }
+        }
     }
 
     updateExtensionState(callback: (prev: ExtensionState) => ExtensionState) {
@@ -42,6 +62,46 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
 
     setStreamingState(state: ExtensionState["workspace"]) {
 
+    }
+
+    private async commandToggleChatView() {
+        if (this.isChatViewVisible) {
+            await vscode.commands.executeCommand('workbench.action.closeSidebar');
+            this.isChatViewVisible = false;
+        } else {
+            await vscode.commands.executeCommand('workbench.view.extension.fragola-ai-view');
+            this.isChatViewVisible = true;
+        }
+    }
+
+    private commandNewConversation() {
+        console.log("state____", this.state$);
+        if (this.state$.getValue().workspace.ui.conversationId == NONE_SENTINEL)
+            return;
+        this.updateExtensionState((prev) => {
+            return {
+                ...prev,
+                workspace: {
+                    ...prev.workspace,
+                    ui: {
+                        ...prev.workspace.ui,
+                        conversationId: NONE_SENTINEL
+                    }
+                }
+            }
+        })
+    }
+
+    private registerCommands() {
+        // Register command for keyboard shortcut with toggle functionality
+        this.extensionContext.subscriptions.push(
+            vscode.commands.registerCommand('fragola-ai.openChat', () => this.commandToggleChatView())
+        );
+
+        // Register newConversation command
+        this.extensionContext.subscriptions.push(
+            vscode.commands.registerCommand('fragola-ai.newConversation', () => this.commandNewConversation())
+        );
     }
 
     async resolveWebviewView(
@@ -70,15 +130,25 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                 ;
         }
 
-        // function restoreExtensionState(): ExtensionState {
-        //     return defaultExtensionState;
-        // }
-
         const fragola = FragolaClient.createInstance(utils, new FragolaClient.Chat(this.state$, utils));
 
         // Subscribe to state changes and notify webview
-        this.state$.subscribe(newState => {
+        this.state$.pipe(
+            pairwise(),
+        ).subscribe(([prev, newState]) => {
             console.log("_STATE_", newState);
+            if (newState.workspace.streamState != "STREAMING") {
+                const [prevCopy, newCopy] = [copyStateWithoutRuntimeVariables(prev), copyStateWithoutRuntimeVariables(newState)];
+                if (!isEqual(prevCopy.global, newCopy.global)) {
+                    this.updateState("global", newCopy.global);
+                    console.log("__SAVED_STATE__", this.extensionContext.workspaceState.get("global"));
+                }
+            
+                if (!isEqual(prevCopy.workspace, newCopy.workspace)) {
+                    this.updateState("workspace", newCopy.workspace, "workspace");
+                    console.log("__SAVED_STATE__", this.extensionContext.workspaceState.get("workspace"));
+                }
+            }
             webviewView.webview.postMessage({
                 type: "stateUpdate",
                 data: newState
@@ -219,25 +289,6 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                             });
                             console.error("__CHUNK_ERROR__", error);
                         });
-                    // let asMessage = streamChunkToMessage(assistantStreamResult);
-                    // if (!asMessage.content)
-                    //     asMessage.content = "";
-                    // if (!asMessage.role)
-                    //     asMessage.role = "assistant"
-                    // try {
-                    //     if (!conversationId)
-                    //         throw new Error("conversationId undefined");
-                    //     fragola.chat.addMessages([asMessage as MessageType]);
-                    //     const historyPayload: HistoryWorkerPayload = {
-                    //         kind: "UPDATE",
-                    //         newMessages: [asMessage as MessageType],
-                    //         id: conversationId,
-                    //         extensionFsPath: this.extensionContext.extensionUri.fsPath
-                    //     };
-                    //     historyHandler(this.extensionContext, webviewView.webview, historyPayload, () => { }, (error) => this.handleHistoryError(historyPayload, error));
-                    // } catch (e) {
-                    //     console.error("__ERR__", e);
-                    // }
                     break;
                 case "online": {
                     postMessage({ type: "stateUpdate", data: this.state$.getValue() });

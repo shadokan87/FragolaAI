@@ -37,6 +37,11 @@
       {
         "command": "fragola-ai.openChat",
         "title": "Open Fragola AI Chat"
+      },
+      {
+        "command": "fragola-ai.newConversation",
+        "title": "New Conversation",
+        "icon": "$(add)"
       }
     ],
     "keybindings": [
@@ -45,7 +50,16 @@
         "key": "ctrl+l",
         "mac": "cmd+l"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "fragola-ai.newConversation",
+          "group": "navigation",
+          "when": "view == fragola-ai-sidebar"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -81,6 +95,7 @@
     "@electron/rebuild": "^3.7.1",
     "@shadokan87/token.js": "0.5.3",
     "@types/crypto-js": "^4.2.2",
+    "@types/lodash": "^4.17.14",
     "@types/lowdb": "^1.0.15",
     "@types/node-fetch": "^2.6.11",
     "axios": "^1.7.9",
@@ -91,6 +106,7 @@
     "dotenv-vault": "^1.26.2",
     "fragola-ai": "./",
     "glob": "^11.0.0",
+    "lodash": "^4.17.21",
     "lowdb": "^7.0.1",
     "marked": "^15.0.1",
     "moment": "^2.30.1",

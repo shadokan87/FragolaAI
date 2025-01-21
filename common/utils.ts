@@ -25,7 +25,7 @@ export const streamChunkToMessage = (chunk: chunkType, message: Partial<MessageT
     return updatedMessage;
 }
 
-export const defaultExtensionState: ExtensionState = {
+export const defaultExtensionState: ExtensionState = Object.freeze({
     workspace: {
         ui: {
             conversationId: NONE_SENTINEL,
@@ -33,12 +33,12 @@ export const defaultExtensionState: ExtensionState = {
         },
         historyIndex: [],
         messages: [],
-        streamState: "NONE"
+        streamState: "NONE" as const
     },
     global: {
 
     }
-}
+})
 
 export class Mutex {
     private locked: boolean = false;

@@ -43,8 +43,6 @@
         const renderer = Array.from(rendererRef);
         const updateKind = ((): "STREAM" | "MESSAGE" | "NONE" => {
             switch (true) {
-                // case extensionState.value.workspace.streamState == "STREAMING": {
-                // }
                 case extensionState.value.workspace.messages.length !=
                     renderer.length:
                     return "MESSAGE";
