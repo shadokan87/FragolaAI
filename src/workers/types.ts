@@ -15,4 +15,5 @@ export type outTypeUnion = "chatRequest"
     | "online"
     | "syntaxHighlight"
     | "alert"
-    | "history";
+    | "actionConversationClick"
+    ;

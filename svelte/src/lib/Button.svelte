@@ -1,11 +1,11 @@
 <script lang="ts" generics="T">
-    import { RiFileImageFill } from "svelte-remixicon";
     import Flex from "./Flex.svelte";
     import Typography from "./Typography.svelte";
     import type { SvelteComponent } from "svelte";
-    import { classNames as cn } from "../utils/style";
+    import { classNames as cn, parseClass } from "../utils/style";
 
     import { createDropdownMenu, melt } from "@melt-ui/svelte";
+    const defaultClass = "btn";
     const {
         elements: { menu, item, trigger, arrow },
         states: { open },
@@ -19,38 +19,43 @@
     type dropdownOption = {
         text: string;
     };
-
+    // let _class = defaultClass;
     interface props<T = {}> {
         kind: "flex" | "custom";
         icon?: typeof SvelteComponent<any>;
         iconProps?: T;
         text?: string;
         dropdown?: dropdownOption[];
-        variant?: "fill" | "outline";
+        variant?: "ghost" | "outline";
         children?: any;
+        class?: string;
         onclick?: () => void;
     }
+
     let {
         kind,
-        variant = "fill",
+        variant = "ghost",
         iconProps = {},
         children,
+        class: _class,
         onclick,
         ...rest
     }: props = $props();
 
-    const iconClass = $derived(
-        cn({
-            "base-icon": true,
-            fill: variant === "fill",
-            outline: variant === "outline",
-        }),
-    );
+    $effect(() => {
+        if (!_class)
+            _class = defaultClass;
+        else
+            _class = parseClass(defaultClass, _class);
+        console.log("__CLASS__", _class);
+    })
 </script>
 
 {#snippet buttonFlexContent()}
     <Flex row gap={"var(--spacing-1)"} _class="button-content">
-        <rest.icon class={iconClass} {...iconProps} />
+        <span class={"themed-svg"}>
+        <rest.icon {...iconProps} />
+        </span>
         {#if rest.text}
             <Typography class="adjusted-line-height">
                 {rest.text}
@@ -60,7 +65,7 @@
 {/snippet}
 
 {#if rest.dropdown == undefined}
-    <button class={"btn"} onclick={onclick}>
+    <button class={`${_class} ${variant}`} {onclick}>
         {#if children}
             {@render children()}
         {:else if kind == "flex"}
@@ -69,7 +74,7 @@
     </button>
 {:else}
     <div class="dropdown-container">
-        <button use:melt={$trigger} class={"btn"} onclick={onclick}>
+        <button use:melt={$trigger} class={`${_class} ${variant}`} {onclick}>
             {#if children}
                 {@render children()}
             {:else if kind == "flex"}
@@ -92,13 +97,24 @@
 {/if}
 
 <style lang="scss">
+    .themed-svg :global(svg) {
+        fill: rgb(125, 133, 144);
+    }
+    .themed-svg:hover :global(svg) {
+        fill: white;
+    }
     :global(.adjusted-line-height) {
         line-height: 1;
     }
     .btn {
         padding: var(--spacing-1);
+        transition-duration: 100ms;
+        &.ghost {
         background-color: var(--vscode-input-background);
-        outline: var(--outline-size) solid var(--vscode-input-border);
+        }
+        &.outline {
+            outline: var(--outline-size) solid var(--vscode-input-border);
+        }
         border: none;
         cursor: pointer;
         width: fit-content;
@@ -108,20 +124,11 @@
         white-space: nowrap;
         display: flex;
         align-items: center;
+        transition-duration: 150ms;
     }
     :global(.button-content) {
         display: flex;
         align-items: center;
-    }
-    :global(.base-icon) {
-        &.fill {
-            fill: var(--vscode-foreground);
-            stroke: none;
-        }
-        &.outline {
-            fill: none;
-            stroke: var(--vscode-foreground);
-        }
     }
     .dropdown-container {
         position: relative;

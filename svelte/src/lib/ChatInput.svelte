@@ -1,6 +1,7 @@
 <script lang="ts">
     import {
         RiAddFill,
+        RiCornerDownLeftFill,
         RiFileImageFill,
         RiFileWarningFill,
         RiSendPlane2Fill,
@@ -11,6 +12,8 @@
     import Flex from "./Flex.svelte";
     import Typography from "./Typography.svelte";
     import { extensionState } from "../store/chat.svelte";
+    import ToolTip from "./ToolTip.svelte";
+    import {defaultToolTipProps} from "../utils/constants";
 
     interface props {
         onKeydown: (e: KeyboardEvent) => void;
@@ -25,16 +28,7 @@
 </script>
 
 <div class={cn(chatInputWrapper)}>
-    <Flex gap={"sp-2"}>
-        <div class="focused-files">
-            <Flex row gap="sp-2">
-                <Button kind="flex" icon={RiAddFill} />
-                <Button kind="flex" icon={RiFileWarningFill} text="Log state" onclick={() => console.log(`__LOG_STATE__`, extensionState.value)}/>
-                {#each Array.from({ length: 5 }, (_, i) => `Attach image ${i + 1}`) as text}
-                    <Button kind="flex" icon={RiFileImageFill} {text} />
-                {/each}
-            </Flex>
-        </div>
+    <Flex row>
         <input
             bind:value={prompt}
             onfocus={() => (inputFocus = true)}
@@ -42,23 +36,9 @@
             onkeydown={onKeydown}
             placeholder={"Ask Fragola, press '@' to focus a file"}
         />
-        <Flex row justifyBetween>
-            <Flex row gap="sp-2">
-                <Button kind="flex" icon={RiFileImageFill} />
-            </Flex>
-            <Flex _class="bottom-bar" row gap="sp-2">
-                <Typography
-                    >{"Submit"}<span class="keyboard-key">
-                        {"↵"}
-                    </span></Typography
-                >
-                <Typography
-                    >{"Alt + "}<span class="keyboard-key">
-                        {"↵"}
-                    </span>{": ignore focused files"}</Typography
-                >
-            </Flex>
-        </Flex>
+        <ToolTip text={"Send prompt"}>
+            <Button kind="flex" icon={RiCornerDownLeftFill} iconProps={{size: "16"}} />
+        </ToolTip>
     </Flex>
 </div>
 
@@ -68,7 +48,6 @@
         width: -webkit-fill-available;
         background-color: none;
         color: var(--vscode-input-foreground);
-        padding-bottom: 1em;
     }
     .chat-input-wrapper {
         width: inherit;
@@ -77,7 +56,7 @@
         padding: var(--spacing-3);
         height: fit-content;
         margin: 1em;
-        border-radius: 0.75rem;
+        border-radius: 0.25rem;
     }
     .synthetic-focus {
         outline: var(--outline-size) solid var(--vscode-focusBorder) !important;

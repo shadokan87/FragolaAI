@@ -64,38 +64,4 @@
 <ChatInput {prompt} onKeydown={handleSubmitPrompt} />
 
 <style lang="scss">
-    // :global(.aux-bar) {
-    //     width: 100%;
-    // }
-    // :global(.chat-footer-wrapper) {
-    //     margin-bottom: 1em;
-    // }
-    // .chat-input-wrapper {
-    //     padding: var(--spacing-2);
-    //     background-color: var(--vscode-input-background);
-    //     border-radius: var(--spacing-1);
-    //     outline: var(--outline-size) solid var(--vscode-input-border);
-    // }
-    // .chat-input {
-    //     padding: 1rem; // Added for spacing
-    // }
-    // .synthetic-focus {
-    //     outline: var(--outline-size) solid var(--vscode-focusBorder) !important;
-    // }
-    // .base-input {
-    //     all: unset;
-    //     background-color: inherit;
-    //     color: var(--vscode-input-foreground);
-    // }
-    // .focused-files-grid {
-    //     display: grid;
-    //     grid-template-columns: 1fr 8fr 1fr;
-    // }
-    // .focused-files-container {
-    //     // overflow-y: hidden;
-    //     overflow-x: auto;
-    //     padding: var(--spacing-1);
-    //     scrollbar-width: thin; // For Firefox
-    //     scrollbar-color: var(--vscode-scrollbarSlider-background) transparent;
-    // }
 </style>

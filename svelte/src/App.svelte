@@ -7,6 +7,7 @@
   import CodeBlock from "./lib/CodeBlock.svelte";
   import { extensionState } from "./store/chat.svelte";
   import Nav from "./Nav.svelte";
+    import History from "./routes/History.svelte";
 
   function registerCustomElements() {
     if (!customElements.get("code-block")) {
@@ -23,9 +24,11 @@
     registerCustomElements();
   }
 
-  onMount(async () => {
-    await main();
+  $effect(() => {
+    main();
     navigate("/chat", { replace: true });
+    if (extensionState.isDefined && extensionState.value.workspace.ui.showHistory)
+    navigate("/history", {replace: true});
   });
 </script>
 
@@ -41,6 +44,9 @@
       <Router>
         <Route path="/chat">
           <Chat />
+        </Route>
+        <Route path="/history">
+          <History />
         </Route>
       </Router>
     {/if}

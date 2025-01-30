@@ -18,7 +18,8 @@ if (!parentPort) {
 parentPort.on('message', async (message: ChatWorkerPayload) => {
     console.log("#br3");
     const TokenJS = (await import("@shadokan87/token.js")).TokenJS;
-    const tokenjs = new TokenJS().extendModelList("bedrock", 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', "anthropic.claude-3-sonnet-20240229-v1:0");
+    const tokenjs = new TokenJS().extendModelList("bedrock", 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', "anthropic.claude-3-sonnet-20240229-v1:0")
+        .extendModelList("bedrock", "us.anthropic.claude-3-5-haiku-20241022-v1:0", "anthropic.claude-3-5-haiku-20241022-v1:0");
 
     // Process the message
     console.log("Worker received:", message);
@@ -28,7 +29,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
             const stream = await tokenjs.chat.completions.create({
                 stream: true,
                 provider: 'bedrock',
-                model: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0' as any,
+                model: 'us.anthropic.claude-3-5-haiku-20241022-v1:0' as any,
                 // Define your message
                 messages: [
                     {

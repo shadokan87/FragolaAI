@@ -1,15 +1,8 @@
-import type OpenAI from "openai";
-import knex from "knex";
-import { Tables } from "knex/types/tables";
 import { v4 } from "uuid";
 import { createUtils } from "./utils";
 import moment from 'moment';
-import { readdir } from "fs/promises";
-import { Low } from "lowdb";
-import { JSONFilePreset } from "lowdb/node";
-import { chunkType, MessageType, ExtensionState, MessageExtendedType, HistoryIndex } from "@types";
+import { MessageType, ExtensionState, MessageExtendedType, HistoryIndex } from "@types";
 import { BehaviorSubject } from 'rxjs';
-import { FragolaVscode } from "./vscode";
 
 export namespace FragolaClient {
     export type utilsType = ReturnType<typeof createUtils>;
@@ -18,16 +11,6 @@ export namespace FragolaClient {
         id: string,
         createdAt: number,
         label: string
-    }
-
-    export type InstanceState = {
-        chat: {
-            id: string | undefined,
-            db?: Low<{
-                messages: MessageType[];
-            }>;
-            isTmp?: boolean
-        }
     }
 
     export const createInstance = (utils: utilsType, chat: Chat) => {

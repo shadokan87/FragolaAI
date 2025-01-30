@@ -24,4 +24,14 @@ export function classNames(classes: ClassNamesObject): string {
     return result;
 }
 
+export const parseClass = (defaultClass: string, className: string): string => {
+    let result = "";
+    if (className && className.length > 3) {
+      if (className.substring(0, 3) == "...") {
+        result = `${defaultClass} ${className.substring(3).trim()}`;
+      }
+    }
+    return result;
+  };
+
 // export const _var = (str: string) => `var(${str})`;

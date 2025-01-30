@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { createUtils, copyStateWithoutRuntimeVariables, joinAsWebViewUri } from "./utils";
 import { FragolaClient } from "./Fragola";
-import { chunkType, ExtensionState, GlobalKeys, HistoryIndex, InteractionMode, MessageExtendedType, MessageType, NONE_SENTINEL } from "@types";
+import { chunkType, ExtensionState, GlobalKeys, HistoryIndex, InteractionMode, MessageExtendedType, MessageType, NONE_SENTINEL, payloadTypes } from "@types";
 import { outTypeUnion } from "../workers/types";
 import { ChatWorkerPayload } from "../workers/chat/chat.worker";
 import { handleChatRequest } from "../handlers/chatRequest";
@@ -15,8 +15,9 @@ import { DbType, HistoryWorkerPayload } from "../workers/history/history.worker.
 import { promisify } from 'util';
 import { isEqual } from 'lodash';
 import { join } from "path";
-import { existsSync } from "fs";
+import { existsSync, unlink } from "fs";
 import { TextFileSync } from "lowdb/node";
+import { glob } from "glob";
 
 type StateScope = "global" | "workspace";
 
@@ -27,8 +28,13 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
     constructor(extensionContext: vscode.ExtensionContext) {
         this.extensionContext = extensionContext;
         this.registerCommands();
-        const restoredState = this.restoreExtensionState();
-        this.state$ = new BehaviorSubject(restoredState);
+        this.state$ = new BehaviorSubject({ ...defaultExtensionState });
+        this.initializeState();
+    }
+
+    private async initializeState() {
+        const restoredState = await this.restoreExtensionState();
+        this.state$.next(restoredState);
     }
 
     async updateState<T extends string>(key: T, value: any, scope: StateScope = "workspace") {
@@ -39,16 +45,41 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         return this.extensionContext[`${scope}State`].get(key);
     }
 
-    restoreExtensionState() {
+    async restoreExtensionState() {
         const workspaceStateRaw = this.getState("workspace");
         const globalStateRaw = this.getState("global");
         let extensionState: ExtensionState = { ...defaultExtensionState };
         let saveWorkspaceState = false;
+        let fsConversationIds: string[] = [];
+        try {
+            const files = await glob(join(this.extensionContext.extensionUri.fsPath, "src", "data", "chat", "*.json"), {
+            });
+            console.log("__FILES__", files);
+            fsConversationIds = files.map(file => file.split("/").at(-1)?.split(".").at(0)).filter((name): name is string => name != undefined);
+        } catch (e) {
+            fsConversationIds = [];
+        }
+        // Retrieving existing chat conversation Ids from fs, 
         if (typeof workspaceStateRaw == "object") {
             const workspaceState = workspaceStateRaw as ExtensionState["workspace"];
             if (Object.keys(workspaceState).length == 0)
                 return extensionState;
             extensionState.workspace = workspaceState;
+            // Making sure extensionState historyIndex is in sync with actual files by removing indexes without an acutal fs file            
+            {
+                console.log("__FS__", fsConversationIds);
+                const staleConversationIds: string[] = extensionState.workspace.historyIndex.map(index => {
+                    if (!fsConversationIds.includes(index.id))
+                        return index.id;
+                }).filter(value => value != undefined);
+                console.log("__STALE__", staleConversationIds);
+                if (staleConversationIds.length) {
+                    extensionState.workspace.historyIndex = extensionState.workspace.historyIndex.filter(index => !staleConversationIds.includes(index.id));
+                    if (staleConversationIds.includes(extensionState.workspace.ui.conversationId))
+                        extensionState.workspace.ui.conversationId = NONE_SENTINEL;
+                }
+            }
+
             if (extensionState.workspace.ui.conversationId != NONE_SENTINEL) {
                 const filePath = join(this.extensionContext.extensionUri.fsPath, "src", "data", "chat", extensionState.workspace.ui.conversationId) + ".json";
                 const textFile = new TextFileSync(filePath);
@@ -203,7 +234,36 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
 
         webviewView.webview.onDidReceiveMessage(async message => {
             switch (message.type as outTypeUnion) {
-                case "history": {
+                case "actionConversationClick": {
+                    const payload = message as payloadTypes.action.conversationClick;
+                    if (!this.state$.getValue().workspace.historyIndex.some(history => history.id == payload.parameters.conversationId)) {
+                        // TODO: handle error
+                        console.error(`Conversation with id ${payload.parameters.conversationId} does not exist`);
+                        return;
+                    }
+                    const filePath = join(this.extensionContext.extensionUri.fsPath, "src", "data", "chat", payload.parameters.conversationId) + ".json";
+                    const textFile = new TextFileSync(filePath);
+                    const content = textFile.read();
+                    if (!content) {
+                        //TODO: handle error
+                        console.error(`Content empty for conversation ${payload.parameters.conversationId}`);
+                        return;
+                    }
+                    const contentCasted: DbType = JSON.parse(content);
+                    this.updateExtensionState(prev => {
+                        return {
+                            ...prev,
+                            workspace: {
+                                ...prev.workspace,
+                                ui: {
+                                    ...prev.workspace.ui,
+                                    conversationId: payload.parameters.conversationId,
+                                    showHistory: false
+                                },
+                                messages: contentCasted
+                            }
+                        }
+                    })
                     break;
                 }
                 case 'alert':
