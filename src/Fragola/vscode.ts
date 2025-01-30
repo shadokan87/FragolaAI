@@ -52,9 +52,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         let saveWorkspaceState = false;
         let fsConversationIds: string[] = [];
         try {
-            const files = await glob(join(this.extensionContext.extensionUri.fsPath, "src", "data", "chat", "*.json"), {
-            });
-            console.log("__FILES__", files);
+            const files = await glob(join(this.extensionContext.extensionUri.fsPath, "src", "data", "chat", "*.json"), {});
             fsConversationIds = files.map(file => file.split("/").at(-1)?.split(".").at(0)).filter((name): name is string => name != undefined);
         } catch (e) {
             fsConversationIds = [];
@@ -67,12 +65,11 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
             extensionState.workspace = workspaceState;
             // Making sure extensionState historyIndex is in sync with actual files by removing indexes without an acutal fs file            
             {
-                console.log("__FS__", fsConversationIds);
                 const staleConversationIds: string[] = extensionState.workspace.historyIndex.map(index => {
                     if (!fsConversationIds.includes(index.id))
                         return index.id;
                 }).filter(value => value != undefined);
-                console.log("__STALE__", staleConversationIds);
+
                 if (staleConversationIds.length) {
                     extensionState.workspace.historyIndex = extensionState.workspace.historyIndex.filter(index => !staleConversationIds.includes(index.id));
                     if (staleConversationIds.includes(extensionState.workspace.ui.conversationId))

@@ -34,9 +34,6 @@
 
 <div class="app-grid">
   <EventListener />
-  <div class="nav">
-    <Nav />
-  </div>
   <div class="content">
     {#if !extensionState.isDefined}
       <h1>{"Loading ..."}</h1>
