@@ -6,8 +6,7 @@
   import EventListener from "./lib/EventListener.svelte";
   import CodeBlock from "./lib/CodeBlock.svelte";
   import { extensionState } from "./store/chat.svelte";
-  import Nav from "./Nav.svelte";
-    import History from "./routes/History.svelte";
+  import History from "./routes/History.svelte";
 
   function registerCustomElements() {
     if (!customElements.get("code-block")) {
@@ -32,9 +31,9 @@
   });
 </script>
 
-<div class="app-grid">
+<div id="fragolaai-app">
   <EventListener />
-  <div class="content">
+  <div id="content">
     {#if !extensionState.isDefined}
       <h1>{"Loading ..."}</h1>
     {:else}
@@ -51,20 +50,5 @@
 </div>
 
 <style lang="scss">
-  .app-grid {
-    display: grid;
-    grid-template-rows: auto 2fr;
-    height: 100vh;
-    width: 100%;
-  }
 
-  .nav {
-    grid-row: 1;
-  }
-
-  .content {
-    grid-row: 2;
-    overflow-y: none;
-    height: 100%;
-  }
 </style>

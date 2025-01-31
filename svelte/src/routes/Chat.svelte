@@ -5,16 +5,17 @@
         extensionState,
         LLMMessagesRendererCache,
         type renderer,
-
-        type RendererLike
-
+        type RendererLike,
     } from "../store/chat.svelte";
+    import Flex from "../lib/Flex.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
     import { NONE_SENTINEL } from "../../../common";
 
-    let rendererValue = $state<RendererLike[] | undefined>(undefined)
+    let rendererValue = $state<RendererLike[] | undefined>(undefined);
     $effect(() => {
-        rendererValue = LLMMessagesRendererCache.value.get(extensionState.value.workspace.ui.conversationId);
+        rendererValue = LLMMessagesRendererCache.value.get(
+            extensionState.value.workspace.ui.conversationId,
+        );
     });
 </script>
 
@@ -24,17 +25,20 @@
             <RenderChatReader renderer={rendererValue} />
         {/if}
     </div>
-    <ChatFooter />
+    <div class="chat-footer">
+        <ChatFooter />
+    </div>
 </main>
 
 <style lang="scss">
     .chat-grid {
         display: grid;
         grid-template-rows: 1fr auto;
-        height: inherit;
+        max-height: 100vh;
+        overflow-y: hidden;
     }
+
     .chat-messages {
-        overflow-y: auto;
-        background-color: --vscode-editor-background;
+        overflow-y: scroll;
     }
 </style>

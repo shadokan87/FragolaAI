@@ -50,12 +50,11 @@
         color: var(--vscode-input-foreground);
     }
     .chat-input-wrapper {
-        width: inherit;
+        // width: inherit;
         outline: var(--outline-size) solid var(--vscode-input-border);
         background-color: var(--vscode-input-background);
         padding: var(--spacing-3);
         height: fit-content;
-        margin: 1em;
         border-radius: 0.25rem;
     }
     .synthetic-focus {
