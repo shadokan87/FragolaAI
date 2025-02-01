@@ -288,7 +288,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
                     let { conversationId } = userMessagePayload.data;
                     if (conversationId == NONE_SENTINEL || !conversationId) {
                         try {
-                            conversationId = fragola.chat.create([extendedMessage]);
+                            conversationId = await fragola.chat.create([extendedMessage]);
                             const historyPayload: HistoryWorkerPayload = {
                                 kind: "CREATE",
                                 initialMessages: [extendedMessage],

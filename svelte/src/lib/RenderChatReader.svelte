@@ -36,9 +36,7 @@
             <Dotloading />
         </span>
     {/if}
-    <!-- {#if extensionState.value.workspace.streamState != "STREAMING"} -->
-        <div class="message-placeholder"></div>
-    <!-- {/if} -->
+    <div class="message-placeholder"></div>
 {/if}
 
 <style lang="scss">

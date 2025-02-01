@@ -3,6 +3,7 @@ import { createUtils } from "./utils";
 import moment from 'moment';
 import { MessageType, ExtensionState, MessageExtendedType, HistoryIndex } from "@types";
 import { BehaviorSubject } from 'rxjs';
+import { TokenJS } from "@shadokan87/token.js";
 
 export namespace FragolaClient {
     export type utilsType = ReturnType<typeof createUtils>;
@@ -50,12 +51,29 @@ export namespace FragolaClient {
             });
         }
 
-        create(initialMessages: MessageExtendedType[]) {
+        async create(initialMessages: MessageExtendedType[]) {
             const id = v4();
+            const tokenjs = new TokenJS().extendModelList("bedrock", 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', "anthropic.claude-3-sonnet-20240229-v1:0")
+                .extendModelList("bedrock", "us.anthropic.claude-3-5-haiku-20241022-v1:0", "anthropic.claude-3-5-haiku-20241022-v1:0");
+            const label = await tokenjs.chat.completions.create({
+                provider: 'bedrock',
+                model: 'us.anthropic.claude-3-5-haiku-20241022-v1:0' as any,
+                // Define your message
+                messages: [
+                    {
+                        role: "system",
+                        content: "Act as a label generator for a chatbot chat history. Your task is to create a simple and concise label based on the user's prompt. Respond only with the label.\n\nExample:\nInput: 'How do I implement a binary search algorithm in Python?'\nOutput: 'Python Binary Search Implementation'\n\nNow, generate a label for the given prompt."
+                    },
+                    {
+                        role: 'user',
+                        content: `${initialMessages[0].content}`,
+                    },
+                ],
+            })
             this.updateExtensionState((prev) => {
                 const historyIndex: HistoryIndex[] = [...prev.workspace.historyIndex, {
                     id, meta: {
-                        label: undefined, createdAt: moment().format('YYYY-MM-DD')
+                        label: label.choices[0].message.content?.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '') || `Untitled conversation - ${id}`, createdAt: moment().format('YYYY-MM-DD')
                     }
                 }];
                 return {
