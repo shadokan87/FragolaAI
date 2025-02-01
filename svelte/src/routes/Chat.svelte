@@ -43,9 +43,6 @@
             clearInterval(autoScrollIntervalId);
             autoScrollIntervalId = -1;
         }
-        // return () => {
-        //     clearInterval(autoScrollIntervalId);
-        // };
     });
 </script>
 

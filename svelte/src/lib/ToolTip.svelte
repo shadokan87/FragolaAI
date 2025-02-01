@@ -1,23 +1,28 @@
 <script lang="ts">
-  import { createTooltip, melt, CreateTooltipProps } from '@melt-ui/svelte';
-  import { fade } from 'svelte/transition';
-  import { defaultToolTipProps } from '../utils/constants';
-
+  import {
+    createTooltip,
+    melt,
+    type CreateTooltipProps,
+  } from "@melt-ui/svelte";
+  import { fade } from "svelte/transition";
+  import { defaultToolTipProps } from "../utils/constants";
+  import { classNames as cn } from "../utils/style";
 
   interface props {
-    children: any,
-    text: string,
-    custom?: CreateTooltipProps
+    children: any;
+    text: string;
+    custom?: CreateTooltipProps;
   }
-  let {
-    children,
-    text,
-    custom = defaultToolTipProps
-  }: props = $props();
+  let { children, text, custom = defaultToolTipProps }: props = $props();
   const {
     elements: { trigger, content, arrow },
     states: { open },
   } = createTooltip(custom);
+  const toolTipCn = cn({
+    "tooltip-arrow": true,
+    "bottom-outline": custom.positioning?.placement?.includes("bottom") || false,
+    "top-outline": custom.positioning?.placement?.includes("top") || false,
+  })
 </script>
 
 <div use:melt={$trigger}>
@@ -30,7 +35,7 @@
     transition:fade={{ duration: 100 }}
     class="tooltip-content"
   >
-    <div use:melt={$arrow} class="tooltip-arrow" />
+      <div use:melt={$arrow} class={toolTipCn}></div>
     <p class="tooltip-text">{text}</p>
   </div>
 {/if}
@@ -40,23 +45,26 @@
     display: inline-block;
   }
 
+  .top-outline {
+    border-left: 1px solid var(--vscode-editorHoverWidget-border);
+    border-top: 1px solid var(--vscode-editorHoverWidget-border);
+  }
+
+  .bottom-outline {
+    border-right: 1px solid var(--vscode-editorHoverWidget-border);
+    border-bottom: 1px solid var(--vscode-editorHoverWidget-border);
+  }
+
   .tooltip-content {
-    z-index: 50;
+    outline: 1px solid var(--vscode-editorHoverWidget-border);
+  }
+  
+  .tooltip-content {
     border-radius: 0.5rem;
     background-color: var(--vscode-editor-background);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--vscode-input-border);
+    z-index: 3;
   }
-
-//   .tooltip-arrow {
-//     position: absolute;
-//     width: 8px;
-//     height: 8px;
-//     background: inherit;
-//     transform: rotate(45deg);
-//     background-color: var(--vscode-editor-background);
-//     border: 1px solid var(--vscode-input-border);
-//   }
 
   .tooltip-text {
     padding: 0.25rem 0.75rem;
