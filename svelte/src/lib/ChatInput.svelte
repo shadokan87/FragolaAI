@@ -6,6 +6,7 @@
         RiFileImageFill,
         RiFileWarningFill,
         RiImageAiLine,
+        RiRobot2Line,
         RiSendPlane2Fill,
         RiSendPlaneFill,
     } from "svelte-remixicon";
@@ -47,6 +48,16 @@
                         icon={RiImageAiLine}
                         iconProps={{ size: "16" }}
                     />
+                </ToolTip>
+                <ToolTip text={"Select LLM model"}>
+                <Button
+                    variant={"outline"}
+                    kind="flex"
+                    icon={RiRobot2Line}
+                    iconProps={ {size: "16"} }
+                    text={"Using gpt4-o"}
+                    dropdown={[{ text: "gpt4-o" }, { text: "claude 3.5" }]}
+                />
                 </ToolTip>
             </Flex>
             <Flex row gap={"sp-2"}>

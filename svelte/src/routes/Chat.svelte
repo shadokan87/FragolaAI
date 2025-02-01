@@ -10,6 +10,7 @@
     import Flex from "../lib/Flex.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
     import { NONE_SENTINEL } from "../../../common";
+    import Dotloading from "../lib/Dotloading.svelte";
 
     let rendererValue = $state<RendererLike[] | undefined>(undefined);
     $effect(() => {

@@ -1,11 +1,12 @@
 <script lang="ts">
     import type { Marked, Token, TokensList } from "marked";
     import {
-    extensionState,
+        extensionState,
         type renderedByComponent,
         type RendererLike,
     } from "../store/chat.svelte";
     import Divider from "./Divider.svelte";
+    import Dotloading from "./Dotloading.svelte";
 
     export interface props {
         renderer: RendererLike[] | undefined;
@@ -30,4 +31,19 @@
             <Divider />
         {/if}
     {/each}
+    {#if extensionState.value.workspace.streamState == "STREAMING"}
+        <span class="dot-loading-wrapper">
+            <Dotloading />
+        </span>
+    {/if}
 {/if}
+
+<style lang="scss">
+    .dot-loading-wrapper {
+        padding: var(--spacing-2);
+        :global(.dot) {
+            width: 0.5rem !important;
+            height: 0.5rem !important;
+        }
+    }
+</style>
