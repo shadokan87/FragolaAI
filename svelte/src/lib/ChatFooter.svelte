@@ -42,21 +42,6 @@
                 },
             };
             $codeApi?.postMessage(payload);
-            const userMessage: MessageType = {
-                role: "user",
-                content: payload.data.prompt,
-            };
-            // if ($extensionState?.chat.id) {
-            //     const reader = chatStreaming.readers.get($extensionState.chat.id);
-            //     if (!reader)
-            //         throw new Error("Chat id exist but reader undefined");
-            //     reader.length = reader.length + 1;
-            //     reader.loaded = [...reader.loaded, userMessage];
-            //     reader.renderer = [...reader.renderer, "user"];
-            // } else {
-            //     chatStreaming.readers.set(TMP_READER_SENTINEL, createChatReader({loaded: [userMessage], length: 1, renderer: ["user"]}));
-            // }
-            console.log("!submit", input.value);
         }
     }
 </script>

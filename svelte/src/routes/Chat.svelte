@@ -19,7 +19,7 @@
     });
 </script>
 
-<main class="chat-grid">
+<Flex _class="chat-grid">
     <div class="chat-messages">
         {#if extensionState.value.workspace.ui.conversationId != NONE_SENTINEL}
             <RenderChatReader renderer={rendererValue} />
@@ -28,17 +28,19 @@
     <div class="chat-footer">
         <ChatFooter />
     </div>
-</main>
+</Flex>
 
 <style lang="scss">
-    .chat-grid {
-        display: grid;
-        grid-template-rows: 1fr auto;
+    :global(.chat-grid) {
         max-height: 100vh;
         overflow-y: hidden;
+    }
+    .chat-footer {
+        padding: var(--spacing-2)
     }
 
     .chat-messages {
         overflow-y: scroll;
+        padding: var(--spacing-4)
     }
 </style>

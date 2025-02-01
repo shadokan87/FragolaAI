@@ -1,9 +1,11 @@
 <script lang="ts">
     import {
         RiAddFill,
+        RiArrowUpFill,
         RiCornerDownLeftFill,
         RiFileImageFill,
         RiFileWarningFill,
+        RiImageAiLine,
         RiSendPlane2Fill,
         RiSendPlaneFill,
     } from "svelte-remixicon";
@@ -13,7 +15,7 @@
     import Typography from "./Typography.svelte";
     import { extensionState } from "../store/chat.svelte";
     import ToolTip from "./ToolTip.svelte";
-    import {defaultToolTipProps} from "../utils/constants";
+    import { defaultToolTipProps } from "../utils/constants";
 
     interface props {
         onKeydown: (e: KeyboardEvent) => void;
@@ -28,7 +30,7 @@
 </script>
 
 <div class={cn(chatInputWrapper)}>
-    <Flex row>
+    <Flex gap={"sp-2"}>
         <input
             bind:value={prompt}
             onfocus={() => (inputFocus = true)}
@@ -36,9 +38,28 @@
             onkeydown={onKeydown}
             placeholder={"Ask Fragola, press '@' to focus a file"}
         />
-        <ToolTip text={"Send prompt"}>
-            <Button kind="flex" icon={RiCornerDownLeftFill} iconProps={{size: "16"}} />
-        </ToolTip>
+        <Flex row justifyBetween>
+            <Flex row gap={"sp-2"}>
+                <ToolTip text={"Attach an image"}>
+                    <Button
+                        kind="flex"
+                        variant="ghost"
+                        icon={RiImageAiLine}
+                        iconProps={{ size: "16" }}
+                    />
+                </ToolTip>
+            </Flex>
+            <Flex row gap={"sp-2"}>
+                <ToolTip text={"Send prompt"}>
+                    <Button
+                        kind="flex"
+                        variant="outline"
+                        icon={RiArrowUpFill}
+                        iconProps={{ size: "16" }}
+                    />
+                </ToolTip>
+            </Flex>
+        </Flex>
     </Flex>
 </div>
 

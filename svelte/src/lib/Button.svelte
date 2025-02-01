@@ -53,9 +53,7 @@
 
 {#snippet buttonFlexContent()}
     <Flex row gap={"var(--spacing-1)"} _class="button-content">
-        <span class={"themed-svg"}>
         <rest.icon {...iconProps} />
-        </span>
         {#if rest.text}
             <Typography class="adjusted-line-height">
                 {rest.text}
@@ -97,9 +95,6 @@
 {/if}
 
 <style lang="scss">
-    .themed-svg :global(svg) {
-        fill: rgb(125, 133, 144);
-    }
     .themed-svg:hover :global(svg) {
         fill: white;
     }
@@ -108,12 +103,9 @@
     }
     .btn {
         padding: var(--spacing-1);
-        transition-duration: 100ms;
-        &.ghost {
         background-color: var(--vscode-input-background);
-        }
         &.outline {
-            outline: var(--outline-size) solid var(--vscode-input-border);
+            outline: var(--outline-size) solid var(--vscode-widget-border);
         }
         border: none;
         cursor: pointer;
