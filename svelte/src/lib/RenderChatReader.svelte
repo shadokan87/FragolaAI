@@ -36,9 +36,16 @@
             <Dotloading />
         </span>
     {/if}
+    <!-- {#if extensionState.value.workspace.streamState != "STREAMING"} -->
+        <div class="message-placeholder"></div>
+    <!-- {/if} -->
 {/if}
 
 <style lang="scss">
+    .message-placeholder {
+        height: 200px;
+        background-color: transparent;
+    }
     .dot-loading-wrapper {
         padding: var(--spacing-2);
         :global(.dot) {
