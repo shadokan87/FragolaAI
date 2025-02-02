@@ -1,9 +1,10 @@
 import { v4 } from "uuid";
 import { createUtils } from "./utils";
 import moment from 'moment';
-import { MessageType, ExtensionState, MessageExtendedType, HistoryIndex } from "@types";
+import { MessageType, ExtensionState, MessageExtendedType, HistoryIndex, payloadTypes, NONE_SENTINEL } from "@types";
 import { BehaviorSubject } from 'rxjs';
 import { TokenJS } from "@shadokan87/token.js";
+import { existsSync, unlink } from "fs";
 
 export namespace FragolaClient {
     export type utilsType = ReturnType<typeof createUtils>;
@@ -49,6 +50,29 @@ export namespace FragolaClient {
                     return [...prev.workspace.messages.slice(0, -1), ...messages];
                 return [...prev.workspace.messages, ...messages]
             });
+        }
+
+        async deleteConversation({conversationId}: payloadTypes.action.deleteConversation["parameters"]) {
+            const filePath = this.utils.join("src", "data", "chat", `${conversationId}.json`).fsPath;
+            if (existsSync(filePath))
+                unlink(filePath, (err) => {
+                    //TODO: handle error
+                    console.error(err);
+                });
+            this.updateExtensionState(prev => {
+                return {
+                    ...prev,
+                    workspace: {
+                        ...prev.workspace,
+                        historyIndex: prev.workspace.historyIndex.filter(history => history.id != conversationId),
+                        messages: conversationId == prev.workspace.ui.conversationId && [] || prev.workspace.messages,
+                        ui: {
+                            ...prev.workspace.ui,
+                            conversationId: conversationId == prev.workspace.ui.conversationId && NONE_SENTINEL || prev.workspace.ui.conversationId,
+                        }
+                    }
+                }
+            })
         }
 
         async create(initialMessages: MessageExtendedType[]) {

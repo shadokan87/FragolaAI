@@ -5,7 +5,6 @@
     import { classNames as cn, parseClass } from "../utils/style";
 
     import { createDropdownMenu, melt } from "@melt-ui/svelte";
-    const defaultClass = "btn";
     const {
         elements: { menu, item, trigger, arrow },
         states: { open },
@@ -26,10 +25,10 @@
         iconProps?: T;
         text?: string;
         dropdown?: dropdownOption[];
-        variant?: "ghost" | "outline";
+        variant?: "ghost" | "outline" | "none";
         children?: any;
         class?: string;
-        onclick?: () => void;
+        onclick?: (e?: MouseEvent) => void;
     }
 
     let {
@@ -41,14 +40,14 @@
         onclick,
         ...rest
     }: props = $props();
-
+    let ready = $state(false);
+    const defaultClass = "btn";
     $effect(() => {
-        if (!_class)
-            _class = defaultClass;
-        else
-            _class = parseClass(defaultClass, _class);
         console.log("__CLASS__", _class);
-    })
+        if (!_class) _class = defaultClass;
+        else _class = parseClass(defaultClass, _class);
+        ready = true;
+    });
 </script>
 
 {#snippet buttonFlexContent()}
@@ -62,48 +61,57 @@
     </Flex>
 {/snippet}
 
-{#if rest.dropdown == undefined}
-    <button class={`${_class} ${variant}`} {onclick}>
-        {#if children}
-            {@render children()}
-        {:else if kind == "flex"}
-            {@render buttonFlexContent()}
-        {/if}
-    </button>
-{:else}
-    <div class="dropdown-container">
-        <button use:melt={$trigger} class={`${_class} ${variant}`} {onclick}>
+{#if ready}
+    {#if rest.dropdown == undefined}
+        <button class={`${_class} ${variant}`} {onclick}>
             {#if children}
                 {@render children()}
             {:else if kind == "flex"}
                 {@render buttonFlexContent()}
             {/if}
         </button>
+    {:else}
+        <div class="dropdown-container">
+            <button
+                use:melt={$trigger}
+                class={`${_class} ${variant}`}
+                {onclick}
+            >
+                {#if children}
+                    {@render children()}
+                {:else if kind == "flex"}
+                    {@render buttonFlexContent()}
+                {/if}
+            </button>
 
-        {#if $open}
-            <div use:melt={$menu} class="dropdown-menu">
-                {#each rest.dropdown as option}
-                    <button use:melt={$item} class="dropdown-item">
-                        <Typography>
-                            {option.text}
-                        </Typography>
-                    </button>
-                {/each}
-            </div>
-        {/if}
-    </div>
+            {#if $open}
+                <div use:melt={$menu} class="dropdown-menu">
+                    {#each rest.dropdown as option}
+                        <button use:melt={$item} class="dropdown-item">
+                            <Typography>
+                                {option.text}
+                            </Typography>
+                        </button>
+                    {/each}
+                </div>
+            {/if}
+        </div>
+    {/if}
 {/if}
 
 <style lang="scss">
-    .themed-svg:hover :global(svg) {
-        fill: white;
-    }
     :global(.adjusted-line-height) {
         line-height: 1;
     }
     .btn {
         padding: var(--spacing-1);
         background-color: var(--vscode-input-background);
+        &.ghost {
+            background-color: transparent !important;
+            &:hover {
+                background-color: var(--vscode-input-background) !important;
+            }
+        }
         &.outline {
             outline: var(--outline-size) solid var(--vscode-widget-border);
         }

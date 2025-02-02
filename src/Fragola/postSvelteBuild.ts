@@ -67,6 +67,7 @@ export const processJsFiles = async (extensionUri: vscode.Uri, utils: ReturnType
 export const createWebviewContent = (extensionUri: vscode.Uri, utils: ReturnType<typeof createUtils>): string => {
     const svelteBuildOutputLocation = ["svelte", "dist"];
     const htmlUriPath = join(extensionUri.fsPath, "svelte", "dist", "index.html");
+    console.log("__HTML_URI__", htmlUriPath);
     let htmlContent = readFileSync(htmlUriPath).toString();
     return replacePlaceHolders(htmlContent, utils, svelteBuildOutputLocation) || htmlContent;
 };

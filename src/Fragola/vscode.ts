@@ -231,6 +231,11 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
 
         webviewView.webview.onDidReceiveMessage(async message => {
             switch (message.type as outTypeUnion) {
+                case "deleteConversation": {
+                    const payload = message as payloadTypes.action.deleteConversation;
+                    await fragola.chat.deleteConversation(payload.parameters);
+                    break ;
+                }
                 case "actionConversationClick": {
                     const payload = message as payloadTypes.action.conversationClick;
                     if (!this.state$.getValue().workspace.historyIndex.some(history => history.id == payload.parameters.conversationId)) {

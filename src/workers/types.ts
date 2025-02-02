@@ -16,4 +16,5 @@ export type outTypeUnion = "chatRequest"
     | "syntaxHighlight"
     | "alert"
     | "actionConversationClick"
+    | "deleteConversation"
     ;

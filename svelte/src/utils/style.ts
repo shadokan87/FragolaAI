@@ -25,7 +25,7 @@ export function classNames(classes: ClassNamesObject): string {
 }
 
 export const parseClass = (defaultClass: string, className: string): string => {
-    let result = "";
+    let result = className;
     if (className && className.length > 3) {
       if (className.substring(0, 3) == "...") {
         result = `${defaultClass} ${className.substring(3).trim()}`;
