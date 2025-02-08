@@ -34,7 +34,7 @@ export const defaultExtensionState: ExtensionState = Object.freeze({
         },
         historyIndex: [],
         messages: [],
-        streamState: "NONE" as const
+        streamState: "NONE" as const,
     },
     global: {
 

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { FragolaVscode } from './Fragola/vscode.ts';
+import { FragolaVscode } from './Fragola/vscode/vscode.ts';
 import { config } from 'dotenv';
 import { _join } from './Fragola/utils.ts';
 

@@ -1,35 +1,38 @@
 import * as vscode from "vscode";
-import { createUtils, copyStateWithoutRuntimeVariables, joinAsWebViewUri } from "./utils";
-import { FragolaClient } from "./Fragola";
-import { chunkType, ExtensionState, GlobalKeys, HistoryIndex, InteractionMode, MessageExtendedType, MessageType, NONE_SENTINEL, payloadTypes } from "@types";
-import { outTypeUnion } from "../workers/types";
-import { ChatWorkerPayload } from "../workers/chat/chat.worker";
-import { handleChatRequest } from "../handlers/chatRequest";
+import { createUtils, copyStateWithoutRuntimeVariables } from "../utils";
+import { FragolaClient } from "../Fragola";
+import { ExtensionState, MessageExtendedType, MessageType, NONE_SENTINEL, payloadTypes } from "@types";
+import { outTypeUnion } from "../../workers/types";
+import { ChatWorkerPayload } from "../../workers/chat/chat.worker";
+import { handleChatRequest } from "../../handlers/chatRequest";
 import { streamChunkToMessage, defaultExtensionState, receiveStreamChunk, Mutex } from "@utils";
-import { processJsFiles, createWebviewContent } from "./postSvelteBuild";
-import { BehaviorSubject, pairwise, map, distinctUntilChanged, } from 'rxjs';
-import moment from "moment";
-import { ChatCompletionMessageParam, CompletionResponseChunk } from "@shadokan87/token.js";
-import { historyHandler } from "../handlers/history";
-import { DbType, HistoryWorkerPayload } from "../workers/history/history.worker.mts";
-import { promisify } from 'util';
+import { processJsFiles, createWebviewContent } from "../postSvelteBuild";
+import { BehaviorSubject, pairwise } from 'rxjs';
+import { historyHandler } from "../../handlers/history";
+import { DbType, HistoryWorkerPayload } from "../../workers/history/history.worker.mts";
 import { isEqual } from 'lodash';
 import { join } from "path";
-import { existsSync, unlink } from "fs";
 import { TextFileSync } from "lowdb/node";
 import { glob } from "glob";
+import { FragolaVscodeBase } from "./types";
+import { Tree } from "./tree";
 
 type StateScope = "global" | "workspace";
 
-export class FragolaVscode implements vscode.WebviewViewProvider {
+export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewViewProvider {
     private extensionContext: vscode.ExtensionContext;
     private isChatViewVisible = false;
     private state$: BehaviorSubject<ExtensionState>;
+    private tree: Tree;
+    // private treeService: TreeService;
     constructor(extensionContext: vscode.ExtensionContext) {
+        super();
         this.extensionContext = extensionContext;
         this.registerCommands();
         this.state$ = new BehaviorSubject({ ...defaultExtensionState });
+        this.tree = new Tree(vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0));
         this.initializeState();
+        // this.treeService = new TreeService(extensionContext.)
     }
 
     private async initializeState() {
@@ -51,10 +54,12 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
         let extensionState: ExtensionState = { ...defaultExtensionState };
         let saveWorkspaceState = false;
         let fsConversationIds: string[] = [];
+
         try {
             const files = await glob(join(this.extensionContext.extensionUri.fsPath, "src", "data", "chat", "*.json"), {});
             fsConversationIds = files.map(file => file.split("/").at(-1)?.split(".").at(0)).filter((name): name is string => name != undefined);
         } catch (e) {
+            //TODO: handle error
             fsConversationIds = [];
         }
         // Retrieving existing chat conversation Ids from fs, 
@@ -63,6 +68,7 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
             if (Object.keys(workspaceState).length == 0)
                 return extensionState;
             extensionState.workspace = workspaceState;
+            extensionState.workspace.tree = this.tree.getResult();
             // Making sure extensionState historyIndex is in sync with actual files by removing indexes without an acutal fs file            
             {
                 const staleConversationIds: string[] = extensionState.workspace.historyIndex.map(index => {
@@ -102,10 +108,6 @@ export class FragolaVscode implements vscode.WebviewViewProvider {
     handleHistoryError(payload: HistoryWorkerPayload, error: Error) {
         // TODO: error handling
         console.error(`Failed to ${payload.kind.toLowerCase()} messages, error: ${error.message}`);
-    }
-
-    setStreamingState(state: ExtensionState["workspace"]) {
-
     }
 
     private async commandToggleChatView() {

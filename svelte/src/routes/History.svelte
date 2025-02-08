@@ -19,6 +19,9 @@
 </Flex>
 
 <style lang="scss">
+    :global(.history-container) {
+        padding-top: var(--spacing-1);
+    }
     :global(.history-btn) {
         width: inherit !important;
         padding: var(--spacing-4);

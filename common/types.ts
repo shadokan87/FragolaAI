@@ -2,6 +2,7 @@ import type OpenAI from "openai";
 import { FragolaClient } from "../src/Fragola/Fragola";
 import { basePayload, inTypeUnion, outTypeUnion } from "../src/workers/types";
 import { CompletionResponseChunk, ChatCompletionMessageParam } from "@shadokan87/token.js";
+import { TreeResult, TreeService } from "../src/services/treeService";
 
 export const NONE_SENTINEL = "<NONE>";
 
@@ -37,11 +38,17 @@ export type Mention = {
     content: string
 }
 
+export type PartialMention = Partial<Mention & { stream?: boolean, kindParsed?: boolean}>;
+
 export type Prompt = (string | Mention)[];
+
+export type PartialPrompt = (string | PartialMention)[];
 
 export type MessageExtendedType = MessageType & { meta: userMessageMetaData };
 
 export type MessageType = ChatCompletionMessageParam;
+
+export type Tree = Awaited<ReturnType<TreeService['list']>>
 
 export interface ExtensionState {
     workspace: {
@@ -53,6 +60,8 @@ export interface ExtensionState {
         historyIndex: HistoryIndex[],
         messages: MessageType[],
         streamState: "NONE" | "AWAITING" | "STREAMING",
+        tree?: TreeResult
+        // tree: Awaited<ReturnType<>>
         // updateEvent?: "MESSAGE_CREATE" | "MESSAGE_PUSH" | "MESSAGE_LAST_UPDATE" | "MESSAGE_POP"
     }, global: {
 

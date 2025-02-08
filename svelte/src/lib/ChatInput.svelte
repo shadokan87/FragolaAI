@@ -17,9 +17,10 @@
     import { extensionState } from "../store/chat.svelte";
     import ToolTip from "./ToolTip.svelte";
     import { defaultToolTipProps } from "../utils/constants";
+    import type { KeyboardEventHandler } from "svelte/elements";
 
     interface props {
-        onKeydown: (e: KeyboardEvent) => void;
+        onKeydown: KeyboardEventHandler<HTMLInputElement>
         prompt: string;
     }
     let inputFocus = $state(false);

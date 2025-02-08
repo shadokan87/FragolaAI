@@ -69,5 +69,6 @@
     .chat-messages {
         overflow-y: scroll;
         padding: var(--spacing-4);
+        height: 100vh;
     }
 </style>

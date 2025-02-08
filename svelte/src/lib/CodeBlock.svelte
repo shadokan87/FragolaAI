@@ -34,19 +34,19 @@
         <Typography>{lang || ""}</Typography>
         <Flex row gap={"sp-2"}>
             <Button
-                variant={"fill"}
+                variant={"ghost"}
                 kind="flex"
                 icon={RiChatAiFill}
                 iconProps={{ size: 18 }}
             />
             <Button
-                variant={"fill"}
+                variant={"ghost"}
                 kind="flex"
                 icon={RiFileCopyFill}
                 iconProps={{ size: 18 }}
             />
             <Button
-                variant={"fill"}
+                variant={"ghost"}
                 kind="flex"
                 icon={RiFileAddFill}
                 iconProps={{ size: 18 }}
