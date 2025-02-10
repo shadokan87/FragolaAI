@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { createUtils, copyStateWithoutRuntimeVariables } from "../utils";
 import { FragolaClient } from "../Fragola";
-import { ExtensionState, MessageExtendedType, MessageType, NONE_SENTINEL, payloadTypes } from "@types";
+import { ExtensionState, MentionKind, MessageExtendedType, MessageType, NONE_SENTINEL, payloadTypes } from "@types";
 import { outTypeUnion } from "../../workers/types";
 import { ChatWorkerPayload } from "../../workers/chat/chat.worker";
 import { handleChatRequest } from "../../handlers/chatRequest";
@@ -236,7 +236,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                 case "deleteConversation": {
                     const payload = message as payloadTypes.action.deleteConversation;
                     await fragola.chat.deleteConversation(payload.parameters);
-                    break ;
+                    break;
                 }
                 case "actionConversationClick": {
                     const payload = message as payloadTypes.action.conversationClick;
@@ -284,7 +284,21 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                     });
 
                     const userMessagePayload = message as ChatWorkerPayload;
-                    const userMessage: MessageType = { role: "user", content: JSON.stringify(userMessagePayload.data.prompt) };
+                    const userMessage: MessageType = {
+                        role: "user", content: (() => {
+                            let result = "";
+                            userMessagePayload.data.prompt.forEach(part => {
+                                if (typeof part == "string")
+                                    result += ` ${part}`;
+                                else if (part.content && [MentionKind.FILE, MentionKind.FOLDER].includes(part.kind)) {
+                                    result += ` \`${part.kind}:${part.content}\`  `
+                                } else {
+                                    // no-op
+                                }
+                            });
+                            return result;
+                        })()
+                    };
                     const extendedMessage: MessageExtendedType = {
                         ...userMessage,
                         meta: {
@@ -327,7 +341,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                         console.error("conversationId undefined");
                         return;
                     }
-                    handleChatRequest(this.extensionContext, webviewView.webview, { ...userMessagePayload, id: conversationId }, () => {
+                    handleChatRequest(this.extensionContext, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages: this.state$.getValue().workspace.messages }, id: conversationId }, () => {
                         // Stream completed with sucess
                         // We're saving in file system only after streaming
                         this.updateExtensionState((prev) => {

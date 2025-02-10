@@ -11,7 +11,10 @@
     import ChatInput from "./ChatInput.svelte";
     import Flex from "./Flex.svelte";
     import MentionsSelector from "./MentionsSelector.svelte";
-    import type { FormEventHandler, KeyboardEventHandler } from "svelte/elements";
+    import type {
+        FormEventHandler,
+        KeyboardEventHandler,
+    } from "svelte/elements";
 
     let input: string = $state("");
     let prompt: PartialPrompt = $derived(parseInputValue(input));
@@ -26,9 +29,6 @@
     const isAlphanumeric = (str: string, exception: string[] = ["/"]) =>
         /^[a-zA-Z0-9]+$/.test(str) || exception.includes(str);
     const invalidatingCharacters: string[] = [" "]; // (Space key included)
-    const isEndOfMentionChar = (str: string) => {
-        return str == " ";
-    };
 
     const findNextIndex = (
         str: string,
@@ -71,8 +71,7 @@
                 mentionRef.kind = MentionKind.FILE;
                 mentionRef.content = mentionContent;
             }
-            if (mentionRef.kind)
-                mentionRef.kindParsed = true;
+            if (mentionRef.kind) mentionRef.kindParsed = true;
             if (reset) {
                 mentionIndex = -1;
                 mentionRef = null;
@@ -81,15 +80,17 @@
         };
 
         while (i < value.length) {
-            if (value[i] == "@") { // First encounter of a mention
+            console.log(`value: ${value}, char: ${value[i]}`);
+            if (value[i] == "@") {
+                // First encounter of a mention
                 if (i == 0) mentionIndex = i;
                 else if (
                     !invalidatingCharacters.includes(value[i - 1]) ||
                     !isAlphanumeric(value[i - 1])
                 )
-                mentionIndex = i;
+                    mentionIndex = i;
                 if (!mentionRef) {
-                    mentionRef = {kindParsed: false};
+                    mentionRef = { kindParsed: false };
                     result.push(mentionRef);
                 }
                 if (!mentionRef) {
@@ -120,8 +121,26 @@
     }
 
     const handleSubmitPrompt: KeyboardEventHandler<HTMLInputElement> = (e) => {
-        console.log("Event: ", e);
-        input = (e as any)["target"]["value"];
+        console.log("target !", (e as any)["target"]["value"]);
+        // input = e.currentTarget.value;
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (!extensionState.isDefined) {
+                //TODO: handle error
+                console.error("Extension state undefined");
+                return;
+            }
+            const payload: ChatWorkerPayload = {
+                type: "chatRequest",
+                data: {
+                    prompt,
+                    conversationId:
+                        extensionState.value.workspace.ui.conversationId,
+                },
+            };
+            $codeApi?.postMessage(payload);
+            return ;
+        }
         return;
     };
 </script>
@@ -130,7 +149,7 @@
     {#if isInMention}
         <MentionsSelector />
     {/if}
-    <ChatInput prompt={input} onKeydown={handleSubmitPrompt} />
+    <ChatInput bind:prompt={input} onKeydown={handleSubmitPrompt} />
 </Flex>
 
 <style lang="scss">
