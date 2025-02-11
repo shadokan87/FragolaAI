@@ -44,7 +44,7 @@ export namespace FragolaClient {
             })
         }
 
-        addMessages(messages: (MessageExtendedType | MessageType)[], replaceLast: boolean = false) {
+        addMessages(messages: MessageExtendedType[], replaceLast: boolean = false) {
             this.setMessages((prev) => {
                 if (replaceLast)
                     return [...prev.workspace.messages.slice(0, -1), ...messages];

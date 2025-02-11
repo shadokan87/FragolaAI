@@ -80,7 +80,6 @@
         };
 
         while (i < value.length) {
-            console.log(`value: ${value}, char: ${value[i]}`);
             if (value[i] == "@") {
                 // First encounter of a mention
                 if (i == 0) mentionIndex = i;
@@ -121,8 +120,6 @@
     }
 
     const handleSubmitPrompt: KeyboardEventHandler<HTMLInputElement> = (e) => {
-        console.log("target !", (e as any)["target"]["value"]);
-        // input = e.currentTarget.value;
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             if (!extensionState.isDefined) {

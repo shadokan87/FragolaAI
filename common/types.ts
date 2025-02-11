@@ -44,7 +44,7 @@ export type Prompt = (string | Mention)[];
 
 export type PartialPrompt = (string | PartialMention)[];
 
-export type MessageExtendedType = MessageType & { meta: userMessageMetaData };
+export type MessageExtendedType = MessageType & { meta?: userMessageMetaData };
 
 export type MessageType = ChatCompletionMessageParam;
 
@@ -58,7 +58,7 @@ export interface ExtensionState {
             showHistory: boolean
         },
         historyIndex: HistoryIndex[],
-        messages: MessageType[],
+        messages: MessageExtendedType[],
         streamState: "NONE" | "AWAITING" | "STREAMING",
         tree?: TreeResult
         // tree: Awaited<ReturnType<>>

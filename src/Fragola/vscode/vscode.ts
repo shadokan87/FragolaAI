@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { createUtils, copyStateWithoutRuntimeVariables } from "../utils";
 import { FragolaClient } from "../Fragola";
-import { ExtensionState, MentionKind, MessageExtendedType, MessageType, NONE_SENTINEL, payloadTypes } from "@types";
+import { ExtensionState, InteractionMode, MentionKind, MessageExtendedType, MessageType, NONE_SENTINEL, payloadTypes } from "@types";
 import { outTypeUnion } from "../../workers/types";
 import { ChatWorkerPayload } from "../../workers/chat/chat.worker";
 import { handleChatRequest } from "../../handlers/chatRequest";
@@ -16,6 +16,7 @@ import { TextFileSync } from "lowdb/node";
 import { glob } from "glob";
 import { FragolaVscodeBase } from "./types";
 import { Tree } from "./tree";
+import { handleBuildRequest } from "../../handlers/buildRequest";
 
 type StateScope = "global" | "workspace";
 
@@ -68,6 +69,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
             if (Object.keys(workspaceState).length == 0)
                 return extensionState;
             extensionState.workspace = workspaceState;
+            extensionState.workspace.ui.interactionMode = InteractionMode.BUILD; //TODO: remove this line
             extensionState.workspace.tree = this.tree.getResult();
             // Making sure extensionState historyIndex is in sync with actual files by removing indexes without an acutal fs file            
             {
@@ -331,7 +333,8 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                             historyHandler(this.extensionContext, webviewView.webview, historyPayload, () => { }, (error) => this.handleHistoryError(historyPayload, error));
                             fragola.chat.addMessages([extendedMessage]);
                         } catch (e) {
-
+                            //TODO: handle error
+                            console.error(e);
                         }
                     }
                     let fullMessage: Partial<MessageType> = {};
@@ -341,7 +344,12 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                         console.error("conversationId undefined");
                         return;
                     }
-                    handleChatRequest(this.extensionContext, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages: this.state$.getValue().workspace.messages }, id: conversationId }, () => {
+                    const messages = this.state$.getValue().workspace.messages.map(message => {
+                        const {meta, ...rest} = message;
+                        return rest;
+
+                    });
+                    handleBuildRequest(this.extensionContext, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages }, id: conversationId }, () => {
                         // Stream completed with sucess
                         // We're saving in file system only after streaming
                         this.updateExtensionState((prev) => {

@@ -35,6 +35,7 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
                 //TODO: better error handling
                 return ;
             }
+            console.log("Llm messages: ", data.messages);
             const stream = await tokenjs.chat.completions.create({
                 stream: true,
                 provider: 'bedrock',
