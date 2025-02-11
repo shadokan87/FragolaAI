@@ -25,6 +25,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
     private isChatViewVisible = false;
     private state$: BehaviorSubject<ExtensionState>;
     private tree: Tree;
+    private prompts: Record<string, string> = {}
     // private treeService: TreeService;
     constructor(extensionContext: vscode.ExtensionContext) {
         super();
@@ -36,7 +37,26 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
         // this.treeService = new TreeService(extensionContext.)
     }
 
+    private loadPrompt(key: string, path: string) {
+        const textFile = new TextFileSync(path);
+        if (!textFile)
+            throw new Error(`Open prompt at path: ${path} failed`);
+        const content = textFile.read();
+        if (!content)
+            throw new Error(`Reading prompt at path: ${path} failed`);
+        this.prompts[key] = content;
+    }
+
     private async initializeState() {
+        try {
+            ["build", "planner"].forEach(agent => {
+                this.loadPrompt(agent, join(this.extensionContext.extensionUri.fsPath, "src", "Fragola", "agents", agent, "prompts", "defaultSys.md"))
+            });
+        } catch (e) {
+            //TODO: handle error
+            console.error(e);
+        }
+        console.log("Prompts: ", this.prompts);
         const restoredState = await this.restoreExtensionState();
         this.state$.next(restoredState);
     }
@@ -345,11 +365,12 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                         return;
                     }
                     const messages = this.state$.getValue().workspace.messages.map(message => {
-                        const {meta, ...rest} = message;
+                        const { meta, ...rest } = message;
                         return rest;
 
                     });
-                    handleBuildRequest(this.extensionContext, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages }, id: conversationId }, () => {
+                    const handler = this.state$.getValue().workspace.ui.interactionMode == InteractionMode.BUILD ? handleBuildRequest : handleChatRequest;
+                    handler(this.extensionContext, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages }, id: conversationId }, () => {
                         // Stream completed with sucess
                         // We're saving in file system only after streaming
                         this.updateExtensionState((prev) => {
