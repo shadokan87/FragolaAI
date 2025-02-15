@@ -17,7 +17,8 @@ import { glob } from "glob";
 import { FragolaVscodeBase } from "./types";
 import { Tree } from "./tree";
 import { handleBuildRequest } from "../../handlers/buildRequest";
-import { grepCodebase } from "../agents/tools/navigation/grepCodebase";
+import { grepCodebase } from "../agentic/tools/navigation/grepCodebase";
+import { readFileById } from "../agentic/tools/navigation/readFileById";
 
 type StateScope = "global" | "workspace";
 
@@ -48,6 +49,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                     const split = match.split(":").filter(chunk => chunk.trim() != "");
                     if (split.length == 2) {
                         const id = this.tree.getIdFromPath(split[0]) || split[0];
+                        console.log("content test", readFileById({id}, this.tree.idToPath));
                         processedResult.push(`${id}:${split[1]}`);
                     }
                 });
@@ -57,7 +59,6 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
         } catch (e) {
             console.error("__TOOL_ERROR__", e);
         }
-        // this.treeService = new TreeService(extensionContext.)
     }
 
     private loadPrompt(key: string, path: string) {
@@ -73,7 +74,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
     private async initializeState() {
         try {
             ["build", "planner"].forEach(agent => {
-                this.loadPrompt(agent, join(this.extensionContext.extensionUri.fsPath, "src", "Fragola", "agents", agent, "prompts", "defaultSys.md"))
+                this.loadPrompt(agent, join(this.extensionContext.extensionUri.fsPath, "src", "Fragola", "agentic", agent, "prompts", "defaultSys.md"))
             });
         } catch (e) {
             //TODO: handle error

@@ -1,8 +1,10 @@
 import { TreeResult, TreeService } from "../../services/treeService";
 import { FragolaVscodeBase } from "./types";
 
+export type IdToPath = Map<TreeResult["custom"]["id"], string>;
+
 export class Tree extends FragolaVscodeBase {
-    constructor(private cwd: string | undefined, protected result: TreeResult | undefined = undefined, public idToPath: Map<TreeResult["custom"]["id"], string> = new Map()) {
+    constructor(private cwd: string | undefined, protected result: TreeResult | undefined = undefined, public idToPath: IdToPath  = new Map()) {
         super();
         this.initialize(cwd);
     }
