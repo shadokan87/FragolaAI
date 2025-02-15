@@ -17,6 +17,7 @@ import { glob } from "glob";
 import { FragolaVscodeBase } from "./types";
 import { Tree } from "./tree";
 import { handleBuildRequest } from "../../handlers/buildRequest";
+import { grepCodebase } from "../agents/tools/navigation/grepCodebase";
 
 type StateScope = "global" | "workspace";
 
@@ -34,6 +35,28 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
         this.state$ = new BehaviorSubject({ ...defaultExtensionState });
         this.tree = new Tree(vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0));
         this.initializeState();
+        if (!this.tree.getCwd()) {
+            //TODO: handle error
+            console.error("Workspace init error");
+            return;
+        }
+        try {
+            const result = grepCodebase(this.tree.getCwd()!, { content: "InteractionMode" }, (stdout) => {
+                const matchSplit = stdout.split("\n");
+                let processedResult: string[] = [];
+                matchSplit.forEach((match) => {
+                    const split = match.split(":").filter(chunk => chunk.trim() != "");
+                    if (split.length == 2) {
+                        const id = this.tree.getIdFromPath(split[0]) || split[0];
+                        processedResult.push(`${id}:${split[1]}`);
+                    }
+                });
+                return processedResult.join("\n");
+            });
+            console.log("Grep result: ", result);
+        } catch (e) {
+            console.error("__TOOL_ERROR__", e);
+        }
         // this.treeService = new TreeService(extensionContext.)
     }
 

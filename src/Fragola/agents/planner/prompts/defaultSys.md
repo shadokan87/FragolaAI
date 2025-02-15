@@ -15,5 +15,6 @@ Guidelines for creating a sub-task:
 2. Path: 
    - For UPDATE or DELETE operations, use the existing file id.
    - For CREATE operations, provide a full path starting with '/'.
+   - For SHELL commands, just output the exact command
 
 Ensure all sub-tasks are necessary and directly related to fulfilling the user's request.
