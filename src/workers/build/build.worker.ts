@@ -1,6 +1,8 @@
 import { parentPort } from 'worker_threads';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
 import { ExtensionState, MessageType, Prompt, ToolType } from "@types";
+import { OpenAI } from "openai";
+import { createHeaders, PORTKEY_GATEWAY_URL } from 'portkey-ai'
 
 export type BuildWorkerPayload = {
     data: {
@@ -19,8 +21,15 @@ if (!parentPort) {
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
     const TokenJS = (await import("@shadokan87/token.js")).TokenJS;
-    const tokenjs = new TokenJS().extendModelList("bedrock", 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', "anthropic.claude-3-sonnet-20240229-v1:0")
-        .extendModelList("bedrock", "us.anthropic.claude-3-5-haiku-20241022-v1:0", "anthropic.claude-3-5-haiku-20241022-v1:0");
+    const openai = new OpenAI({
+      apiKey: 'xxx',
+      baseURL: PORTKEY_GATEWAY_URL,
+      defaultHeaders: createHeaders({
+        virtualKey: process.env["BEDROCK_DEV"],
+        apiKey: process.env["PORTKEY_API_KEY"]})
+    });
+    // const tokenjs = new TokenJS().extendModelList("bedrock", 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', "anthropic.claude-3-sonnet-20240229-v1:0")
+    //     .extendModelList("bedrock", "us.anthropic.claude-3-5-haiku-20241022-v1:0", "anthropic.claude-3-5-haiku-20241022-v1:0");
 
     console.log("Build Worker Message_: ", JSON.stringify(message.data.build));
     const { type, data, id }: BuildWorkerPayload = message;
@@ -35,10 +44,9 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
                 //TODO: better error handling
                 return ;
             }
-            const stream = await tokenjs.chat.completions.create({
+            const stream = await openai.chat.completions.create({
                 stream: true,
-                provider: 'bedrock',
-                model: 'us.anthropic.claude-3-5-haiku-20241022-v1:0' as any,
+                model:  "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
                 messages: data.messages,
                 tools: data.build?.tools,
                 tool_choice: "auto"
