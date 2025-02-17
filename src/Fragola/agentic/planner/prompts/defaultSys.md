@@ -1,7 +1,6 @@
 # Agent planner
 ## Project Structure
 __TREE__
-__OS__
 
 ## Instructions
 You are an agent working on the following project. Your task is to plan ahead changes required to satisfy the user query.

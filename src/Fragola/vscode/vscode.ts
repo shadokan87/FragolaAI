@@ -19,11 +19,12 @@ import { Tree } from "./tree";
 import { handleBuildRequest } from "../../handlers/buildRequest";
 import { grepCodebase } from "../agentic/tools/navigation/grepCodebase";
 import { readFileById } from "../agentic/tools/navigation/readFileById";
+import { ChatCompletionSystemMessageParam } from "openai/resources";
 
 type StateScope = "global" | "workspace";
 
 export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewViewProvider {
-    private extensionContext: vscode.ExtensionContext;
+    public extensionContext: vscode.ExtensionContext;
     private isChatViewVisible = false;
     private state$: BehaviorSubject<ExtensionState>;
     private tree: Tree;
@@ -49,7 +50,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                     const split = match.split(":").filter(chunk => chunk.trim() != "");
                     if (split.length == 2) {
                         const id = this.tree.getIdFromPath(split[0]) || split[0];
-                        console.log("content test", readFileById({id}, this.tree.idToPath));
+                        console.log("content test", readFileById({ id }, this.tree.idToPath));
                         processedResult.push(`${id}:${split[1]}`);
                     }
                 });
@@ -388,13 +389,33 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                         console.error("conversationId undefined");
                         return;
                     }
-                    const messages = this.state$.getValue().workspace.messages.map(message => {
+
+                    const getSysPrompt = (): MessageType => {
+                        let sysPromptRaw = (() => {
+                            switch (this.state$.getValue().workspace.ui.interactionMode) {
+                                case InteractionMode.BUILD: {
+                                    if (true) // If in planning mode
+                                        return this.prompts["planner"]
+                                    else return this.prompts["build"];
+                                }
+                                default: {
+                                    console.error("Unhandled system prompt");
+                                    return `ERROR`
+                                    break;
+                                }
+                            }
+                        })().replace("__TREE__", this.tree.resultString);
+                        return { role: "system", content: sysPromptRaw };
+                    };
+
+                    const messages: MessageType[] = [getSysPrompt(),...this.state$.getValue().workspace.messages.map(message => {
                         const { meta, ...rest } = message;
                         return rest;
+                    })]
 
-                    });
+                    console.log("__SYS__", messages);
                     const handler = this.state$.getValue().workspace.ui.interactionMode == InteractionMode.BUILD ? handleBuildRequest : handleChatRequest;
-                    handler(this.extensionContext, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages }, id: conversationId }, () => {
+                    handler(this, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages }, id: conversationId }, () => {
                         // Stream completed with sucess
                         // We're saving in file system only after streaming
                         this.updateExtensionState((prev) => {

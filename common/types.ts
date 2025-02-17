@@ -1,8 +1,9 @@
 import type OpenAI from "openai";
 import { FragolaClient } from "../src/Fragola/Fragola";
 import { basePayload, inTypeUnion, outTypeUnion } from "../src/workers/types";
-import { CompletionResponseChunk, ChatCompletionMessageParam } from "@shadokan87/token.js";
+import { CompletionResponseChunk, ChatCompletionMessageParam, ChatCompletionTool } from "@shadokan87/token.js";
 import { TreeResult, TreeService } from "../src/services/treeService";
+import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions";
 
 export const NONE_SENTINEL = "<NONE>";
 
@@ -47,6 +48,8 @@ export type PartialPrompt = (string | PartialMention)[];
 export type MessageExtendedType = MessageType & { meta?: userMessageMetaData };
 
 export type MessageType = ChatCompletionMessageParam;
+
+export type ToolType =  OpenAI.Chat.Completions.ChatCompletionTool;
 
 export type Tree = Awaited<ReturnType<TreeService['list']>>
 

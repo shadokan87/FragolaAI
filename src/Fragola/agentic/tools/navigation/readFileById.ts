@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { IdToPath } from "../../../vscode/tree";
 import { TextFileSync } from "lowdb/node";
+import { ToolType } from "@types";
+
+export const readFileByIdToolInfo: Pick<ToolType["function"], "name" | "description"> = {
+    name: "readFileById",
+    description: "Use this tool to get the content of a file in the project"
+}
 
 export const readFileByIdSchema = z.object({
     id: z.string().describe("The id of the file to inspect. returns the content of the file")

@@ -5,12 +5,18 @@ import { join } from "path";
 import { exec, ExecException, execSync } from "child_process";
 import { stdin, stdout } from "process";
 import { ToolUnexpectedError } from "../../../exceptions/ToolUnexpectedError";
+import { ToolType } from "@types";
+
+export const grepCodeBaseToolInfo: Pick<ToolType["function"], "name" | "description"> = {
+    name: "grepCodeBase",
+    description: 'A tool for searching the entire codebase for specific content. Use this when you need to find occurrences of a particular string, function name, or pattern across multiple files. It returns an array of items formatted as "<file_id>:<match_count>", allowing you to locate and quantify matches throughout the project.'
+}
 
 export const grepCodeBaseSchema = z.object({
     content: z.string().describe("The text or pattern to search for in the codebase"),
     includeFile: z.string().describe("Optional glob pattern to include specific file types in the search").optional(),
     excludeFile: z.string().describe("Optional glob pattern to exclude specific file types from the search").optional()
-}).describe('A tool for searching the entire codebase for specific content. Use this when you need to find occurrences of a particular string, function name, or pattern across multiple files. It returns an array of items formatted as "<file_id>:<match_count>", allowing you to locate and quantify matches throughout the project.');
+});
 
 export function grepCodebaseInternal(projectRoot: string, params: z.infer<typeof grepCodeBaseSchema>): string | ExecException {
     // const { rgPath } = require("@vscode/ripgrep");
