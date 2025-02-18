@@ -7,7 +7,7 @@ import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completion
 
 export const NONE_SENTINEL = "<NONE>";
 
-export type chunkType = CompletionResponseChunk;
+export type chunkType = OpenAI.Chat.Completions.ChatCompletionChunk
 
 export enum InteractionMode {
     CHAT = "CHAT",
@@ -47,7 +47,7 @@ export type PartialPrompt = (string | PartialMention)[];
 
 export type MessageExtendedType = MessageType & { meta?: userMessageMetaData };
 
-export type MessageType = ChatCompletionMessageParam;
+export type MessageType = OpenAI.Chat.ChatCompletionMessageParam;
 
 export type ToolType =  OpenAI.Chat.Completions.ChatCompletionTool;
 

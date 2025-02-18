@@ -2,6 +2,8 @@ import { parentPort, workerData } from 'worker_threads';
 import { basePayload, END_SENTINEL, outTypeUnion } from '../types.ts';
 import { chunkType, ExtensionState, MessageType, Prompt } from "@types";
 import { receiveStreamChunk } from "@utils";
+import { createHeaders, PORTKEY_GATEWAY_URL } from 'portkey-ai';
+import OpenAI from 'openai';
 
 export type ChatWorkerPayload = {
     data: {
@@ -17,11 +19,13 @@ if (!parentPort) {
 }
 
 parentPort.on('message', async (message: ChatWorkerPayload) => {
-    console.log("#br3");
-    const TokenJS = (await import("@shadokan87/token.js")).TokenJS;
-    const tokenjs = new TokenJS().extendModelList("bedrock", 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', "anthropic.claude-3-sonnet-20240229-v1:0")
-        .extendModelList("bedrock", "us.anthropic.claude-3-5-haiku-20241022-v1:0", "anthropic.claude-3-5-haiku-20241022-v1:0");
-
+    const openai = new OpenAI({
+      apiKey: 'xxx',
+      baseURL: PORTKEY_GATEWAY_URL,
+      defaultHeaders: createHeaders({
+        virtualKey: process.env["BEDROCK_DEV"],
+        apiKey: process.env["PORTKEY_API_KEY"]})
+    });
     console.log("Worker received:", message);
     const { type, data, id }: ChatWorkerPayload = message;
     switch (type) {
@@ -35,10 +39,8 @@ parentPort.on('message', async (message: ChatWorkerPayload) => {
                 //TODO: better error handling
                 return ;
             }
-            console.log("Llm messages: ", data.messages);
-            const stream = await tokenjs.chat.completions.create({
+            const stream = await openai.chat.completions.create({
                 stream: true,
-                provider: 'bedrock',
                 model: 'us.anthropic.claude-3-5-haiku-20241022-v1:0' as any,
                 messages: data.messages
             });

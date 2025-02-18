@@ -20,7 +20,6 @@ if (!parentPort) {
 }
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
-    const TokenJS = (await import("@shadokan87/token.js")).TokenJS;
     const openai = new OpenAI({
       apiKey: 'xxx',
       baseURL: PORTKEY_GATEWAY_URL,
@@ -28,8 +27,6 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
         virtualKey: process.env["BEDROCK_DEV"],
         apiKey: process.env["PORTKEY_API_KEY"]})
     });
-    // const tokenjs = new TokenJS().extendModelList("bedrock", 'us.anthropic.claude-3-5-sonnet-20241022-v2:0', "anthropic.claude-3-sonnet-20240229-v1:0")
-    //     .extendModelList("bedrock", "us.anthropic.claude-3-5-haiku-20241022-v1:0", "anthropic.claude-3-5-haiku-20241022-v1:0");
 
     console.log("Build Worker Message_: ", JSON.stringify(message.data.build));
     const { type, data, id }: BuildWorkerPayload = message;

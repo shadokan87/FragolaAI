@@ -47,7 +47,7 @@ export function handleBuildRequest(
     worker.postMessage(buildSpecificPayload);
 
     worker.on('message', (result: basePayload<"chunk" | typeof END_SENTINEL> & { data: chunkType }) => {
-        console.log("___RES", result);
+        // console.log("___RES", result);
         if (result.type === END_SENTINEL) {
             console.log("__END_SENTINEL_HERE__");
             onSuccess();

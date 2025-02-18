@@ -1,6 +1,8 @@
+import { ChatCompletionMessageToolCall } from "openai/resources";
 import { chunkType, ExtensionState, InteractionMode, MessageType } from "./types";
 import { NONE_SENTINEL } from "./types";
 import { BehaviorSubject } from "rxjs";
+import _ from "lodash";
 
 export const receiveStreamChunk = (message: Partial<chunkType>, chunk: chunkType) => {
     let updatedMessage = structuredClone(message);
@@ -18,10 +20,44 @@ export const receiveStreamChunk = (message: Partial<chunkType>, chunk: chunkType
 
 export const streamChunkToMessage = (chunk: chunkType, message: Partial<MessageType> = {} as Partial<MessageType>) => {
     let updatedMessage = structuredClone(message);
-    if (chunk.choices[0].delta.role) {
+
+    // Handle role if present in delta
+    if (chunk.choices[0].delta?.role) {
         updatedMessage.role = chunk.choices[0].delta.role;
     }
-    updatedMessage.content = (message.content || '') + (chunk.choices[0].delta.content || '');
+
+    // Handle content if present in delta
+    if (chunk.choices[0].delta?.content) {
+        updatedMessage.content = (message.content || '') + chunk.choices[0].delta.content;
+    }
+
+    // Handle tool_calls if present in delta
+    if (chunk.choices[0].delta?.tool_calls && updatedMessage.role === "assistant") {
+        if (!updatedMessage.tool_calls)
+            updatedMessage.tool_calls = [];
+        const toolCall = chunk.choices[0].delta.tool_calls.at(-1);
+        if (toolCall) {
+            if (toolCall.id) {
+                updatedMessage.tool_calls.push({
+                    id: toolCall.id,
+                    type: "function",
+                    function: {
+                        name: toolCall.function?.name || "",
+                        arguments: toolCall.function?.arguments || ""
+                    },
+                })
+            } else {
+                let lastToolCallRef = updatedMessage.tool_calls.at(-1);
+                if (lastToolCallRef && lastToolCallRef.function && toolCall.function?.arguments) {
+                    lastToolCallRef.function = {
+                        ...lastToolCallRef.function,
+                        arguments: lastToolCallRef.function.arguments + toolCall.function.arguments
+                    }
+                }
+            }
+        }
+    }
+
     return updatedMessage;
 }
 
