@@ -19,10 +19,8 @@
     import {
         NONE_SENTINEL,
         type ExtensionState,
-        type chunkType,
     } from "../../../common";
 
-    let chunks: chunkType[] = $state.raw([]);
     type inCommingPayload = basePayload<inTypeUnion>;
 
     $effect(() => {
@@ -52,6 +50,7 @@
                     return "NONE";
             }
         })();
+        console.log(`__UPDATE_KIND__`, updateKind);
 
         if (updateKind == "NONE") return;
         if (updateKind == "STREAM") {
@@ -87,7 +86,6 @@
                 i++;
             }
         }
-        console.log(`__UPDATE_KIND__`, updateKind);
     });
 
     onMount(() => {
@@ -108,7 +106,7 @@
                         const payload = event.data as inCommingPayload & {
                             data: ExtensionState;
                         };
-                        console.log("__STATE__", payload);
+                        console.log("Svelte state: ", payload);
                         extensionState.set(payload.data);
                         break;
                     }

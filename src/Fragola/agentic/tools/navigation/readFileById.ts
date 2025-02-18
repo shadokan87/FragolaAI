@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { IdToPath } from "../../../vscode/tree";
 import { TextFileSync } from "lowdb/node";
-import { ToolType } from "@types";
+import { ToolInfo, ToolType } from "@types";
 
-export const readFileByIdToolInfo: Pick<ToolType["function"], "name" | "description"> = {
+export const readFileByIdToolInfo: ToolInfo = {
     name: "readFileById",
     description: "Use this tool to get the content of a file in the project"
 }

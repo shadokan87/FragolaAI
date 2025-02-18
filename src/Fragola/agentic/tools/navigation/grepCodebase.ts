@@ -5,9 +5,9 @@ import { join } from "path";
 import { exec, ExecException, execSync } from "child_process";
 import { stdin, stdout } from "process";
 import { ToolUnexpectedError } from "../../../exceptions/ToolUnexpectedError";
-import { ToolType } from "@types";
+import { ToolInfo, ToolType } from "@types";
 
-export const grepCodeBaseToolInfo: Pick<ToolType["function"], "name" | "description"> = {
+export const grepCodeBaseToolInfo: ToolInfo = {
     name: "grepCodeBase",
     description: 'A tool for searching the entire codebase for specific content. Use this when you need to find occurrences of a particular string, function name, or pattern across multiple files. It returns an array of items formatted as "<file_id>:<match_count>", allowing you to locate and quantify matches throughout the project.'
 }

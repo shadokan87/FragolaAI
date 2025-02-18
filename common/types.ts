@@ -49,7 +49,11 @@ export type MessageExtendedType = MessageType & { meta?: userMessageMetaData };
 
 export type MessageType = OpenAI.Chat.ChatCompletionMessageParam;
 
+export type ToolMessageType = OpenAI.Chat.Completions.ChatCompletionToolMessageParam;
+
 export type ToolType =  OpenAI.Chat.Completions.ChatCompletionTool;
+
+export type ToolInfo = Pick<Required<ToolType["function"]>, "name" | "description">;
 
 export type Tree = Awaited<ReturnType<TreeService['list']>>
 
@@ -64,12 +68,10 @@ export interface ExtensionState {
         messages: MessageExtendedType[],
         streamState: "NONE" | "AWAITING" | "STREAMING",
         tree?: TreeResult
-        // tree: Awaited<ReturnType<>>
-        // updateEvent?: "MESSAGE_CREATE" | "MESSAGE_PUSH" | "MESSAGE_LAST_UPDATE" | "MESSAGE_POP"
     }, global: {
 
     }
-}
+};
 
 export type ConversationId = ExtensionState["workspace"]["ui"]["conversationId"];
 

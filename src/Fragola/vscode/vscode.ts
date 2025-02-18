@@ -27,7 +27,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
     public extensionContext: vscode.ExtensionContext;
     private isChatViewVisible = false;
     private state$: BehaviorSubject<ExtensionState>;
-    private tree: Tree;
+    public tree: Tree;
     private prompts: Record<string, string> = {}
     // private treeService: TreeService;
     constructor(extensionContext: vscode.ExtensionContext) {
@@ -42,24 +42,24 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
             console.error("Workspace init error");
             return;
         }
-        try {
-            const result = grepCodebase(this.tree.getCwd()!, { content: "InteractionMode" }, (stdout) => {
-                const matchSplit = stdout.split("\n");
-                let processedResult: string[] = [];
-                matchSplit.forEach((match) => {
-                    const split = match.split(":").filter(chunk => chunk.trim() != "");
-                    if (split.length == 2) {
-                        const id = this.tree.getIdFromPath(split[0]) || split[0];
-                        console.log("content test", readFileById({ id }, this.tree.idToPath));
-                        processedResult.push(`${id}:${split[1]}`);
-                    }
-                });
-                return processedResult.join("\n");
-            });
-            console.log("Grep result: ", result);
-        } catch (e) {
-            console.error("__TOOL_ERROR__", e);
-        }
+        // try {
+        //     const result = grepCodebase(this.tree.getCwd()!, { content: "InteractionMode" }, (stdout) => {
+        //         const matchSplit = stdout.split("\n");
+        //         let processedResult: string[] = [];
+        //         matchSplit.forEach((match) => {
+        //             const split = match.split(":").filter(chunk => chunk.trim() != "");
+        //             if (split.length == 2) {
+        //                 const id = this.tree.getIdFromPath(split[0]) || split[0];
+        //                 console.log("content test", readFileById({ id }, this.tree.idToPath));
+        //                 processedResult.push(`${id}:${split[1]}`);
+        //             }
+        //         });
+        //         return processedResult.join("\n");
+        //     });
+        //     console.log("Grep result: ", result);
+        // } catch (e) {
+        //     console.error("__TOOL_ERROR__", e);
+        // }
     }
 
     private loadPrompt(key: string, path: string) {
@@ -249,23 +249,22 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
         this.state$.pipe(
             pairwise(),
         ).subscribe(([prev, newState]) => {
-            console.log("_STATE_", newState);
-            if (newState.workspace.streamState != "STREAMING") {
-                const [prevCopy, newCopy] = [copyStateWithoutRuntimeVariables(prev), copyStateWithoutRuntimeVariables(newState)];
-                if (!isEqual(prevCopy.global, newCopy.global)) {
-                    this.updateState("global", newCopy.global);
-                    console.log("__SAVED_STATE__", this.extensionContext.workspaceState.get("global"));
-                }
-
-                if (!isEqual(prevCopy.workspace, newCopy.workspace)) {
-                    this.updateState("workspace", newCopy.workspace, "workspace");
-                    console.log("__SAVED_STATE__", this.extensionContext.workspaceState.get("workspace"));
-                }
-            }
+            console.log("_SENDING_STATE_", newState);
             webviewView.webview.postMessage({
                 type: "stateUpdate",
                 data: newState
             });
+            if (newState.workspace.streamState != "STREAMING") {
+                const [prevCopy, newCopy] = [copyStateWithoutRuntimeVariables(prev), copyStateWithoutRuntimeVariables(newState)];
+                if (!isEqual(prevCopy.global, newCopy.global)) {
+                    this.updateState("global", newCopy.global);
+                }
+
+                if (!isEqual(prevCopy.workspace, newCopy.workspace)) {
+                    this.updateState("workspace", newCopy.workspace, "workspace");
+                }
+            }
+
         });
 
         // Color theme sync
@@ -408,13 +407,15 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                         return { role: "system", content: sysPromptRaw };
                     };
 
-                    const messages: MessageType[] = [getSysPrompt(),...this.state$.getValue().workspace.messages.map(message => {
+                    const messages: MessageType[] = [getSysPrompt(), ...this.state$.getValue().workspace.messages.map(message => {
                         const { meta, ...rest } = message;
                         return rest;
                     })]
 
-                    console.log("__SYS__", messages);
                     const handler = this.state$.getValue().workspace.ui.interactionMode == InteractionMode.BUILD ? handleBuildRequest : handleChatRequest;
+                    const prevMessages = [...this.state$.getValue().workspace.messages];
+                    let _newMessages: MessageType[] = [];
+
                     handler(this, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages }, id: conversationId }, () => {
                         // Stream completed with sucess
                         // We're saving in file system only after streaming
@@ -429,7 +430,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
 
                         const historyPayload: HistoryWorkerPayload = {
                             kind: "UPDATE",
-                            newMessages: [fullMessage as MessageType],
+                            newMessages: _newMessages,
                             id: conversationId,
                             extensionFsPath: this.extensionContext.extensionUri.fsPath
                         };
@@ -439,32 +440,18 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
 
                         })
                     },
-                        (chunk) => {
+                        (newMessages) => {
+                            _newMessages = newMessages;
                             // Currently Streaming
-                            fullMessage = streamChunkToMessage(chunk, fullMessage);
-                            if (!streamStateSet) {
-                                this.updateExtensionState((prev) => {
-                                    return {
-                                        ...prev, workspace: {
-                                            ...prev.workspace,
-                                            streamState: "STREAMING",
-                                            messages: [...prev.workspace.messages, fullMessage as MessageType]
-                                        }
+                            this.updateExtensionState((prev) => {
+                                return {
+                                    ...prev, workspace: {
+                                        ...prev.workspace,
+                                        messages: [...prevMessages, ...newMessages],
+                                        streamState: "STREAMING"
                                     }
-                                });
-                                streamStateSet = true;
-                            }
-                            else {
-                                this.updateExtensionState((prev) => {
-                                    return {
-                                        ...prev, workspace: {
-                                            ...prev.workspace,
-                                            messages: [...prev.workspace.messages.slice(0, -1), fullMessage as MessageType]
-                                        }
-                                    }
-                                });
-
-                            }
+                                }
+                            });
                         }, (error) => {
                             // Error during stream
                             this.updateExtensionState((prev) => {
