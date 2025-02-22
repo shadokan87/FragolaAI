@@ -30,7 +30,7 @@ export default async function recursiveAgent(openai: OpenAI,
     onFinish: (toolCalls?: ToolType[]) => void
 ) {
     iter++;
-    if (iter == 5) {
+    if (iter == 20) {
         console.error("__TOOL_MAX_ITER__");
         return onFinish();
     }

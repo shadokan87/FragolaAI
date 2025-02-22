@@ -7,6 +7,7 @@ import recursiveAgent, { OnStreamCallback, OnToolCallMessageCallback, ToolMap } 
 import { streamChunkToMessage } from '@utils';
 import { grepCodeBaseToolInfo, grepCodeBaseSchema, grepCodebase } from "../../Fragola/agentic/tools/navigation/grepCodebase.ts"
 import { readFileById, readFileByIdSchema, readFileByIdToolInfo } from "../../Fragola/agentic/tools/navigation/readFileById.ts";
+import {createSubTaskInfo, createSubTask, createSubTaskSchema} from "../../Fragola/agentic/tools/plan/createTask.ts";
 import { _getIdFromPath, IdToPath } from '../../Fragola/vscode/tree.ts';
 import z from 'zod';
 
@@ -30,7 +31,7 @@ if (!parentPort)
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
     const openai = new OpenAI({
-        apiKey: process.env["GOOGLE_ACCESS_TOKEN"],
+        apiKey: "ya29.a0AXeO80SyTU8ihygnUy-xNvA-T_c-sybBHeFh0Gt_DBi6J8BYWrmGcrbd_ec39Ipc9L-99h3dYGWmEDjdfItJGMURDFkWzMkTtZzRXYt7wxloLiJ0BeI_MHRn36C_0wGCe7ogwGO3jC2mi_cXj6SFcXolrSF5VdJePKcst9q7JijXDRkaCgYKATYSAQ8SFQHGX2Mi0zttU2FQ4HD6RAwbkvGhyg0182",
         baseURL: PORTKEY_GATEWAY_URL,
         defaultHeaders: createHeaders({
             virtualKey: process.env["GOOGLE_VIRUTAL_KEY"],
@@ -53,7 +54,6 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
                         const split = match.split(":").filter(chunk => chunk.trim() != "");
                         if (split.length == 2) {
                             const id = _getIdFromPath(runtimeSerialized.idToPath, split[0]);
-                            // const id = fragola.tree.getIdFromPath(split[0]) || split[0];
                             processedResult.push(`${id}:${split[1]}`);
                         }
                     });
@@ -67,6 +67,14 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
             fn: async (parameters) => {
                 const parametersInfered = parameters as z.infer<typeof readFileByIdSchema>;
                 return readFileById(parametersInfered, runtimeSerialized.idToPath);
+            }
+        }],
+        [createSubTaskInfo.name, {
+            description: createSubTaskInfo.description,
+            schema: createSubTaskSchema,
+            fn: async (parameters) => {
+                const parametersInfered = parameters as z.infer<typeof createSubTaskSchema>;
+                return createSubTask(parametersInfered);
             }
         }]
     ])

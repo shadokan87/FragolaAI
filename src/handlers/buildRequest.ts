@@ -12,6 +12,7 @@ import zodToJsonSchema from 'zod-to-json-schema';
 import { readFileById, readFileByIdSchema, readFileByIdToolInfo } from '../Fragola/agentic/tools/navigation/readFileById.ts';
 import { z } from 'zod';
 import { ToolMap } from '../Fragola/agentic/recursiveAgent.ts';
+import { createSubTaskInfo, createSubTaskSchema } from '../Fragola/agentic/tools/plan/createTask.ts';
 
 export function handleBuildRequest(
     fragola: FragolaVscode,
@@ -23,7 +24,7 @@ export function handleBuildRequest(
 ): void {
     if (!fragola.tree.getCwd()) {
         //TODO: handle error
-        return ;
+        return;
     }
     const utils = createUtils(webview, fragola.extensionContext.extensionUri);
     const chatWorkerPath = utils.join('dist', 'workers', 'build', 'build.worker.js');
@@ -44,7 +45,15 @@ export function handleBuildRequest(
                         ...readFileByIdToolInfo,
                         parameters: zodToJsonSchema(readFileByIdSchema)
                     }
-                }]
+                },
+                {
+                    type: "function",
+                    function: {
+                        ...createSubTaskInfo,
+                        parameters: zodToJsonSchema(createSubTaskSchema)
+                    }
+                }
+                ]
             }
         }
     };
