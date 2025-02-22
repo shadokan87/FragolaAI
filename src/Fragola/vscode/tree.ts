@@ -3,8 +3,18 @@ import { FragolaVscodeBase } from "./types";
 
 export type IdToPath = Map<TreeResult["custom"]["id"], string>;
 
+// Function can be needed in workers since they are using serialized runtime variables
+export function _getIdFromPath(map: IdToPath, path: string) {
+    for (const [id, storedPath] of map) {
+        if (storedPath === path) {
+            return id;
+        }
+    }
+    return null;
+}
+
 export class Tree extends FragolaVscodeBase {
-    constructor(private cwd: string | undefined, protected result: TreeResult | undefined = undefined, public idToPath: IdToPath  = new Map(), public resultString = "") {
+    constructor(private cwd: string | undefined, protected result: TreeResult | undefined = undefined, public idToPath: IdToPath = new Map(), public resultString = "") {
         super();
         this.initialize(cwd);
     }
@@ -18,18 +28,13 @@ export class Tree extends FragolaVscodeBase {
     }
 
     getIdFromPath(path: string): TreeResult["custom"]["id"] | null {
-        for (const [id, storedPath] of this.idToPath) {
-            if (storedPath === path) {
-                return id;
-            }
-        }
-        return null;
+        return _getIdFromPath(this.idToPath, path);
     }
 
     private async initialize(cwd: string | undefined) {
         if (!cwd) {
             //TODO: handle error
-            return ;
+            return;
         }
         this.result = await new TreeService(cwd, cwd, (id, path) => {
             this.idToPath.set(id, path);

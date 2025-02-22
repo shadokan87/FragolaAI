@@ -11,6 +11,7 @@ import { grepCodeBaseSchema, grepCodeBaseToolInfo, grepCodebase } from '../Frago
 import zodToJsonSchema from 'zod-to-json-schema';
 import { readFileById, readFileByIdSchema, readFileByIdToolInfo } from '../Fragola/agentic/tools/navigation/readFileById.ts';
 import { z } from 'zod';
+import { ToolMap } from '../Fragola/agentic/recursiveAgent.ts';
 
 export function handleBuildRequest(
     fragola: FragolaVscode,
@@ -20,6 +21,10 @@ export function handleBuildRequest(
     onChunk: (newMessages: MessageType[]) => void,
     onError: (error: Error) => void,
 ): void {
+    if (!fragola.tree.getCwd()) {
+        //TODO: handle error
+        return ;
+    }
     const utils = createUtils(webview, fragola.extensionContext.extensionUri);
     const chatWorkerPath = utils.join('dist', 'workers', 'build', 'build.worker.js');
     const buildSpecificPayload: BuildWorkerPayload = {
@@ -39,39 +44,11 @@ export function handleBuildRequest(
                         ...readFileByIdToolInfo,
                         parameters: zodToJsonSchema(readFileByIdSchema)
                     }
-                }],
-                toolMap: new Map([
-                    [grepCodeBaseToolInfo.name, {
-                        description: grepCodeBaseToolInfo.description,
-                        schema: grepCodeBaseSchema,
-                        fn: async (parameters) => {
-                            const parametersInfered = parameters as z.infer<typeof grepCodeBaseSchema>;
-                            return grepCodebase(fragola.tree.getCwd()!, parametersInfered, (stdout) => {
-                                const matchSplit = stdout.split("\n");
-                                let processedResult: string[] = [];
-                                matchSplit.forEach((match) => {
-                                    const split = match.split(":").filter(chunk => chunk.trim() != "");
-                                    if (split.length == 2) {
-                                        const id = fragola.tree.getIdFromPath(split[0]) || split[0];
-                                        processedResult.push(`${id}:${split[1]}`);
-                                    }
-                                });
-                                return processedResult.join("\n");
-                            });
-                        }
-                    }],
-                    [readFileByIdToolInfo.name, {
-                        description: readFileByIdToolInfo.description,
-                        schema: readFileByIdSchema,
-                        fn: async (parameters) => {
-                            const parametersInfered = parameters as z.infer<typeof readFileByIdSchema>;
-                            return readFileById(parametersInfered, fragola.tree.idToPath);
-                        }
-                    }]
-                ])
+                }]
             }
         }
-    }
+    };
+
     console.log("__BUILD_PAYLOAD__", buildSpecificPayload);
     const worker = new Worker(chatWorkerPath.fsPath);
     worker.postMessage(buildSpecificPayload);

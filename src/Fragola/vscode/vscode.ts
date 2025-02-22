@@ -20,6 +20,7 @@ import { handleBuildRequest } from "../../handlers/buildRequest";
 import { grepCodebase } from "../agentic/tools/navigation/grepCodebase";
 import { readFileById } from "../agentic/tools/navigation/readFileById";
 import { ChatCompletionSystemMessageParam } from "openai/resources";
+import { BuildWorkerPayload } from "../../workers/build/build.worker";
 
 type StateScope = "global" | "workspace";
 
@@ -415,8 +416,11 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                     const handler = this.state$.getValue().workspace.ui.interactionMode == InteractionMode.BUILD ? handleBuildRequest : handleChatRequest;
                     const prevMessages = [...this.state$.getValue().workspace.messages];
                     let _newMessages: MessageType[] = [];
-
-                    handler(this, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages }, id: conversationId }, () => {
+                    const runtimeSerialized: BuildWorkerPayload["data"]["runtimeSerialized"] = {
+                        projectRoot: this.tree.getCwd()!, //TODO: remove '!'
+                        idToPath: this.tree.idToPath
+                    }
+                    handler(this, webviewView.webview, { ...userMessagePayload, data: { ...userMessagePayload.data, messages, runtimeSerialized }, id: conversationId }, () => {
                         // Stream completed with sucess
                         // We're saving in file system only after streaming
                         this.updateExtensionState((prev) => {

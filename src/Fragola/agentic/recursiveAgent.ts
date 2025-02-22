@@ -1,4 +1,4 @@
-import { MessageType, ToolMessageType } from "@types";
+import { MessageType, ToolMessageType, ToolType } from "@types";
 import OpenAI from "openai";
 import { ChatCompletionChunk } from "openai/resources";
 import { Stream } from "openai/streaming";
@@ -27,7 +27,7 @@ export default async function recursiveAgent(openai: OpenAI,
     toolMap: ToolMap,
     onStream: OnStreamCallback,
     onToolCallMessageCallback: OnToolCallMessageCallback,
-    onFinish: () => void
+    onFinish: (toolCalls?: ToolType[]) => void
 ) {
     iter++;
     if (iter == 5) {
@@ -38,29 +38,33 @@ export default async function recursiveAgent(openai: OpenAI,
     const newMessage = await onStream(stream);
     let newMessages: MessageType[] = [newMessage];
 
-    if (!(newMessage.role == "assistant" && newMessage.tool_calls && newMessage.tool_calls.length))
-        return onFinish();
-    newMessage.tool_calls.forEach(async toolCall => {
-        const tool = toolMap.get(toolCall.function.name);
-        let paramsParsed: z.SafeParseReturnType<any, any> | undefined = undefined;
-        if (!tool) {
-            //TODO handle error
-            console.error(`Tool with name ${toolCall.function.name} not found`)
-        } else {
-            if (tool.schema) {
-                paramsParsed = tool.schema?.safeParse(JSON.parse(toolCall.function.arguments));
-                if (!paramsParsed.success)
-                    throw new ToolUnexpectedError(`Zod parsing fail`, toolCall.function.name);
+    if (newMessage.role == "assistant" && newMessage.tool_calls && newMessage.tool_calls.length) {
+        await Promise.all(newMessage.tool_calls.map(async toolCall => {
+            const tool = toolMap.get(toolCall.function.name);
+            if (!tool) {
+                console.error(`Tool with name ${toolCall.function.name} not found`);
+                return;
             }
-            const content = await tool.fn(paramsParsed && paramsParsed.data);
+
+            let paramsParsed: z.SafeParseReturnType<any, any> | undefined;
+            if (tool.schema) {
+                paramsParsed = tool.schema.safeParse(JSON.parse(toolCall.function.arguments));
+                if (!paramsParsed.success) {
+                    throw new ToolUnexpectedError(`Zod parsing fail`, toolCall.function.name);
+                }
+            }
+
+            const content = await tool.fn(paramsParsed?.data);
             const message: ToolMessageType = {
                 role: "tool",
                 content,
                 tool_call_id: toolCall.id
-            }
+            };
+
             onToolCallMessageCallback(message);
-            newMessages = [...newMessages, message];
-        }
-    });
-    return await recursiveAgent(openai, name, [...messages, ...newMessages], body, toolMap, onStream, onToolCallMessageCallback, onFinish);
+            newMessages.push(message);
+        }));
+        return await recursiveAgent(openai, name, [...messages, ...newMessages], body, toolMap, onStream, onToolCallMessageCallback, onFinish);
+    }
+    return onFinish();
 }
