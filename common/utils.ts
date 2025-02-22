@@ -19,12 +19,14 @@ export const receiveStreamChunk = (message: Partial<chunkType>, chunk: chunkType
 }
 
 export const streamChunkToMessage = (chunk: chunkType, message: Partial<MessageType> = {} as Partial<MessageType>) => {
+    console.log("__CHUNK__", JSON.stringify(chunk.choices, null, 2));
     let updatedMessage = structuredClone(message);
 
     // Handle role if present in delta
     if (chunk.choices[0].delta?.role) {
         updatedMessage.role = chunk.choices[0].delta.role;
-    }
+    } else
+        updatedMessage.role = "assistant";
 
     // Handle content if present in delta
     if (chunk.choices[0].delta?.content) {

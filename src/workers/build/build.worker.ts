@@ -25,16 +25,15 @@ export type BuildWorkerPayload = {
     }
 } & basePayload<outTypeUnion>;
 
-if (!parentPort) {
+if (!parentPort)
     throw new Error('This file must be run as a worker');
-}
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
     const openai = new OpenAI({
-        apiKey: 'xxx',
+        apiKey: process.env["GOOGLE_ACCESS_TOKEN"],
         baseURL: PORTKEY_GATEWAY_URL,
         defaultHeaders: createHeaders({
-            virtualKey: process.env["BEDROCK_DEV"],
+            virtualKey: process.env["GOOGLE_VIRUTAL_KEY"],
             apiKey: process.env["PORTKEY_API_KEY"]
         })
     });
@@ -114,7 +113,8 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
             try {
                 await recursiveAgent(openai, "build", data.messages, {
                     stream: true,
-                    model: "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+                    model: "anthropic.claude-3-5-sonnet-v2@20241022",
+                    max_tokens: 5000,
                     tools: data.build?.tools,
                     tool_choice: "auto"
                 }, toolMap, onStream, onToolCallAnswered, onFinish);
