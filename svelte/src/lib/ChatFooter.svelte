@@ -30,24 +30,6 @@
         /^[a-zA-Z0-9]+$/.test(str) || exception.includes(str);
     const invalidatingCharacters: string[] = [" "]; // (Space key included)
 
-    const findNextIndex = (
-        str: string,
-        test: (str: string) => boolean,
-        reverse?: boolean,
-    ): number => {
-        let i = reverse ? str.length - 1 : 0;
-        if (reverse) {
-            for (; i >= 0; i--) {
-                if (test(str[i])) return i;
-            }
-        } else {
-            for (; i < str.length; i++) {
-                if (test(str[i])) return i;
-            }
-        }
-        return -1;
-    };
-
     function parseInputValue(_value: string): PartialPrompt {
         let result: PartialPrompt = [];
         let mentionIndex = -1;

@@ -21,6 +21,7 @@ import { grepCodebase } from "../agentic/tools/navigation/grepCodebase";
 import { readFileById } from "../agentic/tools/navigation/readFileById";
 import { ChatCompletionSystemMessageParam } from "openai/resources";
 import { BuildWorkerPayload } from "../../workers/build/build.worker";
+import { handlePlanRequest } from "../../handlers/planRequest";
 
 type StateScope = "global" | "workspace";
 
@@ -280,6 +281,21 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
 
         webviewView.webview.onDidReceiveMessage(async message => {
             switch (message.type as outTypeUnion) {
+                case "changeInteractionMode": {
+                    const payload = message as payloadTypes.ui.changeInteractionMode;
+                    this.updateExtensionState(prev => {
+                        return {
+                            ...prev,
+                            workspace: {
+                                ...prev.workspace,
+                                ui: {
+                                    ...prev.workspace.ui,
+                                    interactionMode: payload.parameters.mode
+                                }
+                            }
+                        }
+                    })
+                }
                 case "deleteConversation": {
                     const payload = message as payloadTypes.action.deleteConversation;
                     await fragola.chat.deleteConversation(payload.parameters);
@@ -394,9 +410,10 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                         let sysPromptRaw = (() => {
                             switch (this.state$.getValue().workspace.ui.interactionMode) {
                                 case InteractionMode.BUILD: {
-                                    if (true) // If in planning mode
-                                        return this.prompts["planner"]
-                                    else return this.prompts["build"];
+                                        return this.prompts["build"]
+                                }
+                                case InteractionMode.PLAN: {
+                                    return this.prompts["planner"]
                                 }
                                 default: {
                                     console.error("Unhandled system prompt");
@@ -413,7 +430,16 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                         return rest;
                     })]
 
-                    const handler = this.state$.getValue().workspace.ui.interactionMode == InteractionMode.BUILD ? handleBuildRequest : handleChatRequest;
+                    const handler = (() => {
+                        const interactonMode = this.state$.getValue().workspace.ui.interactionMode;
+                        if (interactonMode == InteractionMode.BUILD)
+                            return handleBuildRequest;
+                        else if (interactonMode == InteractionMode.PLAN)
+                            return handlePlanRequest;
+                        else
+                            return handleChatRequest;
+                    })();
+                    // const handler =  [InteractionMode.BUILD, InteractionMode.PLAN].includes(this.state$.getValue().workspace.ui.interactionMode) ? handleBuildRequest : handleChatRequest;
                     const prevMessages = [...this.state$.getValue().workspace.messages];
                     let _newMessages: MessageType[] = [];
                     const runtimeSerialized: BuildWorkerPayload["data"]["runtimeSerialized"] = {

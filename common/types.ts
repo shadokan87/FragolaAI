@@ -86,12 +86,16 @@ export type outPayload<T> = basePayload<outTypeUnion> & { parameters: T };
 
 export namespace payloadTypes {
     export namespace action {
-
         export type conversationClick = outPayload<{
             conversationId: ConversationId
         }>;
         export type deleteConversation = outPayload<{
             conversationId: ConversationId
+        }>;
+    }
+    export namespace ui {
+        export type changeInteractionMode = outPayload<{
+            mode: InteractionMode
         }>;
     }
 }

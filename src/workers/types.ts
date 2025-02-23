@@ -17,4 +17,5 @@ export type outTypeUnion = "chatRequest"
     | "alert"
     | "actionConversationClick"
     | "deleteConversation"
+    | "changeInteractionMode"
     ;

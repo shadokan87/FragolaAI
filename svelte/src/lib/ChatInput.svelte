@@ -18,6 +18,8 @@
     import ToolTip from "./ToolTip.svelte";
     import { defaultToolTipProps } from "../utils/constants";
     import type { KeyboardEventHandler } from "svelte/elements";
+    import { InteractionMode, type ExtensionState, type payloadTypes } from "../../../common";
+    import { codeStore as codeApi } from "../store/vscode";
 
     interface props {
         onKeydown: KeyboardEventHandler<HTMLInputElement>
@@ -29,6 +31,15 @@
         "chat-input-wrapper": true,
         "synthetic-focus": inputFocus,
     });
+    function handleChangeInteractionMode(mode: InteractionMode) {
+        const payload: payloadTypes.ui.changeInteractionMode = {
+            type: "changeInteractionMode",
+            parameters: {
+                mode
+            }
+        }
+        $codeApi?.postMessage(payload);
+    }
 </script>
 
 <div class={cn(chatInputWrapper)}>
@@ -60,6 +71,9 @@
                     dropdown={[{ text: "gpt4-o" }, { text: "claude 3.5" }]}
                 />
                 </ToolTip>
+                {#each [InteractionMode.CHAT, InteractionMode.BUILD, InteractionMode.PLAN] as interactionMode}
+                    <Button kind={"flex"} variant={"outline"} text={interactionMode} onclick={() => handleChangeInteractionMode(interactionMode)}/>
+                {/each}
             </Flex>
             <Flex row gap={"sp-2"}>
                 <ToolTip text={"Send prompt"}>
