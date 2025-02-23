@@ -11,7 +11,8 @@ export type chunkType = OpenAI.Chat.Completions.ChatCompletionChunk
 
 export enum InteractionMode {
     CHAT = "CHAT",
-    BUILD = "BUILD"
+    BUILD = "BUILD",
+    PLAN = "PLAN"
 }
 
 export enum MentionKind {

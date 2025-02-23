@@ -31,7 +31,7 @@ if (!parentPort)
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
     const openai = new OpenAI({
-        apiKey: "ya29.a0AXeO80SyTU8ihygnUy-xNvA-T_c-sybBHeFh0Gt_DBi6J8BYWrmGcrbd_ec39Ipc9L-99h3dYGWmEDjdfItJGMURDFkWzMkTtZzRXYt7wxloLiJ0BeI_MHRn36C_0wGCe7ogwGO3jC2mi_cXj6SFcXolrSF5VdJePKcst9q7JijXDRkaCgYKATYSAQ8SFQHGX2Mi0zttU2FQ4HD6RAwbkvGhyg0182",
+        apiKey: "ya29.a0AXeO80QiAtsKzEnj-FyGko097lGcyOJ3-GdAf_d3rMbn-IJfvwln07SwtMoDRpFJEoycPUdPm3GWhIUjRMMcJL5U4evZYrfJTQWUR--GluPp7sLQElNbcSWK_hu0mO_itDImaxogYVKikB9yQYNOc9_F15ZrQHt-lYHllMJUnQv2d2waCgYKAQISAQ8SFQHGX2MivmNl-TZhmp3AaZJfUYQ2Aw0182",
         baseURL: PORTKEY_GATEWAY_URL,
         defaultHeaders: createHeaders({
             virtualKey: process.env["GOOGLE_VIRUTAL_KEY"],

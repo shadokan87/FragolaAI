@@ -19,3 +19,7 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() { }
+
+function printMessage(message: string) {
+    console.log(message);
+}
