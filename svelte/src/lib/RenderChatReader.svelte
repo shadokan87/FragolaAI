@@ -25,7 +25,6 @@
             </div>
         {:else}
             <p>{extensionState.value.workspace.messages[i].content}</p>
-            <!-- <p>{renderer.messages[i].content}</p> -->
         {/if}
         {#if i < renderer.length - 1}
             <Divider />

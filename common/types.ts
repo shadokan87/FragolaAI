@@ -27,6 +27,7 @@ export interface llmMessageMetaData {
 export interface userMessageMetaData {
     prompt: Prompt,
     interactionMode: InteractionMode,
+    taskGroupIdValidation?: string,
     llm?: llmMessageMetaData
 }
 

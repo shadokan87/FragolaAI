@@ -49,6 +49,17 @@ export function createExtensionState() {
     get value() {
       return extensionState as ExtensionState
     },
+    lastMessageByRole(role: MessageType["role"], index?: number): MessageType | null {
+      const messages = extensionState?.workspace.messages;
+      if (!messages || !messages.length)
+        return null;
+      let i = index ? index : messages.length - 1;
+      for (; i >= 0; i--) {
+        if (messages[i].role == role)
+          return messages[i];
+      }
+      return null;
+    },
     set(newState: ExtensionState) {
       // Prepare empty cache for new conversation
       if (newState.workspace.ui.conversationId != NONE_SENTINEL && !LLMMessagesRendererCache.value.has(newState.workspace.ui.conversationId))
