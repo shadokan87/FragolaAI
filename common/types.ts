@@ -3,7 +3,7 @@ import { FragolaClient } from "../src/Fragola/Fragola";
 import { basePayload, inTypeUnion, outTypeUnion } from "../src/workers/types";
 import { CompletionResponseChunk, ChatCompletionMessageParam, ChatCompletionTool } from "@shadokan87/token.js";
 import { TreeResult, TreeService } from "../src/services/treeService";
-import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions";
+import { ChatCompletionCreateParamsBase, ChatCompletionMessageToolCall } from "openai/resources/chat/completions";
 
 export const NONE_SENTINEL = "<NONE>";
 
@@ -59,6 +59,8 @@ export type MessageType = OpenAI.Chat.ChatCompletionMessageParam;
 export type ToolMessageType = OpenAI.Chat.Completions.ChatCompletionToolMessageParam;
 
 export type ToolType =  OpenAI.Chat.Completions.ChatCompletionTool;
+
+export type ToolCallType = ChatCompletionMessageToolCall; 
 
 export type ToolInfo = Pick<Required<ToolType["function"]>, "name" | "description">;
 

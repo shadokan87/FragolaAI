@@ -1,5 +1,5 @@
 import { ChatCompletionMessageToolCall } from "openai/resources";
-import { chunkType, ExtensionState, InteractionMode, MessageType } from "./types";
+import { chunkType, ExtensionState, InteractionMode, MessageExtendedType, MessageType, ToolCallType, ToolMessageType, ToolType } from "./types";
 import { NONE_SENTINEL } from "./types";
 import { BehaviorSubject } from "rxjs";
 import _ from "lodash";
@@ -104,19 +104,16 @@ export class Mutex {
     }
 }
 
-// export function updateExtensionStateMiddleware(prev: ExtensionState, newValue: ExtensionState): ExtensionState {
-//     let _newValue = structuredClone(newValue);
-//     // if (prev.workspace.isConversationTmp && _newValue.workspace.messages.length)
-//     //     _newValue.workspace.isConversationTmp = false
-//     return _newValue;
-// }
-
-// export function createUpdateState<T>(middleware: (prev: T, newValue: T) => T): (state$: BehaviorSubject<T>, callback: (prev: T) => T) => void {
-//     return (state$, callback) => {
-//         const prevState = state$.getValue();
-//         const newState = callback(prevState);
-//         state$.next(middleware(prevState, newState));
-//     }
-// }
-
-// export const updateExtensionState = createUpdateState<ExtensionState>(updateExtensionStateMiddleware);
+export function findToolCallFromResponse(response: ToolMessageType, messages: MessageType[], index?: number): ToolCallType | null {
+    let i = index ? index : messages.length - 1;
+    for (; i >= 0; i--) {
+        const message = messages[i];
+        if (message.role == "assistant" && "tool_calls" in message) {
+            const tool_calls = message.tool_calls;
+            const found = tool_calls?.find(call => call.id == response.tool_call_id);
+            if (found)
+                return found;
+        }
+    }
+    return null;
+}

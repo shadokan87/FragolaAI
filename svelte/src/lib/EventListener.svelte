@@ -16,10 +16,7 @@
         type renderedByComponent,
         MessagesRolesToRenderWithMarkDown,
     } from "../store/chat.svelte";
-    import {
-        NONE_SENTINEL,
-        type ExtensionState,
-    } from "../../../common";
+    import { NONE_SENTINEL, type ExtensionState } from "../../../common";
 
     type inCommingPayload = basePayload<inTypeUnion>;
 
@@ -66,7 +63,7 @@
                 //TODO: handle error
                 console.error("Expected render by markdown");
             } else {
-                let msg = {...lastMessage};
+                let msg = { ...lastMessage };
                 console.log("_MSG", msg);
                 (renderer.at(-1) as renderer).render(msg);
             }
@@ -78,11 +75,15 @@
                 const message = extensionState.value.workspace.messages[i];
                 if (MessagesRolesToRenderWithMarkDown.includes(message.role)) {
                     renderer[i] = createChatMarkedRender(chatMarkedInstance);
-                    (renderer[i] as renderer).render(message);
+                    if (message.meta?.llm?.noRender == undefined)
+                        (renderer[i] as renderer).render(message);
                 } else {
                     renderer[i] = message.role as renderedByComponent;
                 }
-                LLMMessagesRendererCache.update(extensionState.value.workspace.ui.conversationId, renderer);
+                LLMMessagesRendererCache.update(
+                    extensionState.value.workspace.ui.conversationId,
+                    renderer,
+                );
                 i++;
             }
         }

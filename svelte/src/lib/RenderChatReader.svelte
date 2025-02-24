@@ -7,6 +7,10 @@
     } from "../store/chat.svelte";
     import Divider from "./Divider.svelte";
     import Dotloading from "./Dotloading.svelte";
+    import { InteractionMode, type MessageExtendedType } from "../../../common";
+    import Button from "./Button.svelte";
+    import { RiPlayCircleLine } from "svelte-remixicon";
+    import ToolRole from "./llmWidgets/toolRole.svelte";
 
     export interface props {
         renderer: RendererLike[] | undefined;
@@ -23,11 +27,27 @@
             <div>
                 {@html renderer.html}
             </div>
+        {:else if extensionState.value.workspace.messages[i].role == "tool"}
+            <ToolRole index={i}/>
         {:else}
             <p>{extensionState.value.workspace.messages[i].content}</p>
         {/if}
         {#if i < renderer.length - 1}
             <Divider />
+        {/if}
+        <!-- prettier-ignore -->
+        {#if extensionState.value.workspace.messages[i].role != "user"
+        && extensionState.value.workspace.streamState == "NONE"
+        && (extensionState.lastMessageByRole("user", i) as MessageExtendedType | null)?.meta?.interactionMode == InteractionMode.PLAN
+        && (i == renderer.length - 1 || !["tool", "assistant"].includes(extensionState.value.workspace.messages[i + 1].role))
+        }
+            <Button
+                text={"Generate plan"}
+                kind={"flex"}
+                variant="ghost"
+                icon={RiPlayCircleLine}
+                iconProps={{ size: "16" }}
+            />
         {/if}
     {/each}
     {#if extensionState.value.workspace.streamState == "STREAMING"}
