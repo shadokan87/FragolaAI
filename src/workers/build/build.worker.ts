@@ -8,6 +8,7 @@ import { streamChunkToMessage } from '@utils';
 import { grepCodeBaseToolInfo, grepCodeBaseSchema, grepCodebase } from "../../Fragola/agentic/tools/navigation/grepCodebase.ts"
 import { readFileById, readFileByIdSchema, readFileByIdToolInfo } from "../../Fragola/agentic/tools/navigation/readFileById.ts";
 import {createSubTaskInfo, createSubTask, createSubTaskSchema} from "../../Fragola/agentic/tools/plan/createTask.ts";
+import { shellToolInfo, shell, shellSchema } from "../../Fragola/agentic/tools/exec/shell.ts"; 
 import { _getIdFromPath, IdToPath } from '../../Fragola/vscode/tree.ts';
 import z from 'zod';
 
@@ -31,7 +32,7 @@ if (!parentPort)
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
     const openai = new OpenAI({
-        apiKey: "ya29.a0AXeO80QiAtsKzEnj-FyGko097lGcyOJ3-GdAf_d3rMbn-IJfvwln07SwtMoDRpFJEoycPUdPm3GWhIUjRMMcJL5U4evZYrfJTQWUR--GluPp7sLQElNbcSWK_hu0mO_itDImaxogYVKikB9yQYNOc9_F15ZrQHt-lYHllMJUnQv2d2waCgYKAQISAQ8SFQHGX2MivmNl-TZhmp3AaZJfUYQ2Aw0182",
+        apiKey: process.env["GOOGLE_ACCESS_TOKEN"],
         baseURL: PORTKEY_GATEWAY_URL,
         defaultHeaders: createHeaders({
             virtualKey: process.env["GOOGLE_VIRUTAL_KEY"],
@@ -68,13 +69,13 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
                 const parametersInfered = parameters as z.infer<typeof readFileByIdSchema>;
                 return readFileById(parametersInfered, runtimeSerialized.idToPath);
             }
-        }],
-        [createSubTaskInfo.name, {
-            description: createSubTaskInfo.description,
-            schema: createSubTaskSchema,
+        }]
+        ,
+        [shellToolInfo.name, {
+            description: shellToolInfo.description,
+            schema: shellSchema,
             fn: async (parameters) => {
-                const parametersInfered = parameters as z.infer<typeof createSubTaskSchema>;
-                return createSubTask(parametersInfered);
+                return shell(parameters);
             }
         }]
     ])

@@ -13,6 +13,7 @@ import { readFileById, readFileByIdSchema, readFileByIdToolInfo } from '../Frago
 import { z } from 'zod';
 import { ToolMap } from '../Fragola/agentic/recursiveAgent.ts';
 import { createSubTaskInfo, createSubTaskSchema } from '../Fragola/agentic/tools/plan/createTask.ts';
+import { shellSchema, shellToolInfo } from '../Fragola/agentic/tools/exec/shell.ts';
 
 export function handleBuildRequest(
     fragola: FragolaVscode,
@@ -49,8 +50,8 @@ export function handleBuildRequest(
                 {
                     type: "function",
                     function: {
-                        ...createSubTaskInfo,
-                        parameters: zodToJsonSchema(createSubTaskSchema)
+                        ...shellToolInfo,
+                        parameters: zodToJsonSchema(shellSchema)
                     }
                 }
                 ]

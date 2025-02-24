@@ -30,8 +30,9 @@ if (!parentPort)
     throw new Error('This file must be run as a worker');
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
+    console.log("GOOGLE_ACCESS_TOKEN", process.env["GOOGLE_ACCESS_TOKEN"])
     const openai = new OpenAI({
-        apiKey: "ya29.a0AXeO80QiAtsKzEnj-FyGko097lGcyOJ3-GdAf_d3rMbn-IJfvwln07SwtMoDRpFJEoycPUdPm3GWhIUjRMMcJL5U4evZYrfJTQWUR--GluPp7sLQElNbcSWK_hu0mO_itDImaxogYVKikB9yQYNOc9_F15ZrQHt-lYHllMJUnQv2d2waCgYKAQISAQ8SFQHGX2MivmNl-TZhmp3AaZJfUYQ2Aw0182",
+        apiKey: process.env["GOOGLE_ACCESS_TOKEN"],
         baseURL: PORTKEY_GATEWAY_URL,
         defaultHeaders: createHeaders({
             virtualKey: process.env["GOOGLE_VIRUTAL_KEY"],
@@ -79,7 +80,7 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
         }]
     ])
 
-    console.log("Build Worker Message_: ", JSON.stringify(message.data.build));
+    console.log("Plan Worker Message_: ", JSON.stringify(message.data.build));
     const { type, data, id }: BuildWorkerPayload = message;
     switch (type) {
         case 'chatRequest': {

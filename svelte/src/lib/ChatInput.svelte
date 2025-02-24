@@ -72,7 +72,7 @@
                 />
                 </ToolTip>
                 {#each [InteractionMode.CHAT, InteractionMode.BUILD, InteractionMode.PLAN] as interactionMode}
-                    <Button kind={"flex"} variant={"outline"} text={interactionMode} onclick={() => handleChangeInteractionMode(interactionMode)}/>
+                    <Button kind={"flex"} variant={"outline"} text={interactionMode == extensionState.value.workspace.ui.interactionMode ? `-> ${interactionMode}` : interactionMode} onclick={() => handleChangeInteractionMode(interactionMode)}/>
                 {/each}
             </Flex>
             <Flex row gap={"sp-2"}>

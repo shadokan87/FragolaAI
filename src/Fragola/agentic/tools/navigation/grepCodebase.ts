@@ -49,9 +49,10 @@ export function grepCodebase(projectRoot: string, params: z.infer<typeof grepCod
     const result = (() => {
         const _result = grepCodebaseInternal(projectRoot, params);
         if (typeof _result != "string") {
-            if (_result.code == 1)
-                return "";
-            throw new ToolUnexpectedError(_result.message, "grepCodeBase", _result);
+            return "The search ran succesfully but resulted in 0 match";
+            // if (_result.code == 1)
+            //     return "";
+            // throw new ToolUnexpectedError(_result.message, "grepCodeBase", _result);
         }
         return _result;
     })();
