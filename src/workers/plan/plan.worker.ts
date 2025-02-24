@@ -31,6 +31,7 @@ if (!parentPort)
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
     console.log("GOOGLE_ACCESS_TOKEN", process.env["GOOGLE_ACCESS_TOKEN"])
+    const { nanoid } = await import('nanoid');
     const openai = new OpenAI({
         apiKey: process.env["GOOGLE_ACCESS_TOKEN"],
         baseURL: PORTKEY_GATEWAY_URL,
@@ -41,6 +42,7 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
     });
 
     const { runtimeSerialized } = message.data;
+    const groupId = nanoid();
 
     const toolMap: ToolMap = new Map([
         [grepCodeBaseToolInfo.name, {
@@ -75,7 +77,8 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
             schema: createSubTaskSchema,
             fn: async (parameters) => {
                 const parametersInfered = parameters as z.infer<typeof createSubTaskSchema>;
-                return createSubTask(parametersInfered);
+                return `groupId=${groupId}:taskId=${nanoid()}`
+                // return createSubTask(parametersInfered);
             }
         }]
     ])

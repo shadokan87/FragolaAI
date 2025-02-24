@@ -12,7 +12,18 @@ export const createSubTaskSchema = z.object({
     description: z.string().describe("the description following the instructions guidlines")
 });
 
+// export const createSubTaskRuntimeSchema = z.object({
+//     operation: z.enum(["UPDATE", "CREATE", "DELETE", "SHELL"]),
+//     path: z.string().describe("id of file if exist or path for project file operations. The exact command for SHELL operations."),
+//     description: z.string().describe("the description following the instructions guidlines"),
+//     runtime: z.object({
+//         groupId: z.number(),
+//         taskId: z.number(),
+//         state: z.enum(["NONE", "GENERATING", "SUCCESS", "FAIL"])
+//     })
+// });
+
 export function createSubTask(params: z.infer<typeof createSubTaskSchema>) {
-    console.log("task: ", params);
-    return `Task added successfully: ${JSON.stringify(params, null, 2)}`;
+    // console.log("task: ", params);
+    // return `Task added successfull`;
 }
