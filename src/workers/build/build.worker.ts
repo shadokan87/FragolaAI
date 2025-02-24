@@ -31,6 +31,7 @@ if (!parentPort)
     throw new Error('This file must be run as a worker');
 
 parentPort.on('message', async (message: BuildWorkerPayload) => {
+    console.log("GOOGLE_ACCESS_TOKEN", process.env["GOOGLE_ACCESS_TOKEN"]);
     const openai = new OpenAI({
         apiKey: process.env["GOOGLE_ACCESS_TOKEN"],
         baseURL: PORTKEY_GATEWAY_URL,
