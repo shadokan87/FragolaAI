@@ -78,7 +78,6 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
             fn: async (parameters) => {
                 const parametersInfered = parameters as z.infer<typeof createSubTaskSchema>;
                 return `groupId=${groupId}:taskId=${nanoid()}`
-                // return createSubTask(parametersInfered);
             }
         }]
     ])

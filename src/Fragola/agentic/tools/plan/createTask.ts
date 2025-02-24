@@ -10,7 +10,7 @@ export const createSubTaskSchema = z.object({
     operation: z.enum(["UPDATE", "CREATE", "DELETE", "SHELL"]),
     path: z.string().describe("id of file if exist or path for project file operations. The exact command for SHELL operations."),
     description: z.string().describe("the description following the instructions guidlines")
-});
+}).describe("Returns the id of the task group and the individual task id like so: groupId=<id>:taskId=<id>");
 
 // export const createSubTaskRuntimeSchema = z.object({
 //     operation: z.enum(["UPDATE", "CREATE", "DELETE", "SHELL"]),
