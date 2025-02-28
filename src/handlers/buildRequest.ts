@@ -82,14 +82,32 @@ export function handleBuildRequest(
                     return;
                 }
                 let path: string | undefined = parameters.path;
-                if (parameters.actionType == "UPDATE" && !path.includes("/"))
-                    path = fragola.tree.idToPath.get(parameters.path)
-                if (!path) {
-                    // TODO: handle error
-                    console.error("Failed to retrieve path from id");
-                    return ;
-                }
-                let fsPath = join(fragola.tree.getCwd()!, path);
+                let fsPath = ((): string => {
+                    if (parameters.actionType == "CREATE") {
+                        return join(fragola.tree.getCwd()!, path)
+                    }
+                    if (path.includes("/")) {
+                        return join(fragola.tree.getCwd()!, path)
+                    } else {
+                        const fsPath = fragola.tree.idToPath.get(path);
+                        if (!fsPath) {
+                            //TODO: handle error
+                            throw new Error("fsPath undefined");
+                        }
+                        return fsPath;
+                    }
+                })();
+                // let fsPath = join(fragola.tree.getCwd()!, path);
+                // if (parameters.actionType == "UPDATE" && !path.includes("/")) {
+                //     path = fragola.tree.idToPath.get(parameters.path);
+                //     if (!path) {
+                //         // TODO: handle error
+                //         console.error("Failed to retrieve path from id");
+                //         return;
+                //     }
+                //     fsPath = path;
+                // } else
+                //     path = join(fragola.tree.getCwd()!, path);
                 let fileUri = vscode.Uri.file(fsPath);
                 console.log("__URI", fileUri);
                 console.log("__FS_PATH", fsPath);
