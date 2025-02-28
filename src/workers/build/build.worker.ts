@@ -8,9 +8,11 @@ import { streamChunkToMessage } from '@utils';
 import { grepCodeBaseToolInfo, grepCodeBaseSchema, grepCodebase } from "../../Fragola/agentic/tools/navigation/grepCodebase.ts"
 import { readFileById, readFileByIdSchema, readFileByIdToolInfo } from "../../Fragola/agentic/tools/navigation/readFileById.ts";
 import {createSubTaskInfo, createSubTask, createSubTaskSchema} from "../../Fragola/agentic/tools/plan/createTask.ts";
-import { shellToolInfo, shell, shellSchema } from "../../Fragola/agentic/tools/exec/shell.ts"; 
+import { shellToolInfo, shell, shellSchema } from "../../Fragola/agentic/tools/exec/shell.ts";
+import {codeGenToolInfo, codeGenSchema, codeGen} from "../../Fragola/agentic/tools/code/codeSnippet.ts";
 import { _getIdFromPath, IdToPath } from '../../Fragola/vscode/tree.ts';
 import z from 'zod';
+import { join } from 'path';
 
 export type BuildWorkerPayload = {
     data: {
@@ -72,11 +74,21 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
             }
         }]
         ,
-        [shellToolInfo.name, {
-            description: shellToolInfo.description,
-            schema: shellSchema,
+        [codeGenToolInfo.name, {
+            description: codeGenToolInfo.description,
+            schema: codeGenSchema,
             fn: async (parameters) => {
-                return shell(parameters);
+                const parametersInfered = parameters as z.infer<typeof codeGenSchema>;
+                if (parametersInfered.actionType == "CREATE" || parametersInfered.actionType == "UPDATE") {
+                    // const fileUri = vscode.Uri.file(join(runtimeSerialized.projectRoot, parameters));
+                    parentPort?.postMessage({
+                        type: "workspace-edit",
+                        data: parametersInfered
+                    })
+                    // workspaceEdit.createFile(fileUri, {overwrite: true, contents: new TextEncoder().encode(parametersInfered.sourceCode)});
+                    // await vscode.workspace.applyEdit(workspaceEdit);
+                }
+                return codeGen(parameters);
             }
         }]
     ])
@@ -124,7 +136,7 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
                 await recursiveAgent(openai, "build", data.messages, {
                     stream: true,
                     model: "anthropic.claude-3-5-sonnet-v2@20241022",
-                    max_tokens: 5000,
+                    max_tokens: 8192,
                     tools: data.build?.tools,
                     tool_choice: "auto"
                 }, toolMap, onStream, onToolCallAnswered, onFinish);

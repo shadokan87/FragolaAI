@@ -44,6 +44,8 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
             console.error("Workspace init error");
             return;
         }
+
+
         // try {
         //     const result = grepCodebase(this.tree.getCwd()!, { content: "InteractionMode" }, (stdout) => {
         //         const matchSplit = stdout.split("\n");
@@ -75,6 +77,12 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
     }
 
     private async initializeState() {
+        const workspaceEdit = new vscode.WorkspaceEdit();
+        // const fileUri = vscode.Uri.file(join(this.tree.getCwd()!, "src/testFolder/test"));
+        // const fileUri = vscode.Uri.file("src/testFolder/test");
+        // console.log("Test file uri: ", fileUri);
+        // workspaceEdit.createFile(fileUri, { overwrite: true, contents: new TextEncoder().encode("test file") });
+        // await vscode.workspace.applyEdit(workspaceEdit);
         try {
             ["build", "planner"].forEach(agent => {
                 this.loadPrompt(agent, join(this.extensionContext.extensionUri.fsPath, "src", "Fragola", "agentic", agent, "prompts", "defaultSys.md"))
@@ -410,7 +418,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                         let sysPromptRaw = (() => {
                             switch (this.state$.getValue().workspace.ui.interactionMode) {
                                 case InteractionMode.BUILD: {
-                                        return this.prompts["build"]
+                                    return this.prompts["build"]
                                 }
                                 case InteractionMode.PLAN: {
                                     return this.prompts["planner"]

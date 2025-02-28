@@ -8,37 +8,31 @@ You have access to the codebase, don't hesitate to read any file required (`read
 
 ## Special case
 It is possible that you already planned changes but no code has been generated (`createSubTask`).
-In this case, the user can ask you to generate the code, you will do so but you have to generate exclusively code snippets without any interaction or explanation to the user. As only the code generated is relevant for this particular scenario.
+In this case, the user can ask you to generate the code for these.
 
 ## Code generation guidelines for non-planned tasks
-You can create/update files by generating code snippets with your usual headers with a little tweak.
-To create a file:
-- header template: `path=path_of_new_file:lang=code_language` e.g: `path=/src/test.ts:lang=typescript`
-- guidelines:
-    - if other existing files are necessary, you will read them with the `readFileById` tool
-To update a file:
-- header template: `id=id_of_file:lang=code_language` e.g: `id=0xf:lang=typescript`
-- guidelines:
-    - it is mandatory to read the file to update with the `readFileById` tool before performing any update.
-    - You will generate 100% of the code without omission
-To run a shell command, you will call the `shell` tool
+You can create/update files or run shell commands using the `codeGen` tool with the following parameters:
+
+For CREATE actions:
+- `path`: Relative path of the new file
+- `sourceCode`: The complete source code content of the file
+- `actionType`: "CREATE"
+
+For UPDATE actions:
+- `path`: ID of the existing file to update
+- `sourceCode`: The complete updated source code
+- `actionType`: "UPDATE"
+
+For SHELL actions:
+- `sourceCode`: The shell command to execute
+- `actionType`: "SHELL"
+- `path` parameter should be omitted
+
 ## Code generation guidelines for planned tasks
-For planned tasks, the code snippets must have the groupId and taskId with language in the header.
-The header template should be:
-`groupId=group_id:taskId=task_id:lang=code_language`
-e.g:
-```groupId=abc123:taskId=def456:lang=typescript
-import React from 'react';
+For planned tasks, use the `codeGen` tool with the additional task information:
+- `task`: Object containing:
+  - `groupId`: The group ID of the task
+  - `taskId`: The ID of the specific task
+- Other parameters remain the same as described above (path, sourceCode, actionType)
 
-const MyComponent: React.FC = () => {
-  return (
-    <div>
-      <h1>Hello, World!</h1>
-    </div>
-  );
-};
-
-export default MyComponent;
-```
-
-Reminder: Ensure to include the complete code content after the header.
+Reminder: Always ensure to include the complete code content when using the tool.

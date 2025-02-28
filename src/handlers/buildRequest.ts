@@ -14,6 +14,8 @@ import { z } from 'zod';
 import { ToolMap } from '../Fragola/agentic/recursiveAgent.ts';
 import { createSubTaskInfo, createSubTaskSchema } from '../Fragola/agentic/tools/plan/createTask.ts';
 import { shellSchema, shellToolInfo } from '../Fragola/agentic/tools/exec/shell.ts';
+import { codeGenSchema, codeGenToolInfo } from '../Fragola/agentic/tools/code/codeSnippet.ts';
+import { join } from 'path';
 
 export function handleBuildRequest(
     fragola: FragolaVscode,
@@ -50,8 +52,8 @@ export function handleBuildRequest(
                 {
                     type: "function",
                     function: {
-                        ...shellToolInfo,
-                        parameters: zodToJsonSchema(shellSchema)
+                        ...codeGenToolInfo,
+                        parameters: zodToJsonSchema(codeGenSchema)
                     }
                 }
                 ]
@@ -63,14 +65,44 @@ export function handleBuildRequest(
     const worker = new Worker(chatWorkerPath.fsPath);
     worker.postMessage(buildSpecificPayload);
 
-    worker.on('message', (result: basePayload<"chunk" | typeof END_SENTINEL> & { data: MessageType[] }) => {
+    worker.on('message', async (result: basePayload<"chunk" | typeof END_SENTINEL | "workspace-edit"> & { data: MessageType[] | Record<string, any> }) => {
         // console.log("___RES", result);
         if (result.type === END_SENTINEL) {
             console.log("__END_SENTINEL_HERE__");
             onSuccess();
             worker.terminate();
-        } else
-            onChunk(result.data)
+        }
+        else if (result.type == "workspace-edit") {
+            console.log("Workspace edit", result);
+            const parameters = result.data as z.infer<typeof codeGenSchema>;
+            const workspaceEdit = new vscode.WorkspaceEdit();
+            if (["CREATE", "UPDATE"].includes(parameters.actionType)) {
+                if (!parameters.path) {
+                    console.error("parameters.path undefined");
+                    return;
+                }
+                let path: string | undefined = parameters.path;
+                if (parameters.actionType == "UPDATE" && !path.includes("/"))
+                    path = fragola.tree.idToPath.get(parameters.path)
+                if (!path) {
+                    // TODO: handle error
+                    console.error("Failed to retrieve path from id");
+                    return ;
+                }
+                let fsPath = join(fragola.tree.getCwd()!, path);
+                let fileUri = vscode.Uri.file(fsPath);
+                console.log("__URI", fileUri);
+                console.log("__FS_PATH", fsPath);
+                if (parameters.actionType == "CREATE") {
+                    workspaceEdit.createFile(fileUri, { overwrite: true, contents: new TextEncoder().encode(parameters.sourceCode) });
+                } else {
+                    workspaceEdit.replace(fileUri, new vscode.Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE), parameters.sourceCode);
+                }
+                await vscode.workspace.applyEdit(workspaceEdit);
+            }
+        }
+        else if (result.type == "chunk")
+            onChunk(result.data as MessageType[])
     });
 
     worker.on('error', (error) => {
