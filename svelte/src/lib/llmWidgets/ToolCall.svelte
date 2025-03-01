@@ -19,10 +19,15 @@
         index: number;
     }
     const { index } = $props();
-    const message = $derived(extensionState.value.workspace.messages[index]);
     $effect(() => {
-        console.log("Tool call: ", message);
+        console.log("test tool call: ", (extensionState.value.workspace.messages[index] as any)["tool_calls"]);
     });
+    function parseArguments<T>(schema: z.Schema<T>, json: Record<string, any>) {
+        const parsed = schema.safeParse(json);
+        if (parsed.error)
+            return undefined;
+        return parsed.data;
+    }
 </script>
 
 {#snippet fileAction(
@@ -36,11 +41,11 @@
             {:else}
                 <RiFileEditLine />
             {/if}
-            <Typography>{"src/test/path"}</Typography>
+            <Typography>{parameters.path}</Typography>
         </Flex>
         {#if loading}
             <span class="spinner">
-                <RiLoader4Fill size={"16"}/>
+                <RiLoader4Fill size={"16"} />
             </span>
         {/if}
     </Flex>
@@ -51,21 +56,25 @@
 {/snippet}
 
 {#snippet codeGenRouter(
-    parameters: z.infer<typeof codeGenSchema>,
+    parameters: z.infer<typeof codeGenSchema> | undefined,
     tool: ToolCallType,
 )}
-    {#if ["CREATE", "UPDATE"].includes(parameters.actionType)}
-        <!-- {@render fileAction(parameters, true)} -->
-        {@render fileAction(parameters, !isToolAnswered(tool, extensionState.value.workspace.messages))}
+    {#if parameters && ["CREATE", "UPDATE"].includes(parameters.actionType)}
+        {@render fileAction(
+            parameters,
+            !isToolAnswered(tool, extensionState.value.workspace.messages),
+        )}
     {/if}
 {/snippet}
 
-{#if message.role == "assistant" && message.tool_calls}
-    {#each message.tool_calls as tool}
+{#if extensionState.value.workspace.messages[index].role == "assistant"}
+    <Flex gap={"sp-2"}>
+    {#each extensionState.value.workspace.messages[index].tool_calls || [] as tool}
         {#if tool.function.name == codeGenToolInfo.name}
-            {@render codeGenRouter(JSON.parse(tool.function.arguments), tool)}
+            {@render codeGenRouter(parseArguments(codeGenSchema, JSON.parse(tool.function.arguments)), tool)}
         {/if}
     {/each}
+    </Flex>
 {/if}
 
 <style lang="scss">

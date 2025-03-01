@@ -71,7 +71,7 @@ export interface ExtensionState {
         ui: {
             conversationId: HistoryIndex["id"],
             interactionMode: InteractionMode,
-            showHistory: boolean
+            showHistory: boolean,
         },
         historyIndex: HistoryIndex[],
         messages: MessageExtendedType[],

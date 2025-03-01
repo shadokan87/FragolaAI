@@ -27,7 +27,7 @@
         {#if typeof renderer !== "string"}
             <div>
                 {@html renderer.html}
-                {#if extensionState.value.workspace.messages[i].role == "assistant" && extensionState.value.workspace.messages[i].tool_calls}
+                {#if extensionState.value.workspace.messages[i].role == "assistant"}
                     <ToolCall index={i} />
                 {/if}
             </div>
@@ -38,7 +38,7 @@
             <Divider />
         {/if}
         <!-- prettier-ignore -->
-        {#if extensionState.value.workspace.messages[i].role != "user"
+        <!-- {#if extensionState.value.workspace.messages[i].role != "user"
         && extensionState.value.workspace.streamState == "NONE"
         && (extensionState.lastMessageByRole("user", i) as MessageExtendedType | null)?.meta?.interactionMode == InteractionMode.PLAN
         && (i == renderer.length - 1 || !["tool", "assistant"].includes(extensionState.value.workspace.messages[i + 1].role))
@@ -50,7 +50,7 @@
                 icon={RiPlayCircleLine}
                 iconProps={{ size: "16" }}
             />
-        {/if}
+        {/if} -->
     {/each}
     {#if extensionState.value.workspace.streamState == "STREAMING"}
         <span class="dot-loading-wrapper">
