@@ -117,3 +117,8 @@ export function findToolCallFromResponse(response: ToolMessageType, messages: Me
     }
     return null;
 }
+
+export function isToolAnswered(tool: ToolCallType, messages: MessageType[]) {
+    const id = tool.id;
+    return messages.some(message => message.role == "tool" && message.tool_call_id == id)
+}

@@ -11,6 +11,7 @@
     import Button from "./Button.svelte";
     import { RiPlayCircleLine } from "svelte-remixicon";
     import ToolRole from "./llmWidgets/toolRole.svelte";
+    import ToolCall from "./llmWidgets/ToolCall.svelte";
 
     export interface props {
         renderer: RendererLike[] | undefined;
@@ -26,10 +27,11 @@
         {#if typeof renderer !== "string"}
             <div>
                 {@html renderer.html}
+                {#if extensionState.value.workspace.messages[i].role == "assistant" && extensionState.value.workspace.messages[i].tool_calls}
+                    <ToolCall index={i} />
+                {/if}
             </div>
-        {:else if extensionState.value.workspace.messages[i].role == "tool"}
-            <ToolRole index={i}/>
-        {:else}
+        {:else if ["assistant", "user"].includes(extensionState.value.workspace.messages[i].role)}
             <p>{extensionState.value.workspace.messages[i].content}</p>
         {/if}
         {#if i < renderer.length - 1}
