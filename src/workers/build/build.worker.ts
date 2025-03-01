@@ -7,9 +7,9 @@ import recursiveAgent, { OnStreamCallback, OnToolCallMessageCallback, ToolMap } 
 import { streamChunkToMessage } from '@utils';
 import { grepCodeBaseToolInfo, grepCodeBaseSchema, grepCodebase } from "../../Fragola/agentic/tools/navigation/grepCodebase.ts"
 import { readFileById, readFileByIdSchema, readFileByIdToolInfo } from "../../Fragola/agentic/tools/navigation/readFileById.ts";
-import {createSubTaskInfo, createSubTask, createSubTaskSchema} from "../../Fragola/agentic/tools/plan/createTask.ts";
+import { createSubTaskInfo, createSubTask, createSubTaskSchema } from "../../Fragola/agentic/tools/plan/createTask.ts";
 import { shellToolInfo, shell, shellSchema } from "../../Fragola/agentic/tools/exec/shell.ts";
-import {codeGenToolInfo, codeGenSchema, codeGen} from "../../Fragola/agentic/tools/code/codeSnippet.ts";
+import { codeGenToolInfo, codeGenSchema, codeGen } from "../../Fragola/agentic/tools/code/codeSnippet.ts";
 import { _getIdFromPath, IdToPath } from '../../Fragola/vscode/tree.ts';
 import z from 'zod';
 import { join } from 'path';
@@ -79,14 +79,16 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
             schema: codeGenSchema,
             fn: async (parameters) => {
                 const parametersInfered = parameters as z.infer<typeof codeGenSchema>;
-                if (parametersInfered.actionType == "CREATE" || parametersInfered.actionType == "UPDATE") {
-                    // const fileUri = vscode.Uri.file(join(runtimeSerialized.projectRoot, parameters));
+                if (parametersInfered.actionType == "SHELL")
                     parentPort?.postMessage({
+                        type: "shell",
+                        data: parametersInfered
+                    })
+                else {
+                     parentPort?.postMessage({
                         type: "workspace-edit",
                         data: parametersInfered
                     })
-                    // workspaceEdit.createFile(fileUri, {overwrite: true, contents: new TextEncoder().encode(parametersInfered.sourceCode)});
-                    // await vscode.workspace.applyEdit(workspaceEdit);
                 }
                 return codeGen(parameters);
             }

@@ -65,18 +65,25 @@ export function handleBuildRequest(
     const worker = new Worker(chatWorkerPath.fsPath);
     worker.postMessage(buildSpecificPayload);
 
-    worker.on('message', async (result: basePayload<"chunk" | typeof END_SENTINEL | "workspace-edit"> & { data: MessageType[] | Record<string, any> }) => {
-        // console.log("___RES", result);
+    worker.on('message', async (result: basePayload<"chunk" | typeof END_SENTINEL | "shell" | "workspace-edit"> & { data: MessageType[] | Record<string, any> }) => {
         if (result.type === END_SENTINEL) {
             console.log("__END_SENTINEL_HERE__");
             onSuccess();
             worker.terminate();
         }
-        else if (result.type == "workspace-edit") {
+        else if (result.type == "shell") {
             console.log("Workspace edit", result);
             const parameters = result.data as z.infer<typeof codeGenSchema>;
+            const command = parameters.sourceCode;
+            const terminal = vscode.window.createTerminal('Build Command');
+            terminal.sendText(command, false);
+            terminal.show();
+        } else if (result.type == "workspace-edit") {
+            // Already safe parsed in recursiveAgent, so we can use JSON.parse
+            const parameters = result.data as z.infer<typeof codeGenSchema>;
+
             const workspaceEdit = new vscode.WorkspaceEdit();
-            if (["CREATE", "UPDATE"].includes(parameters.actionType)) {
+            if (["CREATE", "UPDATE"].includes(parameters.actionType) && parameters.sourceCode) {
                 if (!parameters.path) {
                     console.error("parameters.path undefined");
                     return;
@@ -97,21 +104,11 @@ export function handleBuildRequest(
                         return fsPath;
                     }
                 })();
-                // let fsPath = join(fragola.tree.getCwd()!, path);
-                // if (parameters.actionType == "UPDATE" && !path.includes("/")) {
-                //     path = fragola.tree.idToPath.get(parameters.path);
-                //     if (!path) {
-                //         // TODO: handle error
-                //         console.error("Failed to retrieve path from id");
-                //         return;
-                //     }
-                //     fsPath = path;
-                // } else
-                //     path = join(fragola.tree.getCwd()!, path);
                 let fileUri = vscode.Uri.file(fsPath);
                 console.log("__URI", fileUri);
                 console.log("__FS_PATH", fsPath);
-                if (parameters.actionType == "CREATE") {
+                const fileExists = await vscode.workspace.fs.stat(fileUri).then(() => true, () => false);
+                if (parameters.actionType == "CREATE" && !fileExists) {
                     workspaceEdit.createFile(fileUri, { overwrite: true, contents: new TextEncoder().encode(parameters.sourceCode) });
                 } else {
                     workspaceEdit.replace(fileUri, new vscode.Range(0, 0, Number.MAX_VALUE, Number.MAX_VALUE), parameters.sourceCode);
@@ -119,8 +116,9 @@ export function handleBuildRequest(
                 await vscode.workspace.applyEdit(workspaceEdit);
             }
         }
-        else if (result.type == "chunk")
+        else if (result.type == "chunk") {
             onChunk(result.data as MessageType[])
+        }
     });
 
     worker.on('error', (error) => {
