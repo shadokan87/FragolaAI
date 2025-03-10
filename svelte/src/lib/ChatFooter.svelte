@@ -125,17 +125,17 @@
 </script>
 
 <Flex gap={"sp-1"}>
-    {#if isInMention}
+    <!-- {#if isInMention}
         <MentionsSelector />
-    {/if}
+    {/if} -->
     <ChatInput bind:prompt={input} onKeydown={handleSubmitPrompt} />
 </Flex>
 
 <style lang="scss">
-    .tag {
-        padding: 0.1rem;
-        background-color: var(--vscode-badge-background);
-        border-radius: var(--spacing-1);
-        cursor: pointer;
-    }
+    // .tag {
+    //     padding: 0.1rem;
+    //     background-color: var(--vscode-badge-background);
+    //     border-radius: var(--spacing-1);
+    //     cursor: pointer;
+    // }
 </style>
