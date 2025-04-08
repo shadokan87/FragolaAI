@@ -1,4 +1,11 @@
 @use "sass:map";
+body {
+  padding: 0 !important;
+  margin: 0 !important
+}
+// * {
+//   overflow-y: hidden !important;
+// }
 
 // Spacing utilities (similar to Tailwind's padding/margin system)
 $spacing: (
@@ -22,7 +29,7 @@ $spacing: (
 }
 
 :root {
-  --outline-size: 2px;
+  --outline-size: 1px;
 }
 
 // Padding utilities
@@ -51,10 +58,9 @@ $spacing: (
 .m-12 { margin: map.get($spacing, 12); }
 .m-16 { margin: map.get($spacing, 16); }
 
-// * {
-//   padding: 0;
-//   margin: 0;
-// }
+    .themed-svg :global(svg) {
+        fill: rgb(125, 133, 144);
+    }
 
    .keyboard-key {
         padding: 0.1rem 0.4rem;

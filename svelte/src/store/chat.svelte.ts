@@ -1,213 +1,77 @@
 import OpenAI from "openai";
 import { writableHook, type WritableHook } from "./hooks";
 import type { basePayload, inTypeUnion } from "../../../src/workers/types";
-import { type chunkType, type extensionState, receiveStreamChunk, type MessageType, streamChunkToMessage, NONE_SENTINEL } from "../../../common";
+import { type chunkType, type ExtensionState, receiveStreamChunk, type MessageType, streamChunkToMessage, NONE_SENTINEL, type ConversationId, Mutex } from "../../../common";
 import { Marked, type Token, type Tokens, type TokensList } from "marked";
 import { v4 } from "uuid";
 import { codeStore as codeApi } from "./vscode";
-import { readableStreamAsyncIterable } from "openai/streaming.mjs";
+import { render } from "svelte/server";
 
 
-type renderFunction = (message: Partial<MessageType>) => Promise<void>;
+type renderFunction = (message: Partial<MessageType>) => void;
 export type renderedByComponent = "user" | "tool";
 export type renderer = {
   render: renderFunction,
   readonly html: string,
   [key: string]: any
 };
-type createRendererFn = () => renderer;
+export type RendererLike = renderer | renderedByComponent;
+export const MessagesRolesToRenderWithMarkDown = ["assistant"];
 
-export const TMP_READER_SENTINEL = "<TMP>";
-export interface chatReader {
-  length: number,
-  loaded: Partial<MessageType>[],
-  renderer: (renderer | renderedByComponent)[]
-}
+// type createRendererFn = (message: ExtensionState["workspace"]["messages"][0]) => renderer;
 
-export const chatReaderDefault: chatReader = {
-  length: 0,
-  loaded: [],
-  renderer: []
-}
-
-export function createChatReader(values: chatReader = chatReaderDefault) {
-  let length = $state(values.length);
-  let loaded = $state.raw(values.loaded);
-  let renderer = $state(values.renderer);
-  return {
-    get length() {
-      return length;
-    },
-    set length(value: number) {
-      length = value;
-    },
-    get loaded() {
-      return loaded;
-    },
-    set loaded(value: Partial<MessageType>[]) {
-      loaded = value;
-    },
-    get renderer() {
-      return renderer;
-    },
-    set renderer(value: (renderer | renderedByComponent)[]) {
-      renderer = value;
-    }
-  }
-}
-
-/**
- * Creates a streaming manager to handle chat streaming state and readers
- * @param createRenderer - Function that creates a new renderer instance
- */
-export function createStreaming(createRenderer: createRendererFn) {
-  let streamingState = $state<string | null>(null); // null when not streaming, chat ID when streaming
-  const readers: Map<string, chatReader> = $state(new Map());
-  let update = $state(false);
+// Simple runtime cache for markdown rendering
+export function createMessagesCache() {
+  let readers = $state<Map<ConversationId, RendererLike[]>>(new Map());
 
   return {
-    getCreateRenderer() {
-      return createRenderer;
+    create(conversationId: ConversationId) {
+      readers.set(conversationId, [])
     },
-    get update() {
-      return update;
-    },
-    /**
-     * Gets the map of chat readers
-     * @returns Map of chat readers indexed by ID
-     */
-    get readers() {
+    get value() {
       return readers;
     },
-    /**
-     * Gets the current streaming state
-     * @returns Chat ID if streaming, null if not streaming
-     */
-    get streamingState() {
-      return streamingState
-    },
-    /**
-     * Checks if streaming is currently active
-     * @returns Boolean indicating streaming status
-     */
-    isStreaming() {
-      return streamingState !== null
-    },
-    /**
-     * Starts the streaming state for a specific chat
-     * @param id - The ID of the chat that is streaming
-     */
-    stream(id: string) {
-      const reader = readers.get(id)
-      if (!reader)
-        throw new Error("Reader undefined");
-      reader.loaded = [...reader.loaded, {}];
-      reader.length = reader.length + 1;
-      streamingState = id
-    },
-    /**
-     * Stops the streaming state
-     */
-    stopStream() {
-      streamingState = null
-    },
-    /**
-     * Receives and processes a new chunk for a specific chat
-     * @param id - The ID of the chat to receive the chunk
-     * @param chunk - The chunk data to process
-     */
-    receiveChunk(id: string, chunk: chunkType) {
-      const reader = readers.get(id)
-      if (!reader)
-        throw new Error("Reader undefined");
-      console.log("__READER__", reader);
-      const asMessage = streamChunkToMessage(chunk, reader.loaded.at(-1));
-      const newLoaded = [...reader.loaded];
-      newLoaded[newLoaded.length - 1] = asMessage;
-      reader.loaded = newLoaded;
-
-      if (["tool"].includes(chunk.choices[0].delta.role || "")) {
-        reader.renderer = [...reader.renderer, chunk.choices[0].delta.role as renderedByComponent];
-      } else {
-        if (!reader.renderer[reader.loaded.length - 1]) {
-          reader.renderer = [...reader.renderer, createRenderer()];
-        }
-        (async () => {
-          await (reader.renderer.at(-1) as renderer)?.render(asMessage)
-        })();
-      }
-      update = !update;
+    update(conversationId: ConversationId, newValue: RendererLike[]) {
+      readers.set(conversationId, newValue);
+      console.log("__READERS__", readers);
     }
   }
 }
-//TODO: potential useless '?' keyword
-export const extensionStateStore = writableHook<extensionState | undefined>({
-  initialValue: undefined,
-  copyMethod: (value) => structuredClone(value),
-  onUpdate(previousValue, newValue) {
-    if (!previousValue || !newValue)
-      return newValue;
-    if (newValue?.workspace.ui.conversationId == NONE_SENTINEL) {
-      console.log("No chat id");
-      return newValue;
-    }
-    let defaultReaderValue: chatReader = chatReaderDefault;
-    // const isFirstChatResponse = previousValue?.workspace.ui.conversationId == NONE_SENTINEL && newValue?.workspace.ui.conversationId != NONE_SENTINEL;
-    // if (isFirstChatResponse) {
-    //   const tmpReader = chatStreaming.readers.get(TMP_READER_SENTINEL);
-    //   if (tmpReader) {
-    //     defaultReaderValue = { ...tmpReader };
-    //     chatStreaming.readers.delete(TMP_READER_SENTINEL);
-    //   }
-    // }
-    if (!chatStreaming.readers.has(newValue?.workspace.ui.conversationId)) { // Prepare reader to receive data
-      if (newValue.workspace.messages.length != 0) {
-        defaultReaderValue.length = newValue.workspace.messages.length;
-        defaultReaderValue.loaded = newValue.workspace.messages;
-      }
-      chatStreaming.readers.set(newValue.workspace.ui.conversationId, createChatReader(defaultReaderValue));
-    } else {
-      const newReader = chatStreaming.readers.get(newValue.workspace.ui.conversationId);
-      if (!newReader) {
-        //TODO: handle error
-        console.error("Unexpected undefinde reader");
-        return newValue;
-      }
-      newReader.length = newValue.workspace.messages.length;
-      newReader.loaded = newValue.workspace.messages;
-      chatStreaming.readers.set(newValue.workspace.ui.conversationId, newReader);
-    }
-    return newValue;
-  },
-})
-// Creating a reference without the store value undefined to avoid '?', this reference should only be used in pages that guarantee the state is not undefined
-export const extensionStateStoreInitialized = extensionStateStore as WritableHook<extensionState>;
 
-export function staticMessageHandler(streaming: ReturnType<typeof createStreaming>, createRenderer?: createRendererFn) {
-  const _createRenderer: createRendererFn = createRenderer || streaming.getCreateRenderer();
+export const LLMMessagesRendererCache = createMessagesCache();
 
+export function createExtensionState() {
+  let extensionState = $state<ExtensionState | undefined>(undefined);
   return {
-    append(message: MessageType, id: string) {
-      let reader = streaming.readers.get(id);
-      if (!reader) {
-        streaming.readers.set(id, createChatReader());
-        reader = streaming.readers.get(id);
+    get isDefined() {
+      return extensionState != undefined
+    },
+    get value() {
+      return extensionState as ExtensionState
+    },
+    lastMessageByRole(role: MessageType["role"], index?: number): MessageType | null {
+      const messages = extensionState?.workspace.messages;
+      if (!messages || !messages.length)
+        return null;
+      let i = index ? index : messages.length - 1;
+      for (; i >= 0; i--) {
+        if (messages[i].role == role)
+          return messages[i];
       }
-      if (!reader) {
-        throw new Error("Failed to create reader");
-      }
-      const newRenderer = _createRenderer();
-      reader.loaded = [...reader.loaded, message];
-      reader.renderer = [...reader.renderer, newRenderer];
-
-      (async () => {
-        await newRenderer.render(message);
-      })();
+      return null;
+    },
+    set(newState: ExtensionState) {
+      // Prepare empty cache for new conversation
+      if (newState.workspace.ui.conversationId != NONE_SENTINEL && !LLMMessagesRendererCache.value.has(newState.workspace.ui.conversationId))
+        LLMMessagesRendererCache.update(newState.workspace.ui.conversationId, []);
+      extensionState = newState
     }
   }
 }
 
-const chatMarkedInstance = new Marked().use({
+export const extensionState = createExtensionState();
+
+export const chatMarkedInstance = new Marked().use({
   renderer: {
     code(token: Tokens.Code) {
       const el = document.createElement("code-block");
@@ -224,10 +88,11 @@ const chatMarkedInstance = new Marked().use({
   },
 });
 
-const createChatMarkedRender = (markedInstance: Marked): renderer => {
+export const createChatMarkedRender = (markedInstance: Marked): renderer => {
   let markdown: string = $state("");
   let tokens: TokensList | [] = $state.raw([]);
   let html: string = $derived(markedInstance.parser(tokens));
+  const mutex = new Mutex();
 
   const walkTokens = async (
     token: Token,
@@ -254,31 +119,34 @@ const createChatMarkedRender = (markedInstance: Marked): renderer => {
     get html() {
       return html;
     },
-    async render(message: Partial<MessageType>) {
+    render(message: Partial<MessageType>) {
       let newTokens: TokensList | undefined = undefined;
-      switch (message.role) {
-        case "user": // Intentional no-break
-        case "assistant": {
-          if (!message.content)
-            return;
-          markdown = Array.isArray(message.content) ? message.content.join(' ') : message.content;
-          newTokens = markedInstance.Lexer.lex(markdown);
-          break;
+      (async () => {
+        await mutex.acquire();
+        try {
+          switch (message.role) {
+            case "assistant": {
+              if (!message.content)
+                return;
+              markdown = Array.isArray(message.content) ? message.content.join(' ') : message.content;
+              newTokens = markedInstance.Lexer.lex(markdown);
+              break;
+            }
+          }
+          if (newTokens) {
+            (async () => {
+              await Promise.all(
+                newTokens.map((token, index) =>
+                  walkTokens(token, index),
+                ),
+              );
+              tokens = newTokens;
+            })();
+          }
+        } finally {
+          mutex.release();
         }
-      }
-      if (newTokens) {
-        await Promise.all(
-          newTokens.map((token, index) =>
-            walkTokens(token, index),
-          ),
-        );
-        tokens = newTokens;
-      }
+      })();
     }
   };
 };
-
-export const chatStreaming = createStreaming(() => createChatMarkedRender(chatMarkedInstance));
-
-const codeBlockHighlightState: Map<string, string> = $state(new Map<string, string>());
-export const codeBlockHighlight = () => codeBlockHighlightState;

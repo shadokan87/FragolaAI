@@ -5,9 +5,8 @@
   import { navigate } from "svelte-routing";
   import EventListener from "./lib/EventListener.svelte";
   import CodeBlock from "./lib/CodeBlock.svelte";
-  import { type extensionState as extensionStateType } from "../../common";
-  import { extensionStateStore as extensionState} from "./store/chat.svelte";
-  import Nav from "./Nav.svelte";
+  import { extensionState } from "./store/chat.svelte";
+  import History from "./routes/History.svelte";
 
   function registerCustomElements() {
     if (!customElements.get("code-block")) {
@@ -24,24 +23,26 @@
     registerCustomElements();
   }
 
-  onMount(async () => {
-    await main();
+  $effect(() => {
+    main();
     navigate("/chat", { replace: true });
+    if (extensionState.isDefined && extensionState.value.workspace.ui.showHistory)
+    navigate("/history", {replace: true});
   });
 </script>
 
-<div class="app-grid">
+<div id="fragolaai-app">
   <EventListener />
-  <div class="nav">
-    <Nav />
-  </div>
-  <div class="content">
-    {#if $extensionState == undefined}
+  <div id="content">
+    {#if !extensionState.isDefined}
       <h1>{"Loading ..."}</h1>
     {:else}
       <Router>
         <Route path="/chat">
           <Chat />
+        </Route>
+        <Route path="/history">
+          <History />
         </Route>
       </Router>
     {/if}
@@ -49,20 +50,5 @@
 </div>
 
 <style lang="scss">
-  .app-grid {
-    display: grid;
-    grid-template-rows: auto 2fr;
-    height: 100vh;
-    width: 100%;
-  }
 
-  .nav {
-    grid-row: 1;
-  }
-
-  .content {
-    grid-row: 2;
-    overflow-y: none;
-    height: 100%;
-  }
 </style>

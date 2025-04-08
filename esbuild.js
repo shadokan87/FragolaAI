@@ -30,6 +30,7 @@ async function main() {
 			'src/extension.ts',
 			'src/workers/chat/chat.worker.ts',
 			'src/workers/build/build.worker.ts',
+			'src/workers/plan/plan.worker.ts',
 			'src/workers/history/history.worker.mts'
 		],
 		bundle: true,

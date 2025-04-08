@@ -2,43 +2,73 @@
     import "../app.scss";
     import ChatFooter from "../lib/ChatFooter.svelte";
     import {
-        chatStreaming,
-        codeBlockHighlight,
-        extensionStateStoreInitialized as extensionState,
-        TMP_READER_SENTINEL,
-        type chatReader,
+        extensionState,
+        LLMMessagesRendererCache,
+        type renderer,
+        type RendererLike,
     } from "../store/chat.svelte";
+    import Flex from "../lib/Flex.svelte";
     import RenderChatReader from "../lib/RenderChatReader.svelte";
     import { NONE_SENTINEL } from "../../../common";
+    import Dotloading from "../lib/Dotloading.svelte";
 
-    let reader: chatReader | undefined = $state(undefined);
+    let rendererValue = $state<RendererLike[] | undefined>(undefined);
+    let autoScrollIntervalId = $state(-1);
+    let chatContainer: HTMLDivElement;
+    const scrollToBottom = () => {
+        if (chatContainer) {
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: "smooth",
+            });
+        }
+    };
+
     $effect(() => {
-        reader =
-            ($extensionState.workspace.ui.conversationId != NONE_SENTINEL &&
-                chatStreaming.readers.get(
-                    $extensionState.workspace.ui.conversationId,
-                )) ||
-            undefined;
+        rendererValue = LLMMessagesRendererCache.value.get(
+            extensionState.value.workspace.ui.conversationId,
+        );
+        if (
+            extensionState.value.workspace.streamState == "STREAMING" &&
+            autoScrollIntervalId == -1
+        ) {
+            autoScrollIntervalId = Number(
+                setInterval(() => scrollToBottom(), 10),
+            );
+        }
+        if (
+            extensionState.value.workspace.streamState != "STREAMING" &&
+            autoScrollIntervalId != -1
+        ) {
+            clearInterval(autoScrollIntervalId);
+            autoScrollIntervalId = -1;
+        }
     });
 </script>
 
-<main class="chat-grid">
-    <div class="chat-messages">
-        {#if $extensionState.workspace.ui.conversationId != NONE_SENTINEL}
-            <RenderChatReader bind:reader />
+<Flex _class="chat-grid">
+    <div bind:this={chatContainer} class="chat-messages">
+        {#if extensionState.value.workspace.ui.conversationId != NONE_SENTINEL}
+            <RenderChatReader renderer={rendererValue} />
         {/if}
     </div>
-    <ChatFooter />
-</main>
+    <div class="chat-footer">
+        <ChatFooter />
+    </div>
+</Flex>
 
 <style lang="scss">
-    .chat-grid {
-        display: grid;
-        grid-template-rows: 1fr auto;
-        height: inherit;
+    :global(.chat-grid) {
+        max-height: 100vh;
+        overflow-y: hidden;
     }
+    .chat-footer {
+        padding: var(--spacing-2);
+    }
+
     .chat-messages {
-        overflow-y: auto;
-        background-color: --vscode-editor-background;
+        overflow-y: scroll;
+        padding: var(--spacing-4);
+        height: 100vh;
     }
 </style>
