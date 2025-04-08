@@ -77,7 +77,8 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
             schema: createSubTaskSchema,
             fn: async (parameters) => {
                 const parametersInfered = parameters as z.infer<typeof createSubTaskSchema>;
-                return `groupId=${groupId}:taskId=${nanoid()}`
+                return "SUCCESS";
+                // return `groupId=${groupId}:taskId=${nanoid()}`
             }
         }]
     ])
@@ -106,6 +107,17 @@ parentPort.on('message', async (message: BuildWorkerPayload) => {
                         type: "chunk", data: newMessages, id
                     });
                     console.log(newMessages);
+                }
+                let completedMessage = newMessages.at(-1) as MessageType;
+                if (completedMessage.role == "assistant" && "tool_calls" in completedMessage && completedMessage.tool_calls?.length) {
+                    for (let i = 0; i < completedMessage.tool_calls?.length; i++) {
+                        if (completedMessage.tool_calls[i].function.name == createSubTaskInfo.name) {
+                            let args: z.infer<typeof createSubTaskSchema> = JSON.parse(completedMessage.tool_calls[i].function.arguments);
+                            args.groupId = groupId;
+                            args.taskId = nanoid();
+                            completedMessage.tool_calls[i].function.arguments = JSON.stringify(args);
+                        }
+                    }
                 }
                 return newMessages.at(-1) as MessageType;
             });

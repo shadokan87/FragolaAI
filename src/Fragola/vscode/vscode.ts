@@ -22,6 +22,10 @@ import { readFileById } from "../agentic/tools/navigation/readFileById";
 import { ChatCompletionSystemMessageParam } from "openai/resources";
 import { BuildWorkerPayload } from "../../workers/build/build.worker";
 import { handlePlanRequest } from "../../handlers/planRequest";
+import { getEditorForFile } from "../../vscodeIntegration/integrationUtils";
+import { createDecoration } from "../../vscodeIntegration/decoration";
+import { createDiffForFile } from "../../vscodeIntegration/diff";
+import { DIFF_VIEW_URI_SCHEME } from "../../vscodeIntegration/common";
 
 type StateScope = "global" | "workspace";
 
@@ -36,6 +40,7 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
         super();
         this.extensionContext = extensionContext;
         this.registerCommands();
+        this.registerOtherContext();
         this.state$ = new BehaviorSubject({ ...defaultExtensionState });
         this.tree = new Tree(vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0));
         this.initializeState();
@@ -44,26 +49,6 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
             console.error("Workspace init error");
             return;
         }
-
-
-        // try {
-        //     const result = grepCodebase(this.tree.getCwd()!, { content: "InteractionMode" }, (stdout) => {
-        //         const matchSplit = stdout.split("\n");
-        //         let processedResult: string[] = [];
-        //         matchSplit.forEach((match) => {
-        //             const split = match.split(":").filter(chunk => chunk.trim() != "");
-        //             if (split.length == 2) {
-        //                 const id = this.tree.getIdFromPath(split[0]) || split[0];
-        //                 console.log("content test", readFileById({ id }, this.tree.idToPath));
-        //                 processedResult.push(`${id}:${split[1]}`);
-        //             }
-        //         });
-        //         return processedResult.join("\n");
-        //     });
-        //     console.log("Grep result: ", result);
-        // } catch (e) {
-        //     console.error("__TOOL_ERROR__", e);
-        // }
     }
 
     private loadPrompt(key: string, path: string) {
@@ -208,6 +193,17 @@ export class FragolaVscode extends FragolaVscodeBase implements vscode.WebviewVi
                 }
             }
         })
+    }
+
+    private registerOtherContext() {
+        const diffTextDocumentContentProvider = (() => new class implements vscode.TextDocumentContentProvider {
+            provideTextDocumentContent(uri: vscode.Uri): string {
+                return Buffer.from(uri.query, "base64").toString("utf-8")
+            }
+        })();
+        this.extensionContext.subscriptions.push(
+            vscode.workspace.registerTextDocumentContentProvider(DIFF_VIEW_URI_SCHEME, diffTextDocumentContentProvider),
+        )
     }
 
     private registerCommands() {

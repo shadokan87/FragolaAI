@@ -160,7 +160,7 @@
                     ),
                     tool,
                 )}
-            <!-- {:else if tool.function.name == readFileByIdToolInfo.name}
+            {:else if tool.function.name == readFileByIdToolInfo.name}
                 <Flex row justifyBetween _class="widget-base">
                     <Flex row gap={"sp-2"}>
                         <RiSearchLine />
@@ -175,7 +175,7 @@
                             })()}</Typography
                         >
                     </Flex>
-                </Flex> -->
+                </Flex>
             {/if}
         {/each}
     </Flex>
@@ -183,7 +183,7 @@
 
 <style lang="scss">
     :global(.widget-base) {
-        border: var(--outline-size) solid var(--vscode-widget-border);
+        border: var(--outline-size) solid var(--vscode-input-border);
         padding: var(--spacing-1);
         cursor: pointer;
         border-radius: var(--spacing-1);

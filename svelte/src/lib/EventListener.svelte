@@ -75,8 +75,7 @@
                 const message = extensionState.value.workspace.messages[i];
                 if (MessagesRolesToRenderWithMarkDown.includes(message.role)) {
                     renderer[i] = createChatMarkedRender(chatMarkedInstance);
-                    if (message.meta?.llm?.noRender == undefined)
-                        (renderer[i] as renderer).render(message);
+                    (renderer[i] as renderer).render(message);
                 } else {
                     renderer[i] = message.role as renderedByComponent;
                 }

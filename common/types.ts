@@ -20,15 +20,10 @@ export enum MentionKind {
     FOLDER = "FOLDER"
 }
 
-export interface llmMessageMetaData {
-    noRender: true, // front should not render this message
-}
-
 export interface userMessageMetaData {
     prompt: Prompt,
     interactionMode: InteractionMode,
-    taskGroupIdValidation?: string,
-    llm?: llmMessageMetaData
+    planGroupId?: string
 }
 
 export interface conversationMetaData {

@@ -23,7 +23,7 @@ export class TreeService {
   }
 
   async list(): Promise<TreeResult> {
-    const filteredTree = dirTree(this.cwd, { exclude: [/node_modules/], attributes: ['type'] }, (item) => {
+    const filteredTree = dirTree(this.cwd, { exclude: [/node_modules/, /\.git/], attributes: ['type'] }, (item) => {
       const id = MD5(item.path).toString();
       item.custom = { id, fullPath: item.path };
       this.onCustomIdAssignation && this.onCustomIdAssignation(id, item.path);

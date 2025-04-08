@@ -90,7 +90,7 @@
   "devDependencies": {
     "@types/knex": "^0.16.1",
     "@types/mocha": "^10.0.9",
-    "@types/node": "20.x",
+    "@types/node": "^22.14.0",
     "@types/vscode": "^1.94.0",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
     "@typescript-eslint/parser": "^8.7.0",
