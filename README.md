@@ -1,54 +1,34 @@
-# 🍓 Fragola AI
+# FragolaAI (Discontinued)
 
-FragolaAI is a work in progress coding assistant designed to enhance the development process. Once completed, users will be able to alternate between chat and build modes. In chat mode, developers can ask general coding questions or questions about the codebase, while build mode focuses on making medium to large-scale changes in the codebase while maintaining context. FragolaAI leverages static code analysis and agentic AI features to provide fast, context-aware assistance.
+FragolaAI was an open-source coding assistant designed to help developers with code generation, refactoring, and project planning. It leveraged AI capabilities to provide intelligent coding assistance directly within Visual Studio Code.
 
-## 🌟 V1 Features
+## Demo: build feature
 
-### 💬 Chat Mode
-- 🤔 Ask general coding questions
-- 🔍 Inquire about specific codebases
-- ⚡ Get instant, context-aware responses
+Here's a demonstration of the build feature, where FragolaAI generates a complete Pong game implementation:
 
-### 🛠️ Build Mode
-- 🖋️ Instruct the assistant to make codebase changes
-- 🤝 Interactive process: accept/deny changes or command execution
-- 🔄 Real-time code modifications with safety checks
+![Pong Game Generation Demo](resources/pong_demo.gif)
 
-### 🧠 LLM Support
-- 🌐 Wide range of Language Model support:
-  - 💎 Premium models: OpenAI, Claude
-  - 🌈 Open-source models via OpenRouter
-  - 💻 Local models support through Ollama
+## ⚠️ Project Status: Discontinued
 
-### 📊 Static Code Analysis
-- 🧩 Understand codebase structures
-- 🎯 Provide accurate and context-relevant completions
+This project is no longer actively maintained. Feel free to fork and modify according to your needs.
 
-### 🔗 Codebase Embedding
-- 🧬 Embedding of your codebase for complex codebase-wide queries
+## Features
 
-## 📈 Project Status
+- **AI-Powered Code Generation**: Generate code based on natural language descriptions
+- **Project Planning**: Break down complex tasks into manageable subtasks. Then generate the required code with 1 click
 
-FragolaAI is currently under active development. 🔨 Key components and features are being implemented and tested. The project is not yet available for public use or contribution.
+## Technical Stack
 
-## ✅ TODO
+### Backend
+- Node.js
+- TypeScript
+- OpenAI SDK
+- VSCode Extension API
+### Frontend
+- Svelte 5
+- Melt UI
+- SCSS
 
-- [ ] ( 🚧 In progress )Core VSCode extension
-- [ ] Static code analysis
-- [ ] Codebase embedding
-- [ ] Support for OpenAI & Anthropic premium models
-- [ ] Chat mode
-- [ ] Build mode
-- [ ] Support for OpenRouter provider
-- [ ] User authentication and API key management
+## License
 
-## 📢 Stay Updated
-
-While FragolaAI is not yet available, you can stay informed about its progress:
-
-- 🌟 Follow our [GitHub repository](https://github.com/shadokan87/FragolaAI)
-- 🔔 Check back here for updates on the project's status
-
-We're excited about the potential of FragolaAI and look forward to sharing it with the developer community in the future!
-
-📝 Note: Users will need to provide their own API keys. Most popular providers will be supported.
+MIT License - Feel free to use the code as reference for your own projects.
